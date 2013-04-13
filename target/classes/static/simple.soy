@@ -1,0 +1,28 @@
+{namespace stash.config.example.hook.simple}
+
+/**
+ * @param config
+ * @param? errors
+ */
+{template .formContents}
+    {call aui.form.textField}
+        {param id: 'jenkinsBase' /}
+        {param value: $config['jenkinsBase'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.jenkins.url.label', 'Jenkins URL')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.jenkins.url.description', 'URL to the Jenkins instance') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['jenkinsBase'] : null /}
+    {/call}
+    {call aui.form.textField}
+        {param id: 'gitRepoUrl' /}
+        {param value: $config['gitRepoUrl'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.git.url.label', 'Git Repo URL')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.git.url.description', 'URL of the Git Repo that Jenkins is configured to use (SSH or HTTPS)') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['gitRepoUrl'] : null /}
+    {/call}
+{/template}

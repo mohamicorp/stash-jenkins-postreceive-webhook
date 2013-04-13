@@ -1,0 +1,17 @@
+<atlassian-plugin name="Stash Post-Receive Webhook to Jenkins" key="com.nerdwin15.stash-stash-webhook-jenkins" plugins-version="2">
+    <plugin-info>
+        <description>A post-receive webhook that fires a GET on a remote Jenkins URL.</description>
+        <vendor name="Nerdwin15" url="http://www.nerdwin15.com/"/>
+        <version>1.0</version>
+    </plugin-info>
+    
+    <repository-hook key="webhook" name="Stash Post-Receive Webhook to Jenkins" class="com.nerdwin15.stash.webhook.JenkinsWebhook">
+        <description>Webhook for notifying a configured endpoint of changes to this repository.</description>
+        <icon>icons/icon.png</icon>
+        <config-form name="Simple Hook Config" key="simpleHook-config">
+            <view>stash.config.example.hook.simple.formContents</view>
+            <directory location="/static/"/>
+        </config-form>
+    </repository-hook>
+
+</atlassian-plugin>

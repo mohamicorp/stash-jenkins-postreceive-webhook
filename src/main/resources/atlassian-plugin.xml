@@ -1,0 +1,17 @@
+<atlassian-plugin name="${project.name}" key="${project.groupId}-${project.artifactId}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <version>1.0</version>
+    </plugin-info>
+    
+    <repository-hook key="webhook" name="${project.name}" class="com.nerdwin15.stash.webhook.JenkinsWebhook">
+        <description>Webhook for notifying a configured endpoint of changes to this repository.</description>
+        <icon>icons/icon.png</icon>
+        <config-form name="Simple Hook Config" key="simpleHook-config">
+            <view>stash.config.example.hook.simple.formContents</view>
+            <directory location="/static/"/>
+        </config-form>
+    </repository-hook>
+
+</atlassian-plugin>
