@@ -25,4 +25,12 @@
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['gitRepoUrl'] : null /}
     {/call}
+    {call widget.aui.form.checkbox}
+        {param id: 'ignoreCerts' /}
+        {param checked: $config['ignoreCerts'] /}
+        {param labelHtml}
+            {stash_i18n('stash.webhook.ignoreCerts.label', 'Skip SSL Certificate Validation')}
+        {/param}
+        {param description: stash_i18n('stash.webhook.ignoreCerts.description', 'Allow all certificates to be accepted, including self-signed certs') /}
+    {/call}
 {/template}
