@@ -1,7 +1,5 @@
 package com.nerdwin15.stash.webhook;
 
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Collection;
 
