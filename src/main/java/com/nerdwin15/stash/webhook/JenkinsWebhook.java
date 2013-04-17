@@ -31,7 +31,7 @@ public class JenkinsWebhook implements AsyncPostReceiveRepositoryHook, Repositor
 	        try {
 	        	String query = String.format("url=%s", 
 	        		     URLEncoder.encode(gitRepoUrl, "UTF-8"));
-		        String url = jenkinsBase + "/git/notifyCommit?" + query;
+		        String url = jenkinsBase.replaceFirst("/$", "") + "/git/notifyCommit?" + query;
 	            URLConnection connection = new URL(url).openConnection();
 	            connection.getInputStream();
 	        } catch (Exception e) {
