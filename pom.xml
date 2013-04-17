@@ -135,8 +135,8 @@
 	</properties>
 
 	<scm>
-		<connection>scm:git:ssh://github.com/Nerdwin15/stash-jenkins-postreceive-webhook.git</connection>
-		<developerConnection>scm:git:ssh://github.com/Nerdwin15/stash-jenkins-postreceive-webhook.git</developerConnection>
+		<connection>scm:git:ssh://git@github.com/Nerdwin15/stash-jenkins-postreceive-webhook.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/Nerdwin15/stash-jenkins-postreceive-webhook.git</developerConnection>
 		<url>https://github.com/Nerdwin15/stash-jenkins-postreceive-webhook</url>
 	</scm>
 
