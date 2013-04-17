@@ -2,7 +2,7 @@
     <plugin-info>
         <description>${project.description}</description>
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
-        <version>1.0</version>
+        <version>${project.version}</version>
     </plugin-info>
     
     <repository-hook key="webhook" name="${project.name}" class="com.nerdwin15.stash.webhook.JenkinsWebhook">
