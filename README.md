@@ -17,3 +17,11 @@ Once installed, follow these steps:
 -  Enter the URL to the Git repository, as it is configured in Jenkins for your project.  If you're using ssh in Jenkins, use the SSH clone URL here.  Otherwise, use the HTTP URL.
 -  Submit the form.
 -  Commit some code and watch it trigger a build!
+
+## Release Notes
+### Version 1.1
+-  Added an option to "Skip SSL Certificate Validation", allowing for plugin to communicate with Jenkins instance using a self-signed cert (setting is on Hooks settings for each project)
+-  Handle Jenkins urls with trailing slashes more gracefully (thanks [ellingbo](https://github.com/ellingbo))
+
+### Version 1
+-  Initial release
