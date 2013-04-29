@@ -6,7 +6,7 @@ import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.util.PageRequestImpl;
+import com.google.common.base.Strings;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -22,7 +22,7 @@ public class Notifier {
     public static final String KEY = "com.nerdwin15.stash-stash-webhook-jenkins:jenkinsPostReceiveHook";
     public static final String JENKINS_BASE = "jenkinsBase";
     public static final String STASH_BASE = "stashBase";
-    public static final String IGNOORE_CERTS = "ignoreCerts";
+    public static final String IGNORE_CERTS = "ignoreCerts";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Notifier.class);
     private static final String URL = "%s/git/notifyCommit?url=%s";
@@ -54,7 +54,7 @@ public class Notifier {
         HttpClient client = null;
         final String url = getUrl(repository, settings);
         try {
-            client = httpClientFactory.getHttpClient(url.startsWith("https"), settings.getBoolean(IGNOORE_CERTS, false));
+            client = httpClientFactory.getHttpClient(url.startsWith("https"), settings.getBoolean(IGNORE_CERTS, false));
             client.execute(new HttpGet(url));
             LOGGER.debug("Successfully triggered jenkins with url '{}': ", url);
         } catch (Exception e) {
@@ -71,7 +71,7 @@ public class Notifier {
         final String jenkinsUrl = settings.getString(JENKINS_BASE).replaceFirst("/$", "");
         final String stashBaseUrl = settings.getString(STASH_BASE);
         String repoUrl = navBuilder.repo(repository).clone("git").buildAbsoluteWithoutUsername();
-        if (stashBaseUrl != null && !stashBaseUrl.isEmpty()) {
+        if (!Strings.isNullOrEmpty(stashBaseUrl)) {
             repoUrl = repoUrl.replace(applicationProperties.getBaseUrl(), stashBaseUrl.replaceFirst("/$", ""));
         }
         return String.format(URL, jenkinsUrl, urlEncode(repoUrl));

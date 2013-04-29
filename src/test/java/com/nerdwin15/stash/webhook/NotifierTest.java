@@ -10,7 +10,6 @@ import com.nerdwin15.stash.webhook.service.HttpClientFactory;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ClientConnectionManager;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -82,7 +81,7 @@ public class NotifierTest {
 
         when(settings.getString(Notifier.JENKINS_BASE)).thenReturn(JENKINS_BASE_URL);
         when(settings.getString(Notifier.STASH_BASE)).thenReturn(null);
-        when(settings.getBoolean(Notifier.IGNOORE_CERTS, false)).thenReturn(false);
+        when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(false);
     }
 
     @Test
@@ -139,7 +138,7 @@ public class NotifierTest {
     @Test
     public void shouldCallTheCorrectUrlWithSslAndIgnoreCerts() throws Exception {
         when(settings.getString(Notifier.JENKINS_BASE)).thenReturn(JENKINS_BASE_URL.replace("http", "https"));
-        when(settings.getBoolean(Notifier.IGNOORE_CERTS, false)).thenReturn(true);
+        when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(true);
 
         notifier.notify(repo);
 

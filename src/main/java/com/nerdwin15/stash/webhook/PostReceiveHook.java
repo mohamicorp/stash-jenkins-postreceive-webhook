@@ -7,6 +7,7 @@ import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.RepositorySettingsValidator;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.setting.SettingsValidationErrors;
+import com.google.common.base.Strings;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -30,7 +31,7 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook, Reposito
     @Override
     public void validate(@Nonnull Settings settings, @Nonnull SettingsValidationErrors errors, @Nonnull Repository repository) {
         final String jenkinsUrl = settings.getString(Notifier.JENKINS_BASE);
-        if (jenkinsUrl == null) {
+        if (Strings.isNullOrEmpty(jenkinsUrl)) {
             errors.addFieldError(Notifier.JENKINS_BASE, "The url for your Jenkins instance is required.");
         }
     }
