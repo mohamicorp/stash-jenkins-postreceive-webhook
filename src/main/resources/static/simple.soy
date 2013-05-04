@@ -11,7 +11,7 @@
         {param labelContent}
             {stash_i18n('stash.webhook.jenkins.url.label', 'Jenkins URL')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.jenkins.url.description', 'URL to the Jenkins instance') /}
+        {param descriptionText: stash_i18n('stash.webhook.jenkins.url.description', 'URL to the Jenkins instance. Example: https://jenkins.example.com') /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['jenkinsBase'] : null /}
     {/call}
@@ -21,7 +21,7 @@
         {param labelContent}
             {stash_i18n('stash.webhook.git.url.label', 'Git Repo URL')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.git.url.description', 'URL of the Git Repo that Jenkins is configured to use (SSH or HTTPS)') /}
+        {param descriptionText: stash_i18n('stash.webhook.git.url.description', 'URL of the Git Repo that Jenkins is configured to use (SSH or HTTPS). Example: ssh://git@stash.example.com:7999/PROJECT_NAME/REPO.git') /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['gitRepoUrl'] : null /}
     {/call}
