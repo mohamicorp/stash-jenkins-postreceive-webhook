@@ -19,6 +19,12 @@ Once installed, follow these steps:
 -  Commit some code and watch it trigger a build!
 
 ## Release Notes
+### Version 1.2-SNAPSHOT
+-  Use Stash base url by default and allow override for SSH/HTTPS or custom ports etc.
+-  Fire notification after pull-request have been merged
+-  Added a plugin logo
+-  Requires Stash 2.3.0
+
 ### Version 1.1
 -  Added an option to "Skip SSL Certificate Validation", allowing for plugin to communicate with Jenkins instance using a self-signed cert (setting is on Hooks settings for each project)
 -  Handle Jenkins urls with trailing slashes more gracefully (thanks [ellingbo](https://github.com/ellingbo))
