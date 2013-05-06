@@ -11,8 +11,8 @@
 		<url>http://www.nerdwin15.com/</url>
 	</organization>
 
-	<name>Stash Post-Receive Webhook to Jenkins</name>
-	<description>A post-receive webhook that fires a GET on a remote Jenkins URL.</description>
+	<name>Stash Post-Receive/Merge Webhook to Jenkins</name>
+	<description>A post-receive/merge webhook that fires a GET on a remote Jenkins URL.</description>
 	<packaging>atlassian-plugin</packaging>
 
 	<dependencyManagement>
@@ -118,6 +118,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
@@ -127,11 +128,11 @@
 	</build>
 
 	<properties>
-		<stash.version>2.2.0</stash.version>
-		<stash.data.version>2.2.0</stash.data.version>
+		<stash.version>2.3.0</stash.version>
+		<stash.data.version>2.3.0</stash.data.version>
 		<stash.containerId>tomcat7x</stash.containerId>
-		<amps.version>4.1.4</amps.version>
-		<plugin.testrunner.version>1.1</plugin.testrunner.version>
+		<amps.version>4.1.7</amps.version>
+		<plugin.testrunner.version>1.1.1</plugin.testrunner.version>
 	</properties>
 
 	<scm>
