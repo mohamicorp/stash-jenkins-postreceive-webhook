@@ -6,14 +6,19 @@ import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+import com.google.common.io.CharStreams;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -43,20 +48,27 @@ public class Notifier {
         this.httpClientFactory = httpClientFactory;
     }
 
-    public void notify(@Nonnull Repository repository) {
+    public @Nullable String notify(@Nonnull Repository repository) {
         final RepositoryHook hook = hookService.getByKey(repository, KEY);
         final Settings settings = hookService.getSettings(repository, KEY);
         if (hook == null || !hook.isEnabled() || settings == null) {
             LOGGER.debug("Hook not configured correctly or not enabled, returning.");
-            return;
+            return null;
         }
 
+        return notify(repository, settings.getString(JENKINS_BASE),settings.getString(STASH_BASE),
+                settings.getBoolean(IGNORE_CERTS, false));
+    }
+
+    public @Nullable String notify(@Nonnull Repository repository, String jenkinsBase, String stashBase,
+                                            boolean ignoreCerts) {
         HttpClient client = null;
-        final String url = getUrl(repository, settings);
+        final String url = getUrl(repository, maybeReplaceSlash(jenkinsBase), maybeReplaceSlash(stashBase));
         try {
-            client = httpClientFactory.getHttpClient(url.startsWith("https"), settings.getBoolean(IGNORE_CERTS, false));
-            client.execute(new HttpGet(url));
+            client = httpClientFactory.getHttpClient(url.startsWith("https"), ignoreCerts);
+            final HttpResponse response = client.execute(new HttpGet(url));
             LOGGER.debug("Successfully triggered jenkins with url '{}': ", url);
+            return CharStreams.toString(new InputStreamReader(response.getEntity().getContent(), Charsets.UTF_8));
         } catch (Exception e) {
             LOGGER.error("Error triggering jenkins with url '" + url + "'", e);
         } finally {
@@ -65,16 +77,15 @@ public class Notifier {
                 LOGGER.debug("Successfully shutdown connection");
             }
         }
+        return null;
     }
 
-    private String getUrl(Repository repository, Settings settings) {
-        final String jenkinsUrl = settings.getString(JENKINS_BASE).replaceFirst("/$", "");
-        final String stashBaseUrl = settings.getString(STASH_BASE);
+    private String getUrl(Repository repository, String jenkinsBase, String stashBase) {
         String repoUrl = navBuilder.repo(repository).clone("git").buildAbsoluteWithoutUsername();
-        if (!Strings.isNullOrEmpty(stashBaseUrl)) {
-            repoUrl = repoUrl.replace(applicationProperties.getBaseUrl(), stashBaseUrl.replaceFirst("/$", ""));
+        if (!Strings.isNullOrEmpty(stashBase)) {
+            repoUrl = repoUrl.replace(applicationProperties.getBaseUrl(), stashBase);
         }
-        return String.format(URL, jenkinsUrl, urlEncode(repoUrl));
+        return String.format(URL, jenkinsBase, urlEncode(repoUrl));
     }
 
     private static String urlEncode(String string) {
@@ -83,5 +94,9 @@ public class Notifier {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String maybeReplaceSlash(String string) {
+        return string == null ? null : string.replaceFirst("/$", "");
     }
 }
