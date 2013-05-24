@@ -84,7 +84,7 @@ public class Notifier {
         String repoUrl = navBuilder.repo(repository).clone("git").buildAbsoluteWithoutUsername();
         if (!Strings.isNullOrEmpty(stashBase)) {
             repoUrl = repoUrl.replace(applicationProperties.getBaseUrl(), stashBase.replaceFirst("/$", ""));
-            if (stashBase.indexOf("ssh") == 0) {
+            if (stashBase.startsWith("ssh")) {
             	repoUrl = repoUrl.replace("scm/", "");
             }
         }
