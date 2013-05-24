@@ -13,6 +13,16 @@
     <component key="jenkinsMergeListener" class="com.nerdwin15.stash.webhook.MergeListener"/>
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>
+
+    <rest key="jenkins-rest" path="/jenkins" version="1.0">
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <init-param>
+            <param-name>extension.filter.excludes</param-name>
+            <param-value>.*</param-value>
+        </init-param>
+        <package>com.nerdwin15.stash.webhook.rest</package>
+    </rest>
     
     <repository-hook key="jenkinsPostReceiveHook" name="${project.name}" class="com.nerdwin15.stash.webhook.PostReceiveHook">
         <description>Webhook for notifying a configured endpoint of changes to this repository.</description>
@@ -22,4 +32,13 @@
             <directory location="/static/"/>
         </config-form>
     </repository-hook>
+
+    <stash-resource key="jenkins-test-resources">
+        <directory location="/static/">
+            <exclude>/**/*.soy</exclude>
+        </directory>
+        <context>com.nerdwin15.stash.webhook</context>
+        <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
+        <dependency>com.atlassian.auiplugin:aui-experimental-spinner</dependency>
+    </stash-resource>
 </atlassian-plugin>

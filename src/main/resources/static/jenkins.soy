@@ -33,4 +33,19 @@
         {/param}
         {param description: stash_i18n('stash.webhook.ignoreCerts.description', 'Allow all certificates to be accepted, including self-signed certs') /}
     {/call}
+    {call widget.aui.form.field}
+        {param id: 'test-form' /}
+        {param labelHtml: stash_i18n('stash.webhook.test', 'Configuration check') /}
+        {{param description: stash_i18n('stash.webhook.test.description', 'Test the configured connection with Jenkins.') /}}
+        {param input}
+            {call widget.aui.form.button}
+                {param id: 'testButton' /}
+                {param label: stash_i18n('stash.webhook.test.button.label', 'Trigger Jenkins') /}
+                {param tooltip: stash_i18n('stash.webhook.test.button.tooltip', 'Manually trigger Jenkins builds.') /}
+            {/call}
+        {/param}
+    {/call}
+    <script>
+        require('plugin/jenkins/test').onReady();
+    </script>
 {/template}
