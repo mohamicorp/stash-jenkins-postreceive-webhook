@@ -82,16 +82,11 @@ public class Notifier {
 
     private String getUrl(Repository repository, String jenkinsBase, String stashBase) {
         String repoUrl = navBuilder.repo(repository).clone("git").buildAbsoluteWithoutUsername();
-<<<<<<< HEAD
-        if (!Strings.isNullOrEmpty(stashBaseUrl)) {
-            repoUrl = repoUrl.replace(applicationProperties.getBaseUrl(), stashBaseUrl.replaceFirst("/$", ""));
-            if (stashBaseUrl.indexOf("ssh") == 0) {
+        if (!Strings.isNullOrEmpty(stashBase)) {
+            repoUrl = repoUrl.replace(applicationProperties.getBaseUrl(), stashBase.replaceFirst("/$", ""));
+            if (stashBase.indexOf("ssh") == 0) {
             	repoUrl = repoUrl.replace("scm/", "");
             }
-=======
-        if (!Strings.isNullOrEmpty(stashBase)) {
-            repoUrl = repoUrl.replace(applicationProperties.getBaseUrl(), stashBase);
->>>>>>> 9adf7db0ff90184ae47664cf2111a78411684f95
         }
         return String.format(URL, jenkinsBase, urlEncode(repoUrl));
     }
