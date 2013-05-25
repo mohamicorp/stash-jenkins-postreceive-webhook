@@ -21,8 +21,9 @@ Once installed, follow these steps:
 ## Release Notes
 ### Version 1.2-SNAPSHOT
 -  Use Stash base url by default and allow override for SSH/HTTPS or custom ports etc.
--  Fire notification after pull-request have been merged
+-  Fire notification after pull-requests have been merged
 -  Added a plugin logo
+-  Added test button to the Hook Configuration display
 -  Requires Stash 2.3.0
 
 ### Version 1.1
