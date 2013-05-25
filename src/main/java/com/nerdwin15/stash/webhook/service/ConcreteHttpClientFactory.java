@@ -23,48 +23,75 @@ import org.apache.http.impl.conn.BasicClientConnectionManager;
  * If setup of the "trust-all" HttpClient fails, a non-configured HttpClient
  * is returned.
  * 
- * @author Michael Irwin
+ * @author Michael Irwin (mikesir87)
  *
  */
 public class ConcreteHttpClientFactory implements HttpClientFactory {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts) 
-			throws Exception {
-		return createHttpClient(usingSsl && trustAllCerts);
-	}
+	private static final Integer SSL_PORT = 443;
+	
+  /**
+   * {@inheritDoc}
+   */
+  public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts) 
+      throws Exception {
+    return createHttpClient(usingSsl && trustAllCerts);
+  }
 
-	protected HttpClient createHttpClient(Boolean useConfigured) throws Exception {
-		if (useConfigured)
-			return configuredClient();
-		return new DefaultHttpClient();
-	}
+  /**
+   * Create a new HttpClient.
+   * @param useConfigured True if the client should be configured to accept any
+   * certificate.
+   * @return The requested HttpClient
+   * @throws Exception
+   */
+  protected HttpClient createHttpClient(Boolean useConfigured) 
+  		throws Exception {
+    if (useConfigured)
+      return configuredClient();
+    return new DefaultHttpClient();
+  }
 
-	protected HttpClient configuredClient() throws Exception {
-		SSLContext sslContext = createContext();
-		SchemeRegistry schemeRegistry = createScheme(sslContext);
-		return new DefaultHttpClient(
-				new BasicClientConnectionManager(schemeRegistry));
-	}
+  /**
+   * Creates a HttpClient that is configured to accept any certificate.
+   * @return The configured certificate
+   * @throws Exception
+   */
+  protected HttpClient configuredClient() throws Exception {
+    SSLContext sslContext = createContext();
+    SchemeRegistry schemeRegistry = createScheme(sslContext);
+    return new DefaultHttpClient(
+        new BasicClientConnectionManager(schemeRegistry));
+  }
 
-	protected SSLContext createContext() throws NoSuchAlgorithmException, 
-			KeyManagementException {
-		SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(
-				null, 
-				new TrustManager[] { new UnsafeX509TrustManager() }, 
-				new SecureRandom());
-		return sslContext;
-	}
+  /**
+   * Creates an SSL context
+   * @return The SSL context
+   * @throws NoSuchAlgorithmException
+   * @throws KeyManagementException
+   */
+  protected SSLContext createContext() throws NoSuchAlgorithmException, 
+      KeyManagementException {
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(
+        null, 
+        new TrustManager[] { new UnsafeX509TrustManager() }, 
+        new SecureRandom());
+    return sslContext;
+  }
 
-	protected SchemeRegistry createScheme(SSLContext sslContext) 
-			throws Exception {
-		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(
-				new Scheme("https", 443, new SSLSocketFactory(sslContext)));
-		return schemeRegistry;
-	}
+  /**
+   * Creates the SSL SchemeRegistry
+   * @param sslContext The SSL Context the scheme registry should use.
+   * @return The SSL SchemeRegistry
+   * @throws Exception
+   */
+  protected SchemeRegistry createScheme(SSLContext sslContext) 
+      throws Exception {
+    SchemeRegistry schemeRegistry = new SchemeRegistry();
+    schemeRegistry.register(
+        new Scheme("https", SSL_PORT, new SSLSocketFactory(sslContext)));
+    return schemeRegistry;
+  }
 
 }

@@ -1,6 +1,7 @@
 package com.nerdwin15.stash.webhook.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -12,15 +13,26 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Test case for the ConcreteHttpClientFactory test
+ * 
+ * @author Michael Irwin (mikesir87)
+ */
 public class ConcreteHttpClientFactoryTest {
 
 	private InstrumentedConcreteHttpClientFactory factory;
 	
+	/**
+	 * Setup tasks
+	 */
 	@Before
 	public void setup() {
 		factory = new InstrumentedConcreteHttpClientFactory();
 	}
 	
+	/**
+	 * Validate the non-SSL path for configuration
+	 */
 	@Test
 	public void validateNonSslGeneration() throws Exception {
 		factory.getHttpClient(false, false);
@@ -34,6 +46,9 @@ public class ConcreteHttpClientFactoryTest {
 		assertFalse(factory.wasSchemeRegistryCreated());
 	}
 
+	/**
+	 * Validate that not trusting all certs works as expected
+	 */
 	@Test
 	public void validateUsingDefaultCertificates() throws Exception {
 		factory.getHttpClient(true, false);
@@ -42,6 +57,9 @@ public class ConcreteHttpClientFactoryTest {
 		assertFalse(factory.wasSchemeRegistryCreated());
 	}
 
+	/**
+	 * Validate that if all certs are trusted, the custom configuration was used
+	 */
 	@Test
 	public void validateIgnoringSslCertValidation() throws Exception {
 		factory.getHttpClient(true, true);
@@ -57,7 +75,8 @@ public class ConcreteHttpClientFactoryTest {
 	 * 
 	 * @author Michael Irwin
 	 */
-	private class InstrumentedConcreteHttpClientFactory extends ConcreteHttpClientFactory {
+	private class InstrumentedConcreteHttpClientFactory 
+	    extends ConcreteHttpClientFactory {
 		private boolean clientConfigured = false;
 		private boolean sslContextCreated = false;
 		private boolean schemeRegistryCreated = false;
