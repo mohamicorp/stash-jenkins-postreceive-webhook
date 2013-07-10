@@ -11,23 +11,23 @@ import com.atlassian.stash.event.pull.PullRequestMergedEvent;
  */
 public class MergeListener {
 
-    private final Notifier notifier;
+  private final Notifier notifier;
 
-    /**
-     * Construct a new instance.
-     * @param notifier The notifier service
-     */
-    public MergeListener(Notifier notifier) {
-        this.notifier = notifier;
-    }
+  /**
+   * Construct a new instance.
+   * @param notifier The notifier service
+   */
+  public MergeListener(Notifier notifier) {
+    this.notifier = notifier;
+  }
 
-    /**
-     * Event listener that is notified of pull request merges.
-     * @param e The pull request event
-     */
-    @EventListener
-    public void onPullRequestMerged(PullRequestMergedEvent e) {
-        notifier.notify(e.getRepository());
-    }
-    
+  /**
+   * Event listener that is notified of pull request merges.
+   * @param e The pull request event
+   */
+  @EventListener
+  public void onPullRequestMerged(PullRequestMergedEvent e) {
+    notifier.notify(e.getRepository());
+  }
+  
 }
