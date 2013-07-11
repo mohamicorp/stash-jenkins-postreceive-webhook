@@ -1,5 +1,11 @@
 package com.nerdwin15.stash.webhook;
 
+import java.util.Collection;
+
+import javax.annotation.Nonnull;
+
+import com.atlassian.event.api.EventListener;
+import com.atlassian.stash.event.RepositoryPushEvent;
 import com.atlassian.stash.hook.repository.AsyncPostReceiveRepositoryHook;
 import com.atlassian.stash.hook.repository.RepositoryHookContext;
 import com.atlassian.stash.repository.RefChange;
@@ -8,9 +14,6 @@ import com.atlassian.stash.setting.RepositorySettingsValidator;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.setting.SettingsValidationErrors;
 import com.google.common.base.Strings;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
@@ -27,11 +30,20 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
   public PostReceiveHook(Notifier notifier) {
     this.notifier = notifier;
   }
-
+  
+  /**
+   * Fire off the notifier of the push event that has occurred
+   * @param event The repository push event
+   */
+  @EventListener
+  public void onPushEvent(RepositoryPushEvent event) {
+  	notifier.notify(event.getRepository());
+  }
+  
   @Override
   public void postReceive(@Nonnull RepositoryHookContext ctx, 
       @Nonnull Collection<RefChange> changes) {
-    notifier.notify(ctx.getRepository());
+    // Don't do anything since the event is being handled in the onPushEvent
   }
 
   @Override
@@ -43,6 +55,16 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
     if (Strings.isNullOrEmpty(jenkinsUrl)) {
       errors.addFieldError(Notifier.JENKINS_BASE, 
           "The url for your Jenkins instance is required.");
+    }
+    
+    final String cloneType = settings.getString(Notifier.CLONE_TYPE);
+    if (Strings.isNullOrEmpty(cloneType)) {
+    	errors.addFieldError(Notifier.CLONE_TYPE, 
+    			"The repository clone type is required");
+    }
+    else if (!cloneType.equals("http") && !cloneType.equals("ssh")) {
+    	errors.addFieldError(Notifier.CLONE_TYPE, 
+    			"A valid clone type is required.");
     }
   }
 }
