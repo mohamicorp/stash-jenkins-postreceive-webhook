@@ -64,7 +64,8 @@ public class JenkinsResource extends RestResource {
    * Fire off the test of the Jenkins configuration
    * @param repository The repository to base the notification on
    * @param jenkinsBase The base URL for the Jenkins instance
-   * @param stashBase An optional base URL to override the repository URL
+   * @param cloneType The type of repo cloning being used
+   * @param httpUsername The username to use, if using HTTP cloning
    * @param ignoreCerts True if all certs should be accepted.
    * @return The response to send back to the user.
    */
@@ -72,15 +73,16 @@ public class JenkinsResource extends RestResource {
   @Path(value = "test")
   public Response test(@Context Repository repository,
         @FormParam(Notifier.JENKINS_BASE) String jenkinsBase,
-        @FormParam(Notifier.STASH_BASE) String stashBase,
+        @FormParam(Notifier.CLONE_TYPE) String cloneType,
+        @FormParam(Notifier.HTTP_USERNAME) String httpUsername,
         @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts) {
     
     permissionService.validateForRepository(repository, Permission.REPO_ADMIN);
     log.debug("Triggering jenkins notification for repository {}/{}", 
         repository.getProject().getKey(), repository.getSlug());
 
-    final String response = notifier.notify(repository, jenkinsBase, stashBase, 
-        ignoreCerts);
+    final String response = notifier.notify(repository, jenkinsBase, 
+    		ignoreCerts, cloneType, httpUsername);
     log.debug("Got response from jenkins: {}", response);
     if (response == null || !response.startsWith("Scheduled")) {
       return fail(repository);
