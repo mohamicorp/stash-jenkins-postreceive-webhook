@@ -58,6 +58,11 @@ public class Notifier {
    */
   public static final String IGNORE_CERTS = "ignoreCerts";
 
+  /**
+   * Field name for the ignore committers property
+   */
+	public static final String IGNORE_COMMITTERS = "ignoreCommitters";
+
   private static final Logger LOGGER = 
       LoggerFactory.getLogger(Notifier.class);
   private static final String URL = "%s/git/notifyCommit?url=%s";
