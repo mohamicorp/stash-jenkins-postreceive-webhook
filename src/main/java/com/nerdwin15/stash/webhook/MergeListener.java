@@ -2,6 +2,7 @@ package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.stash.event.pull.PullRequestMergedEvent;
+import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
  * Listener for pull request merges, which then sends out notifications.
@@ -11,23 +12,28 @@ import com.atlassian.stash.event.pull.PullRequestMergedEvent;
  */
 public class MergeListener {
 
+  private final EligibilityFilterChain filterChain;
   private final Notifier notifier;
 
   /**
    * Construct a new instance.
+   * @param filterChain The filter chain to test for eligbility
    * @param notifier The notifier service
    */
-  public MergeListener(Notifier notifier) {
+  public MergeListener(EligibilityFilterChain filterChain,
+      Notifier notifier) {
+    this.filterChain = filterChain;
     this.notifier = notifier;
   }
 
   /**
    * Event listener that is notified of pull request merges.
-   * @param e The pull request event
+   * @param event The pull request event
    */
   @EventListener
-  public void onPullRequestMerged(PullRequestMergedEvent e) {
-    notifier.notify(e.getRepository());
+  public void onPullRequestMerged(PullRequestMergedEvent event) {
+    if (filterChain.shouldDeliverNotification(event))
+      notifier.notify(event.getRepository());
   }
   
 }
