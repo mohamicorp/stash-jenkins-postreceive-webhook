@@ -10,6 +10,10 @@
     <component-import key="navBuilder" interface="com.atlassian.stash.nav.NavBuilder"/>
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
 
+    <!-- Eligility Filter Setup -->
+    <component key="ignoreCommitersFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IgnoreCommittersEligibilityFilter" />
+    <component key="eligibilityFilterChain" class="com.nerdwin15.stash.webhook.service.eligibility.ConcreteEligibilityFilterChain" />
+    
     <component key="jenkinsMergeListener" class="com.nerdwin15.stash.webhook.MergeListener"/>
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>
