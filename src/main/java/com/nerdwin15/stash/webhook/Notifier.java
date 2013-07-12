@@ -32,9 +32,9 @@ import com.nerdwin15.stash.webhook.service.HttpClientFactory;
  */
 public class Notifier {
 
-	/**
-	 * Key for the repository hook
-	 */
+  /**
+   * Key for the repository hook
+   */
   public static final String KEY = 
       "com.nerdwin15.stash-stash-webhook-jenkins:jenkinsPostReceiveHook";
   
@@ -61,7 +61,7 @@ public class Notifier {
   /**
    * Field name for the ignore committers property
    */
-	public static final String IGNORE_COMMITTERS = "ignoreCommitters";
+  public static final String IGNORE_COMMITTERS = "ignoreCommitters";
 
   private static final Logger LOGGER = 
       LoggerFactory.getLogger(Notifier.class);
@@ -80,10 +80,10 @@ public class Notifier {
    * @param sshCloneUrlResolver Utility to get ssh clone urls
    */
   public Notifier(NavBuilder navBuilder, 
-		      RepositoryHookService hookService, 
+          RepositoryHookService hookService, 
           HttpClientFactory httpClientFactory,
           SshCloneUrlResolver sshCloneUrlResolver) {
-	  
+    
     this.navBuilder = navBuilder;
     this.hookService = hookService;
     this.httpClientFactory = httpClientFactory;
@@ -124,7 +124,7 @@ public class Notifier {
     
     HttpClient client = null;
     final String url = getUrl(repository, maybeReplaceSlash(jenkinsBase),
-    		cloneType, httpUsername);
+        cloneType, httpUsername);
 
     try {
       client = httpClientFactory.getHttpClient(url.startsWith("https"), 
@@ -155,7 +155,7 @@ public class Notifier {
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(Repository repository, String jenkinsBase, 
-  		String cloneType, String httpUsername) {
+      String cloneType, String httpUsername) {
     String repoUrl = getRepoUrl(repository, cloneType, httpUsername);
     return String.format(URL, jenkinsBase, urlEncode(repoUrl));
   }
@@ -168,15 +168,15 @@ public class Notifier {
    * @return The clone URL for the repository, based on provided settings
    */
   protected String getRepoUrl(Repository repository, String cloneType, 
-  		String httpUsername) {
-  	if (cloneType.equals("ssh"))
-  		return sshCloneUrlResolver.getCloneUrl(repository);
-  	if (httpUsername == null || httpUsername.isEmpty())
-  		return navBuilder.repo(repository).clone("git")
-  				.buildAbsoluteWithoutUsername();
-  	String url  = navBuilder.repo(repository).clone("git")
-				.buildAbsoluteWithoutUsername();
-  	return url.replace("://", "://" + httpUsername + "@");
+      String httpUsername) {
+    if (cloneType.equals("ssh"))
+      return sshCloneUrlResolver.getCloneUrl(repository);
+    if (httpUsername == null || httpUsername.isEmpty())
+      return navBuilder.repo(repository).clone("git")
+          .buildAbsoluteWithoutUsername();
+    String url  = navBuilder.repo(repository).clone("git")
+        .buildAbsoluteWithoutUsername();
+    return url.replace("://", "://" + httpUsername + "@");
   }
 
   private static String urlEncode(String string) {

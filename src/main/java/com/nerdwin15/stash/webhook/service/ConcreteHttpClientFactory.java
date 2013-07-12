@@ -28,8 +28,8 @@ import org.apache.http.impl.conn.BasicClientConnectionManager;
  */
 public class ConcreteHttpClientFactory implements HttpClientFactory {
 
-	private static final Integer SSL_PORT = 443;
-	
+  private static final Integer SSL_PORT = 443;
+  
   /**
    * {@inheritDoc}
    */
@@ -46,7 +46,7 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
    * @throws Exception
    */
   protected HttpClient createHttpClient(Boolean useConfigured) 
-  		throws Exception {
+      throws Exception {
     if (useConfigured)
       return configuredClient();
     return new DefaultHttpClient();

@@ -31,9 +31,9 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
    * @param notifier The notify service to use for notification
    */
   public PostReceiveHook(EligibilityFilterChain eligibilityFilter,
-  		Notifier notifier) {
-  	
-  	this.eligibilityFilter = eligibilityFilter;
+      Notifier notifier) {
+    
+    this.eligibilityFilter = eligibilityFilter;
     this.notifier = notifier;
   }
   
@@ -43,8 +43,8 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
    */
   @EventListener
   public void onPushEvent(RepositoryPushEvent event) {
-  	if (eligibilityFilter.shouldDeliverNotification(event))
-    	notifier.notify(event.getRepository());
+    if (eligibilityFilter.shouldDeliverNotification(event))
+      notifier.notify(event.getRepository());
   }
   
   @Override
@@ -57,7 +57,7 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
   public void validate(@Nonnull Settings settings, 
       @Nonnull SettingsValidationErrors errors, 
       @Nonnull Repository repository) {
-	  
+    
     final String jenkinsUrl = settings.getString(Notifier.JENKINS_BASE);
     if (Strings.isNullOrEmpty(jenkinsUrl)) {
       errors.addFieldError(Notifier.JENKINS_BASE, 
@@ -66,12 +66,12 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
     
     final String cloneType = settings.getString(Notifier.CLONE_TYPE);
     if (Strings.isNullOrEmpty(cloneType)) {
-    	errors.addFieldError(Notifier.CLONE_TYPE, 
-    			"The repository clone type is required");
+      errors.addFieldError(Notifier.CLONE_TYPE, 
+          "The repository clone type is required");
     }
     else if (!cloneType.equals("http") && !cloneType.equals("ssh")) {
-    	errors.addFieldError(Notifier.CLONE_TYPE, 
-    			"A valid clone type is required.");
+      errors.addFieldError(Notifier.CLONE_TYPE, 
+          "A valid clone type is required.");
     }
   }
 }

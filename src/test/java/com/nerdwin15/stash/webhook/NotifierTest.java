@@ -36,7 +36,7 @@ public class NotifierTest {
   private static final String FOOBAR_REPO = "/foo/bar.git";
   private static final String JENKINS_BASE_URL = "http://localhost.jenkins";
   private static final String SSH_URL = 
-  		"ssh://git@some.stash.com:7999/hello/world.git";
+      "ssh://git@some.stash.com:7999/hello/world.git";
 
   private NavBuilder navBuilder;
   private RepositoryHookService hookService;
@@ -61,7 +61,7 @@ public class NotifierTest {
     httpClientFactory = mock(HttpClientFactory.class);
     sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
     notifier = new Notifier(navBuilder, hookService, httpClientFactory, 
-    		sshCloneUrlResolver);
+        sshCloneUrlResolver);
 
     repo = mock(Repository.class);
     repoHook = mock(RepositoryHook.class);
@@ -145,7 +145,7 @@ public class NotifierTest {
     verify(connectionManager, times(1)).shutdown();
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?" 
-    		+ "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
         captor.getValue().getURI().toString());
   }
 
@@ -167,7 +167,7 @@ public class NotifierTest {
     verify(connectionManager, times(1)).shutdown();
 
     assertEquals("https://localhost.jenkins/git/notifyCommit?" 
-    		+ "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
         captor.getValue().getURI().toString());
   }
 
@@ -225,8 +225,8 @@ public class NotifierTest {
    */
   @Test
   public void verifyCorrectUrlUsingSshCloneType() throws Exception {
-  	when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("ssh");
-  	
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("ssh");
+    
     notifier.notify(repo);
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
@@ -237,7 +237,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=ssh%3A%2F%2Fgit%40some.stash.com%3A7999%2Fhello%2Fworld.git",
-        captor.getValue().getURI().toString());  	
+        captor.getValue().getURI().toString());    
   }
   
   /**
@@ -246,8 +246,8 @@ public class NotifierTest {
    */
   @Test
   public void verifyCorrectUrlUsingEmptyHttpUsername() throws Exception {
-  	when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn("");
-  	
+    when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn("");
+    
     notifier.notify(repo);
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
@@ -258,7 +258,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
-        captor.getValue().getURI().toString());  	
+        captor.getValue().getURI().toString());    
   }
   
   /**
@@ -267,8 +267,8 @@ public class NotifierTest {
    */
   @Test
   public void verifyCorrectUrlUsingCustomHttpUsername() throws Exception {
-  	when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn("user");
-  	
+    when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn("user");
+    
     notifier.notify(repo);
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
@@ -279,7 +279,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fuser%40some.stash.com%2Fscm%2Ffoo%2Fbar.git",
-        captor.getValue().getURI().toString());  	
+        captor.getValue().getURI().toString());    
   }
   
   

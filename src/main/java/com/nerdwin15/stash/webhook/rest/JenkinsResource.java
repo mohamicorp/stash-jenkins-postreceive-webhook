@@ -82,7 +82,7 @@ public class JenkinsResource extends RestResource {
         repository.getProject().getKey(), repository.getSlug());
 
     final String response = notifier.notify(repository, jenkinsBase, 
-    		ignoreCerts, cloneType, httpUsername);
+        ignoreCerts, cloneType, httpUsername);
     log.debug("Got response from jenkins: {}", response);
     if (response == null || !response.startsWith("Scheduled")) {
       return fail(repository);

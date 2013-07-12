@@ -20,97 +20,97 @@ import org.junit.Test;
  */
 public class ConcreteHttpClientFactoryTest {
 
-	private InstrumentedConcreteHttpClientFactory factory;
-	
-	/**
-	 * Setup tasks
-	 */
-	@Before
-	public void setup() {
-		factory = new InstrumentedConcreteHttpClientFactory();
-	}
-	
-	/**
-	 * Validate the non-SSL path for configuration
-	 */
-	@Test
-	public void validateNonSslGeneration() throws Exception {
-		factory.getHttpClient(false, false);
-		assertFalse(factory.wasClientCustomConfigured());
-		assertFalse(factory.wasSslContextCreated());
-		assertFalse(factory.wasSchemeRegistryCreated());
+  private InstrumentedConcreteHttpClientFactory factory;
+  
+  /**
+   * Setup tasks
+   */
+  @Before
+  public void setup() {
+    factory = new InstrumentedConcreteHttpClientFactory();
+  }
+  
+  /**
+   * Validate the non-SSL path for configuration
+   */
+  @Test
+  public void validateNonSslGeneration() throws Exception {
+    factory.getHttpClient(false, false);
+    assertFalse(factory.wasClientCustomConfigured());
+    assertFalse(factory.wasSslContextCreated());
+    assertFalse(factory.wasSchemeRegistryCreated());
 
-		factory.getHttpClient(false, true);
-		assertFalse(factory.wasClientCustomConfigured());
-		assertFalse(factory.wasSslContextCreated());
-		assertFalse(factory.wasSchemeRegistryCreated());
-	}
+    factory.getHttpClient(false, true);
+    assertFalse(factory.wasClientCustomConfigured());
+    assertFalse(factory.wasSslContextCreated());
+    assertFalse(factory.wasSchemeRegistryCreated());
+  }
 
-	/**
-	 * Validate that not trusting all certs works as expected
-	 */
-	@Test
-	public void validateUsingDefaultCertificates() throws Exception {
-		factory.getHttpClient(true, false);
-		assertFalse(factory.wasClientCustomConfigured());
-		assertFalse(factory.wasSslContextCreated());
-		assertFalse(factory.wasSchemeRegistryCreated());
-	}
+  /**
+   * Validate that not trusting all certs works as expected
+   */
+  @Test
+  public void validateUsingDefaultCertificates() throws Exception {
+    factory.getHttpClient(true, false);
+    assertFalse(factory.wasClientCustomConfigured());
+    assertFalse(factory.wasSslContextCreated());
+    assertFalse(factory.wasSchemeRegistryCreated());
+  }
 
-	/**
-	 * Validate that if all certs are trusted, the custom configuration was used
-	 */
-	@Test
-	public void validateIgnoringSslCertValidation() throws Exception {
-		factory.getHttpClient(true, true);
-		assertTrue(factory.wasClientCustomConfigured());
-		assertTrue(factory.wasSslContextCreated());
-		assertTrue(factory.wasSchemeRegistryCreated());
-	}
+  /**
+   * Validate that if all certs are trusted, the custom configuration was used
+   */
+  @Test
+  public void validateIgnoringSslCertValidation() throws Exception {
+    factory.getHttpClient(true, true);
+    assertTrue(factory.wasClientCustomConfigured());
+    assertTrue(factory.wasSslContextCreated());
+    assertTrue(factory.wasSchemeRegistryCreated());
+  }
 
-	/**
-	 * An instrumented extension of the ConcreteHttpClientFactory that delegates
-	 * all functionality to the parent, but checks that various methods are
-	 * actually being called as expected.
-	 * 
-	 * @author Michael Irwin
-	 */
-	private class InstrumentedConcreteHttpClientFactory 
-	    extends ConcreteHttpClientFactory {
-		private boolean clientConfigured = false;
-		private boolean sslContextCreated = false;
-		private boolean schemeRegistryCreated = false;
+  /**
+   * An instrumented extension of the ConcreteHttpClientFactory that delegates
+   * all functionality to the parent, but checks that various methods are
+   * actually being called as expected.
+   * 
+   * @author Michael Irwin
+   */
+  private class InstrumentedConcreteHttpClientFactory 
+      extends ConcreteHttpClientFactory {
+    private boolean clientConfigured = false;
+    private boolean sslContextCreated = false;
+    private boolean schemeRegistryCreated = false;
 
-		public boolean wasClientCustomConfigured() {
-			return clientConfigured;
-		}
+    public boolean wasClientCustomConfigured() {
+      return clientConfigured;
+    }
 
-		public boolean wasSchemeRegistryCreated() {
-			return schemeRegistryCreated;
-		}
+    public boolean wasSchemeRegistryCreated() {
+      return schemeRegistryCreated;
+    }
 
-		public boolean wasSslContextCreated() {
-			return sslContextCreated;
-		}
+    public boolean wasSslContextCreated() {
+      return sslContextCreated;
+    }
 
-		@Override
-		protected HttpClient createHttpClient(Boolean useConfigured) 
-				throws Exception {
-			clientConfigured = useConfigured;
-			return super.createHttpClient(useConfigured);
-		}
+    @Override
+    protected HttpClient createHttpClient(Boolean useConfigured) 
+        throws Exception {
+      clientConfigured = useConfigured;
+      return super.createHttpClient(useConfigured);
+    }
 
-		@Override
-		protected SSLContext createContext() throws NoSuchAlgorithmException,
-				KeyManagementException {
-			sslContextCreated = true;
-			return super.createContext();
-		}
+    @Override
+    protected SSLContext createContext() throws NoSuchAlgorithmException,
+        KeyManagementException {
+      sslContextCreated = true;
+      return super.createContext();
+    }
 
-		@Override
-		protected SchemeRegistry createScheme(SSLContext sslContext) throws Exception  {
-			schemeRegistryCreated = true;
-			return super.createScheme(sslContext);
-		}
-	}
+    @Override
+    protected SchemeRegistry createScheme(SSLContext sslContext) throws Exception  {
+      schemeRegistryCreated = true;
+      return super.createScheme(sslContext);
+    }
+  }
 }
