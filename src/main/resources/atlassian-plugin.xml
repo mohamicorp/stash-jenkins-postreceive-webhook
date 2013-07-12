@@ -13,7 +13,8 @@
     <component key="jenkinsMergeListener" class="com.nerdwin15.stash.webhook.MergeListener"/>
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>
-
+    <component-import key="sshCloneUrlResolver" interface="com.atlassian.stash.ssh.api.SshCloneUrlResolver"/>
+    
     <rest key="jenkins-rest" path="/jenkins" version="1.0">
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>

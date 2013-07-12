@@ -15,16 +15,29 @@
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['jenkinsBase'] : null /}
     {/call}
+
+    <div class="field-group">
+        <label for="cloneType">{stash_i18n('stash.webhook.repo.cloneType.label', 'Jenkins Clone Protocol')}</label>
+        <select class="select" name="cloneType" id="cloneType">
+            <option value="http" {if $config['cloneType'] == 'http'}selected="selected"{/if}>HTTP</option>
+            <option value="ssh" {if $config['cloneType'] == 'ssh'}selected="selected"{/if}>SSH</option>
+        </select>
+        <div class="description">
+            {stash_i18n('stash.webhook.repo.cloneType.description', 'How is Jenkins cloning your repository?')}
+        </div>
+    </div>
+    
     {call aui.form.textField}
-        {param id: 'stashBase' /}
-        {param value: $config['stashBase'] /}
+        {param id: 'httpUsername' /}
+        {param value: $config['httpUsername'] /}
         {param labelContent}
-            {stash_i18n('stash.webhook.git.url.label', 'Stash Base URL')}
+            {stash_i18n('stash.webhook.repo.httpUsername.label', 'Stash Http User')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.git.url.description', 'Override Stash base URL (when using SSH/HTTPS or custom ports etc.). Example: ssh://git@stash.example.com:7999') /}
+        {param descriptionText: stash_i18n('stash.webhook.repo.httpUsername.description', 'What Stash username is Jenkins using to clone your repository?') /}
         {param extraClasses: 'long' /}
-        {param errorTexts: $errors ? $errors['stashBase'] : null /}
+        {param errorTexts: $errors ? $errors['httpUsername'] : null /}
     {/call}
+
     {call widget.aui.form.checkbox}
         {param id: 'ignoreCerts' /}
         {param checked: $config['ignoreCerts'] /}

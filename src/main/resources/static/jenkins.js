@@ -15,7 +15,8 @@ define('plugin/jenkins/test', [
     function init() {
         var $button = $("#testButton"),
             $jenkinsBase = $("#jenkinsBase"),
-            $stashBase = $("#stashBase"),
+            $cloneType = $("#cloneType"),
+            $httpUsername = $("#httpUsername"),
             $ignoreCerts = $("#ignoreCerts"),
             $status;
 
@@ -34,6 +35,14 @@ define('plugin/jenkins/test', [
                 $button.prop("disabled", "disabled").addClass("disabled");
             }
         }
+        
+        $cloneType.change(function() {
+        	if ($(this).val() == "http") {
+        		$httpUsername.parent().show();
+        	} else {
+        		$httpUsername.parent().hide();
+        	}
+        }).change();
 
         $button.click(function () {
             setStatus("Trying...", "green");
@@ -43,7 +52,8 @@ define('plugin/jenkins/test', [
                 type: 'POST',
                 data: {
                     'jenkinsBase': [$jenkinsBase.val()],
-                    'stashBase': [$stashBase.val()],
+                    'cloneType': [$cloneType.val()],
+                    'httpUserName': [$httpUsername.val()],
                     'ignoreCerts': [$ignoreCerts.attr('checked') ? "TRUE" : "FALSE"]
                 }
             }).always(function () {
