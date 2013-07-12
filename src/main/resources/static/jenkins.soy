@@ -5,8 +5,10 @@
  * @param? errors
  */
 {template .formContents}
+
     {call aui.form.textField}
         {param id: 'jenkinsBase' /}
+        {param isRequired: true /}
         {param value: $config['jenkinsBase'] /}
         {param labelContent}
             {stash_i18n('stash.webhook.jenkins.url.label', 'Jenkins URL')}
@@ -18,7 +20,7 @@
 
     <div class="field-group">
         <label for="cloneType">{stash_i18n('stash.webhook.repo.cloneType.label', 'Jenkins Clone Protocol')}</label>
-        <select class="select" name="cloneType" id="cloneType">
+        <select class="select short-field" name="cloneType" id="cloneType">
             <option value="http" {if $config['cloneType'] == 'http'}selected="selected"{/if}>HTTP</option>
             <option value="ssh" {if $config['cloneType'] == 'ssh'}selected="selected"{/if}>SSH</option>
         </select>
@@ -44,8 +46,9 @@
         {param labelHtml}
             {stash_i18n('stash.webhook.ignoreCerts.label', 'Skip SSL Certificate Validation')}
         {/param}
-        {param description: stash_i18n('stash.webhook.ignoreCerts.description', 'Allow all certificates to be accepted, including self-signed certs') /}
+        {param description: stash_i18n('stash.webhook.ignoreCerts.description', 'When connecting to Jenkins, allow all certificates to be accepted, including self-signed certs') /}
     {/call}
+    
     {call widget.aui.form.field}
         {param id: 'test-form' /}
         {param labelHtml: stash_i18n('stash.webhook.test', 'Configuration check') /}
@@ -58,6 +61,22 @@
             {/call}
         {/param}
     {/call}
+    
+    <hr />
+    
+    <h3>{stash_i18n('stash.webhook.advancedConfiguration.label', 'Advanced Configuration')}</h3>
+      
+    {call aui.form.textField}
+        {param id: 'ignoreCommitters' /}
+        {param value: $config['ignoreCommitters'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.ignoreCommitters.label', 'Committers to Ignore')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.ignoreCommitters.description', 'Stash usernames of committer(s) whose pushes/merges should NOT trigger a Jenkins notification. Space delimited') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['ignoreCommitters'] : null /}
+    {/call}
+    
     <script>
         require('plugin/jenkins/test').onReady();
     </script>
