@@ -92,18 +92,18 @@ public class Notifier {
 
   /**
    * Send notification to Jenkins for the provided repository.
-   * @param repository The repository to base the notification on.
+   * @param repo The repository to base the notification on.
    * @return Text result from Jenkins
    */
-  public @Nullable String notify(@Nonnull Repository repository) {
-    final RepositoryHook hook = hookService.getByKey(repository, KEY);
-    final Settings settings = hookService.getSettings(repository, KEY);
+  public @Nullable String notify(@Nonnull Repository repo) { //CHECKSTYLE:annot
+    final RepositoryHook hook = hookService.getByKey(repo, KEY);
+    final Settings settings = hookService.getSettings(repo, KEY);
     if (hook == null || !hook.isEnabled() || settings == null) {
       LOGGER.debug("Hook not configured correctly or not enabled, returning.");
       return null;
     }
 
-    return notify(repository, settings.getString(JENKINS_BASE), 
+    return notify(repo, settings.getString(JENKINS_BASE), 
         settings.getBoolean(IGNORE_CERTS, false),
         settings.getString(CLONE_TYPE),
         settings.getString(HTTP_USERNAME));
@@ -111,19 +111,19 @@ public class Notifier {
 
   /**
    * Send notification to Jenkins using the provided settings
-   * @param repository The repository to base the notification on.
+   * @param repo The repository to base the notification on.
    * @param jenkinsBase Base URL for Jenkins instance
    * @param ignoreCerts True if all certs should be allowed
    * @param cloneType The repository type used for cloning (http or ssh)
    * @param httpUsername The username used if using http-based cloning
    * @return The response body for the notification.
    */
-  public @Nullable String notify(@Nonnull Repository repository, 
+  public @Nullable String notify(@Nonnull Repository repo, //CHECKSTYLE:annot
       String jenkinsBase, boolean ignoreCerts, String cloneType,
       String httpUsername) {
     
     HttpClient client = null;
-    final String url = getUrl(repository, maybeReplaceSlash(jenkinsBase),
+    final String url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
         cloneType, httpUsername);
 
     try {

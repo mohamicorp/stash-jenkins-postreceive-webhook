@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.stash.event.RepositoryEvent;
-import com.atlassian.stash.event.RepositoryPushEvent;
 import com.atlassian.stash.event.StashEvent;
 import com.atlassian.stash.event.pull.PullRequestMergedEvent;
 import com.atlassian.stash.hook.repository.RepositoryHookService;
