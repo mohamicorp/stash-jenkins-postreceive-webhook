@@ -12,7 +12,7 @@
         <url>http://www.nerdwin15.com/</url>
     </organization>
 
-    <name>Stash Post-Receive/Merge Webhook to Jenkins</name>
+    <name>Stash Webhook to Jenkins</name>
     <description>A post-receive/merge webhook that fires a GET on a remote Jenkins URL.</description>
     <packaging>atlassian-plugin</packaging>
 
