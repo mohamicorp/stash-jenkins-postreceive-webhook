@@ -14,6 +14,7 @@ import com.atlassian.stash.setting.RepositorySettingsValidator;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.setting.SettingsValidationErrors;
 import com.google.common.base.Strings;
+import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
@@ -21,13 +22,18 @@ import com.google.common.base.Strings;
 public class PostReceiveHook implements AsyncPostReceiveRepositoryHook, 
     RepositorySettingsValidator {
 
+  private final EligibilityFilterChain eligibilityFilter;
   private final Notifier notifier;
 
   /**
    * Constructs a new instance.
+   * @param eligibilityFilter An EligibilityFilterChain
    * @param notifier The notify service to use for notification
    */
-  public PostReceiveHook(Notifier notifier) {
+  public PostReceiveHook(EligibilityFilterChain eligibilityFilter,
+  		Notifier notifier) {
+  	
+  	this.eligibilityFilter = eligibilityFilter;
     this.notifier = notifier;
   }
   
@@ -37,7 +43,8 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
    */
   @EventListener
   public void onPushEvent(RepositoryPushEvent event) {
-  	notifier.notify(event.getRepository());
+  	if (eligibilityFilter.shouldDeliverNotification(event))
+    	notifier.notify(event.getRepository());
   }
   
   @Override
