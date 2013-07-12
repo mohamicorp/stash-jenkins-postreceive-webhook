@@ -4,7 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.stash.event.RepositoryEvent;
+import com.atlassian.stash.event.RepositoryPushEvent;
+import com.atlassian.stash.event.StashEvent;
+import com.atlassian.stash.event.pull.PullRequestMergedEvent;
 import com.atlassian.stash.hook.repository.RepositoryHookService;
+import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.nerdwin15.stash.webhook.Notifier;
 
@@ -32,10 +36,18 @@ public class IgnoreCommittersEligibilityFilter implements EligibilityFilter {
   }
 
   @Override
-  public boolean shouldDeliverNotification(RepositoryEvent event) {
+  public boolean shouldDeliverNotification(StashEvent e) {
+    if (RepositoryEvent.class.isAssignableFrom(e.getClass()))
+      return doCheck(e, ((RepositoryEvent) e).getRepository());
+    if (PullRequestMergedEvent.class.isAssignableFrom(e.getClass()))
+      return doCheck(e, ((PullRequestMergedEvent) e).getRepository());
+    return true;
+  }
+  
+  private boolean doCheck(StashEvent event, Repository repository) {
     String eventUserName = event.getUser().getName();
 
-    final Settings settings = hookService.getSettings(event.getRepository(),
+    final Settings settings = hookService.getSettings(repository,
         Notifier.KEY);
     String ignoreCommitters = settings.getString(Notifier.IGNORE_COMMITTERS);
     if (ignoreCommitters == null)

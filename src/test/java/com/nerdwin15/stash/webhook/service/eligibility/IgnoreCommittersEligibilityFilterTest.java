@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.RepositoryEvent;
+import com.atlassian.stash.event.StashEvent;
 import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
@@ -26,7 +26,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   private IgnoreCommittersEligibilityFilter filter;
   private Settings settings;
   private Repository repo;
-  private RepositoryEvent event;
+  private StashEvent event;
   private StashUser user;
   
   /**
@@ -43,6 +43,16 @@ public class IgnoreCommittersEligibilityFilterTest {
     user = mock(StashUser.class);
     event = new MockedRepositoryEvent(repo);
     ((MockedRepositoryEvent) event).setUser(user);
+  }
+  
+  /**
+   * Validate that the filter still allows delivery if the event type is one
+   * it doesn't know how to handle.
+   * @throws Exception
+   */
+  @Test
+  public void shouldAllowIfNotValidEvent() throws Exception {
+    assertTrue(filter.shouldDeliverNotification(mock(StashEvent.class)));
   }
   
   /**
@@ -91,5 +101,18 @@ public class IgnoreCommittersEligibilityFilterTest {
         + " anotherUser");
     when(user.getName()).thenReturn(username);
     assertFalse(filter.shouldDeliverNotification(event));
+  }
+  
+  /**
+   * Validate that the filter should work correctly with a 
+   * PullRequestMergedEvent
+   * @throws Exception
+   */
+  @Test
+  public void shouldWorkTheSameWithPullRequestMergedEvent() throws Exception {
+    event = new MockedPullRequestMergedEvent();
+    ((MockedPullRequestMergedEvent) event).setRepository(repo);
+    ((MockedPullRequestMergedEvent) event).setUser(user);
+    assertTrue(filter.shouldDeliverNotification(event));
   }
 }
