@@ -164,7 +164,7 @@ public class Notifier {
    */
   protected String getRepoUrl(Repository repository, String cloneType, 
   		String httpUsername) {
-  	if (cloneType.equals("git"))
+  	if (cloneType.equals("ssh"))
   		return sshCloneUrlResolver.getCloneUrl(repository);
   	if (httpUsername == null || httpUsername.isEmpty())
   		return navBuilder.repo(repository).clone("git")

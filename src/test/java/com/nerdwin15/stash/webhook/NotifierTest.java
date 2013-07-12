@@ -89,7 +89,7 @@ public class NotifierTest {
 
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL);
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("ssh");
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("http");
     when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn(null);
     when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(false);
   }
@@ -225,7 +225,7 @@ public class NotifierTest {
    */
   @Test
   public void verifyCorrectUrlUsingSshCloneType() throws Exception {
-  	when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("git");
+  	when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("ssh");
   	
     notifier.notify(repo);
 
