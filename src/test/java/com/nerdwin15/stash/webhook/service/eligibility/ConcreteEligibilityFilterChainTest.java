@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.StashEvent;
+import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 
 /**
  * Test case for the {@link ConcreteEligibilityFilterChain} class.
@@ -23,7 +23,7 @@ public class ConcreteEligibilityFilterChainTest {
   private ConcreteEligibilityFilterChain filterChain;
   private List<EligibilityFilter> filters = new ArrayList<EligibilityFilter>();
   private EligibilityFilter filter;
-  private StashEvent event;
+  private RepositoryRefsChangedEvent event;
   
   /**
    * Setup tasks
@@ -34,7 +34,7 @@ public class ConcreteEligibilityFilterChainTest {
     filter = mock(EligibilityFilter.class);
     filters.add(filter);
     filterChain = new ConcreteEligibilityFilterChain(filters);
-    event = mock(StashEvent.class);
+    event = mock(RepositoryRefsChangedEvent.class);
   }
   
   /**

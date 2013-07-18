@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.atlassian.stash.event.StashEvent;
 import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.repository.Repository;
@@ -26,7 +27,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   private IgnoreCommittersEligibilityFilter filter;
   private Settings settings;
   private Repository repo;
-  private StashEvent event;
+  private RepositoryRefsChangedEvent event;
   private StashUser user;
   
   /**
@@ -41,18 +42,9 @@ public class IgnoreCommittersEligibilityFilterTest {
     when(hookService.getSettings(repo, Notifier.KEY)).thenReturn(settings);
     
     user = mock(StashUser.class);
-    event = new MockedRepositoryEvent(repo);
-    ((MockedRepositoryEvent) event).setUser(user);
-  }
-  
-  /**
-   * Validate that the filter still allows delivery if the event type is one
-   * it doesn't know how to handle.
-   * @throws Exception
-   */
-  @Test
-  public void shouldAllowIfNotValidEvent() throws Exception {
-    assertTrue(filter.shouldDeliverNotification(mock(StashEvent.class)));
+    event = mock(RepositoryRefsChangedEvent.class);
+    when(event.getRepository()).thenReturn(repo);
+    when(event.getUser()).thenReturn(user);
   }
   
   /**

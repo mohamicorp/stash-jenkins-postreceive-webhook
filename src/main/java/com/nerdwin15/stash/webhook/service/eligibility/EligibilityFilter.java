@@ -1,6 +1,6 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import com.atlassian.stash.event.StashEvent;
+import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 
 /**
  * A SendingFilter represents a single filter in an EligibilityFilterChain that
@@ -20,6 +20,6 @@ public interface EligibilityFilter {
    * @return True if the notification should be delivered or if the particular
    * filter cannot assertively determine that it should not be delivered.
    */
-  boolean shouldDeliverNotification(StashEvent event);
+  boolean shouldDeliverNotification(RepositoryRefsChangedEvent event);
   
 }

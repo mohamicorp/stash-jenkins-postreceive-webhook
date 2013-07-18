@@ -8,21 +8,20 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.pull.PullRequestMergedEvent;
+import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.atlassian.stash.repository.Repository;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
- * Test case for the MergeListener class.
+ * Test case for the RepositoryChangeListener class.
  * 
- * @author Peter Leibiger (kuhnroyal)
  * @author Michael Irwin (mikesir87)
  */
-public class MergeListenerTest {
+public class RepositoryChangeListenerTest {
 
   private Notifier notifier;
   private EligibilityFilterChain filterChain;
-  private MergeListener listener;
+  private RepositoryChangeListener listener;
 
   /**
    * Setup tasks
@@ -31,7 +30,7 @@ public class MergeListenerTest {
   public void setup() throws Exception {
     notifier = mock(Notifier.class);
     filterChain = mock(EligibilityFilterChain.class);
-    listener = new MergeListener(filterChain, notifier);
+    listener = new RepositoryChangeListener(filterChain, notifier);
   }
 
   /**
@@ -39,13 +38,13 @@ public class MergeListenerTest {
    */
   @Test
   public void shouldNotifyWhenChainSaysOk() throws Exception {
-    PullRequestMergedEvent e = mock(PullRequestMergedEvent.class);
+    RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
     Repository repo = mock(Repository.class);
 
     when(e.getRepository()).thenReturn(repo);
     when(filterChain.shouldDeliverNotification(e)).thenReturn(true);
 
-    listener.onPullRequestMerged(e);
+    listener.onRefsChangedEvent(e);
 
     verify(notifier).notify(repo);
   }
@@ -55,13 +54,13 @@ public class MergeListenerTest {
    */
   @Test
   public void shouldNotifyWhenChainSaysCancel() throws Exception {
-    PullRequestMergedEvent e = mock(PullRequestMergedEvent.class);
+    RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
     Repository repo = mock(Repository.class);
 
     when(e.getRepository()).thenReturn(repo);
     when(filterChain.shouldDeliverNotification(e)).thenReturn(false);
 
-    listener.onPullRequestMerged(e);
+    listener.onRefsChangedEvent(e);
 
     verify(notifier, never()).notify(repo);
   }
