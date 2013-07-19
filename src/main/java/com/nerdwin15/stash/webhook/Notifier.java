@@ -16,10 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.atlassian.stash.hook.repository.RepositoryHook;
 import com.atlassian.stash.hook.repository.RepositoryHookService;
-import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
@@ -44,15 +42,10 @@ public class Notifier {
   public static final String JENKINS_BASE = "jenkinsBase";
 
   /**
-   * Field name for the Clone type property
+   * Field name for the Repo Clone Url property
    */
-  public static final String CLONE_TYPE = "cloneType";
+  public static final String CLONE_URL = "gitRepoUrl";
   
-  /**
-   * Field name for the username field when using HTTP-based repo cloning
-   */
-  public static final String HTTP_USERNAME = "httpUserName";
-
   /**
    * Field name for the ignore certs property
    */
@@ -67,27 +60,19 @@ public class Notifier {
       LoggerFactory.getLogger(Notifier.class);
   private static final String URL = "%s/git/notifyCommit?url=%s";
 
-  private final NavBuilder navBuilder;
   private final RepositoryHookService hookService;
   private final HttpClientFactory httpClientFactory;
-  private final SshCloneUrlResolver sshCloneUrlResolver;
 
   /**
    * Create a new instance
-   * @param navBuilder NavBuilder to help build out URL
    * @param hookService Hook service
    * @param httpClientFactory Factory to generate HttpClients
-   * @param sshCloneUrlResolver Utility to get ssh clone urls
    */
-  public Notifier(NavBuilder navBuilder, 
-          RepositoryHookService hookService, 
-          HttpClientFactory httpClientFactory,
-          SshCloneUrlResolver sshCloneUrlResolver) {
+  public Notifier(RepositoryHookService hookService, 
+          HttpClientFactory httpClientFactory) {
     
-    this.navBuilder = navBuilder;
     this.hookService = hookService;
     this.httpClientFactory = httpClientFactory;
-    this.sshCloneUrlResolver = sshCloneUrlResolver;
   }
 
   /**
@@ -105,8 +90,7 @@ public class Notifier {
 
     return notify(repo, settings.getString(JENKINS_BASE), 
         settings.getBoolean(IGNORE_CERTS, false),
-        settings.getString(CLONE_TYPE),
-        settings.getString(HTTP_USERNAME));
+        settings.getString(CLONE_URL));
   }
 
   /**
@@ -114,17 +98,15 @@ public class Notifier {
    * @param repo The repository to base the notification on.
    * @param jenkinsBase Base URL for Jenkins instance
    * @param ignoreCerts True if all certs should be allowed
-   * @param cloneType The repository type used for cloning (http or ssh)
-   * @param httpUsername The username used if using http-based cloning
+   * @param cloneUrl The repository url
    * @return The response body for the notification.
    */
   public @Nullable String notify(@Nonnull Repository repo, //CHECKSTYLE:annot
-      String jenkinsBase, boolean ignoreCerts, String cloneType,
-      String httpUsername) {
+      String jenkinsBase, boolean ignoreCerts, String cloneUrl) {
     
     HttpClient client = null;
     final String url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
-        cloneType, httpUsername);
+        cloneUrl);
 
     try {
       client = httpClientFactory.getHttpClient(url.startsWith("https"), 
@@ -150,35 +132,14 @@ public class Notifier {
    * Get the url for notifying of Jenkins. Protected for testing purposes
    * @param repository The repository to base the request to.
    * @param jenkinsBase The base URL of the Jenkins instance
-   * @param cloneType The clone type being used for the Git repo
-   * @param httpUsername The username used if using HTTP cloning
+   * @param cloneUrl The url used for cloning the repository
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(Repository repository, String jenkinsBase, 
-      String cloneType, String httpUsername) {
-    String repoUrl = getRepoUrl(repository, cloneType, httpUsername);
-    return String.format(URL, jenkinsBase, urlEncode(repoUrl));
+      String cloneUrl) {
+    return String.format(URL, jenkinsBase, urlEncode(cloneUrl));
   }
   
-  /**
-   * Get the URL used for repository cloning, based on the provided settings
-   * @param repository The repository to clone
-   * @param cloneType The clone type being used (ssh or http)
-   * @param httpUsername The username to be used, if using HTTP cloning.
-   * @return The clone URL for the repository, based on provided settings
-   */
-  protected String getRepoUrl(Repository repository, String cloneType, 
-      String httpUsername) {
-    if (cloneType.equals("ssh"))
-      return sshCloneUrlResolver.getCloneUrl(repository);
-    if (httpUsername == null || httpUsername.isEmpty())
-      return navBuilder.repo(repository).clone("git")
-          .buildAbsoluteWithoutUsername();
-    String url  = navBuilder.repo(repository).clone("git")
-        .buildAbsoluteWithoutUsername();
-    return url.replace("://", "://" + httpUsername + "@");
-  }
-
   private static String urlEncode(String string) {
     try {
       return URLEncoder.encode(string, "UTF-8");

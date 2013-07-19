@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.event.StashEvent;
 import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;

@@ -19,26 +19,18 @@
     {/call}
 
     <div class="field-group">
-        <label for="cloneType">{stash_i18n('stash.webhook.repo.cloneType.label', 'Jenkins Clone Protocol')}</label>
-        <select class="select short-field" name="cloneType" id="cloneType">
-            <option value="http" {if $config['cloneType'] == 'http'}selected="selected"{/if}>HTTP</option>
-            <option value="ssh" {if $config['cloneType'] == 'ssh'}selected="selected"{/if}>SSH</option>
+        <label for="gitRepoUrl">{stash_i18n('stash.webhook.repo.cloneUrl.label', 'Repo Clone URL')}</label>
+        <select class="select" id="cloneType">
+            <option value="">Select...</option>
+            <option value="http">HTTP</option>
+            <option value="ssh">SSH</option>
         </select>
+        &nbsp;
+        <input id="gitRepoUrl" class="text" type="text" name="gitRepoUrl" value="{($config['gitRepoUrl'] != null) ? $config['gitRepoUrl'] : ''}">
         <div class="description">
-            {stash_i18n('stash.webhook.repo.cloneType.description', 'How is Jenkins cloning your repository?')}
+            {stash_i18n('stash.webhook.repo.cloneUrl.description', 'The URL Jenkins is using to clone this repository.')}
         </div>
     </div>
-    
-    {call aui.form.textField}
-        {param id: 'httpUsername' /}
-        {param value: $config['httpUsername'] /}
-        {param labelContent}
-            {stash_i18n('stash.webhook.repo.httpUsername.label', 'Stash Http User')}
-        {/param}
-        {param descriptionText: stash_i18n('stash.webhook.repo.httpUsername.description', 'What Stash username is Jenkins using to clone your repository?') /}
-        {param extraClasses: 'long' /}
-        {param errorTexts: $errors ? $errors['httpUsername'] : null /}
-    {/call}
 
     {call widget.aui.form.checkbox}
         {param id: 'ignoreCerts' /}

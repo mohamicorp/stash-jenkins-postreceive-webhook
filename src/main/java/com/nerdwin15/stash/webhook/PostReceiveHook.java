@@ -37,14 +37,10 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
           "The url for your Jenkins instance is required.");
     }
     
-    final String cloneType = settings.getString(Notifier.CLONE_TYPE);
+    final String cloneType = settings.getString(Notifier.CLONE_URL);
     if (Strings.isNullOrEmpty(cloneType)) {
-      errors.addFieldError(Notifier.CLONE_TYPE, 
-          "The repository clone type is required");
-    }
-    else if (!cloneType.equals("http") && !cloneType.equals("ssh")) {
-      errors.addFieldError(Notifier.CLONE_TYPE, 
-          "A valid clone type is required.");
+      errors.addFieldError(Notifier.CLONE_URL, 
+          "The repository clone url is required");
     }
   }
 }

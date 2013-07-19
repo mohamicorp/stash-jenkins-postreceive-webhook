@@ -15,10 +15,11 @@ define('plugin/jenkins/test', [
     function init() {
         var $button = $("#testButton"),
             $jenkinsBase = $("#jenkinsBase"),
+            $cloneUrl = $("#gitRepoUrl"),
             $cloneType = $("#cloneType"),
-            $httpUsername = $("#httpUsername"),
             $ignoreCerts = $("#ignoreCerts"),
-            $status;
+            $status,
+            defaultUrls;
 
         function setStatus(status, color) {
             if ($status == null) {
@@ -36,13 +37,29 @@ define('plugin/jenkins/test', [
             }
         }
         
+        ajax.rest({
+        	url: resourceUrl('config')
+        }).success(function(data) {
+        	defaultUrls = data;
+        });
+        
         $cloneType.change(function() {
-        	if ($(this).val() == "http") {
-        		$httpUsername.parent().show();
-        	} else {
-        		$httpUsername.parent().hide();
+        	var val = $(this).val();
+        	if (val == "ssh") {
+        		$cloneUrl.val( defaultUrls.ssh );
+        	} else if (val == "http") {
+        		$cloneUrl.val( defaultUrls.http );
         	}
-        }).change();
+        });
+        
+        if ($cloneUrl.val() != "") {
+        	var cloneUrl = $cloneUrl.val();
+        	if (cloneUrl.search("ssh") === 0) {
+        		$cloneType.find("option[value='ssh']").attr("selected", "selected");
+        	} else if (cloneUrl.search("http") === 0) {
+        		$cloneType.find("option[value='http']").attr("selected", "selected");
+        	}
+        }
 
         $button.click(function () {
             setStatus("Trying...", "green");
@@ -52,17 +69,16 @@ define('plugin/jenkins/test', [
                 type: 'POST',
                 data: {
                     'jenkinsBase': [$jenkinsBase.val()],
-                    'cloneType': [$cloneType.val()],
-                    'httpUserName': [$httpUsername.val()],
+                    'gitRepoUrl': [$cloneUrl.val()],
                     'ignoreCerts': [$ignoreCerts.attr('checked') ? "TRUE" : "FALSE"]
                 }
             }).always(function () {
-                    setDeleteButtonEnabled(true)
-                }).success(function () {
-                    setStatus("Success!", "green");
-                }).error(function () {
-                    setStatus("It didn't work!", "red");
-                });
+                setDeleteButtonEnabled(true)
+            }).success(function () {
+                setStatus("Success!", "green");
+            }).error(function () {
+                setStatus("It didn't work!", "red");
+            });
         });
     }
 

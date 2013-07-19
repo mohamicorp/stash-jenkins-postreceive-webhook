@@ -24,8 +24,8 @@ import com.atlassian.stash.setting.SettingsValidationErrors;
 public class PostReceiveHookTest {
 
   private static final String JENKINS_BASE_URL = "http://localhost.jenkins";
-  private static final String CLONE_TYPE_HTTP = "http";
-  private static final String CLONE_TYPE_SSH = "ssh";
+  private static final String CLONE_URL = 
+      "http://some.stash.com/scm/foo/bar.git";
 
   private PostReceiveHook hook;
   private SettingsValidationErrors errors;
@@ -44,7 +44,7 @@ public class PostReceiveHookTest {
 
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL);
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn(CLONE_TYPE_HTTP);
+    when(settings.getString(Notifier.CLONE_URL)).thenReturn(CLONE_URL);
   }
 
   /**
@@ -69,47 +69,25 @@ public class PostReceiveHookTest {
   }
 
   /**
-   * Validate that an error is added when the repo clone type is null
+   * Validate that an error is added when the repo clone url is null
    * @throws Exception
    */
   @Test
-  public void shouldAddErrorWhenCloneTypeNull() throws Exception {
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn(null);
+  public void shouldAddErrorWhenCloneUrlNull() throws Exception {
+    when(settings.getString(Notifier.CLONE_URL)).thenReturn(null);
     hook.validate(settings, errors, repo);
-    verify(errors).addFieldError(eq(Notifier.CLONE_TYPE), anyString());
+    verify(errors).addFieldError(eq(Notifier.CLONE_URL), anyString());
   }
 
   /**
-   * Validate that an error is added when the repo clone type is empty
+   * Validate that an error is added when the repo clone url is empty
    * @throws Exception
    */
   @Test
-  public void shouldAddErrorWhenCloneTypeEmpty() throws Exception {
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("");
+  public void shouldAddErrorWhenCloneUrlEmpty() throws Exception {
+    when(settings.getString(Notifier.CLONE_URL)).thenReturn("");
     hook.validate(settings, errors, repo);
-    verify(errors).addFieldError(eq(Notifier.CLONE_TYPE), anyString());
-  }
-
-  /**
-   * Validate that an error is added when the repo clone type is empty
-   * @throws Exception
-   */
-  @Test
-  public void shouldAddErrorWhenCloneTypeInvalid() throws Exception {
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("fake_type");
-    hook.validate(settings, errors, repo);
-    verify(errors).addFieldError(eq(Notifier.CLONE_TYPE), anyString());
-  }
-
-  /**
-   * Validate that an error is added when the repo clone type is empty
-   * @throws Exception
-   */
-  @Test
-  public void shouldAddErrorWhenCloneTypeIsSsh() throws Exception {
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn(CLONE_TYPE_SSH);
-    hook.validate(settings, errors, repo);
-    verify(errors, never()).addFieldError(anyString(), anyString());
+    verify(errors).addFieldError(eq(Notifier.CLONE_URL), anyString());
   }
 
 }

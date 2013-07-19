@@ -32,22 +32,16 @@ import com.nerdwin15.stash.webhook.service.HttpClientFactory;
  */
 public class NotifierTest {
 
-  private static final String HTTP_SOME_STASH_COM = "http://some.stash.com";
-  private static final String FOOBAR_REPO = "/foo/bar.git";
   private static final String JENKINS_BASE_URL = "http://localhost.jenkins";
-  private static final String SSH_URL = 
-      "ssh://git@some.stash.com:7999/hello/world.git";
+  private static final String CLONE_URL =
+      "http://some.stash.com/scm/foo/bar.git";
 
-  private NavBuilder navBuilder;
   private RepositoryHookService hookService;
   private HttpClientFactory httpClientFactory;
   private HttpClient httpClient;
   private ClientConnectionManager connectionManager;
-  private SshCloneUrlResolver sshCloneUrlResolver;
   private Repository repo;
   private RepositoryHook repoHook;
-  private NavBuilder.Repo navRepo;
-  private NavBuilder.RepoClone navRepoClone;
   private Settings settings;
   private Notifier notifier;
 
@@ -56,21 +50,15 @@ public class NotifierTest {
    */
   @Before
   public void setup() throws Exception {
-    navBuilder = mock(NavBuilder.class);
     hookService = mock(RepositoryHookService.class);
     httpClientFactory = mock(HttpClientFactory.class);
-    sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
-    notifier = new Notifier(navBuilder, hookService, httpClientFactory, 
-        sshCloneUrlResolver);
+    notifier = new Notifier(hookService, httpClientFactory);
 
     repo = mock(Repository.class);
     repoHook = mock(RepositoryHook.class);
     settings = mock(Settings.class);
     httpClient = mock(HttpClient.class);
     connectionManager = mock(ClientConnectionManager.class);
-
-    navRepo = mock(NavBuilder.Repo.class);
-    navRepoClone = mock(NavBuilder.RepoClone.class);
 
     when(repoHook.isEnabled()).thenReturn(true);
     when(hookService.getByKey(repo, Notifier.KEY)).thenReturn(repoHook);
@@ -79,18 +67,10 @@ public class NotifierTest {
         .getHttpClient(any(Boolean.class), any(Boolean.class)))
         .thenReturn(httpClient);
     when(httpClient.getConnectionManager()).thenReturn(connectionManager);
-    
-    when(sshCloneUrlResolver.getCloneUrl(repo)).thenReturn(SSH_URL);
-
-    when(navBuilder.repo(repo)).thenReturn(navRepo);
-    when(navRepo.clone("git")).thenReturn(navRepoClone);
-    when(navRepoClone.buildAbsoluteWithoutUsername())
-      .thenReturn(HTTP_SOME_STASH_COM + "/scm" + FOOBAR_REPO);
 
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL);
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("http");
-    when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn(null);
+    when(settings.getString(Notifier.CLONE_URL)).thenReturn(CLONE_URL);
     when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(false);
   }
 
@@ -218,69 +198,5 @@ public class NotifierTest {
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
         captor.getValue().getURI().toString());
   }
-  
-  /**
-   * Verify that the correct url is used when using a ssh clone type
-   * @throws Exception
-   */
-  @Test
-  public void verifyCorrectUrlUsingSshCloneType() throws Exception {
-    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("ssh");
     
-    notifier.notify(repo);
-
-    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
-
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
-    verify(httpClient, times(1)).execute(captor.capture());
-    verify(connectionManager, times(1)).shutdown();
-
-    assertEquals("http://localhost.jenkins/git/notifyCommit?"
-        + "url=ssh%3A%2F%2Fgit%40some.stash.com%3A7999%2Fhello%2Fworld.git",
-        captor.getValue().getURI().toString());    
-  }
-  
-  /**
-   * Verify that the correct url is used when providing an empty HTTP username
-   * @throws Exception
-   */
-  @Test
-  public void verifyCorrectUrlUsingEmptyHttpUsername() throws Exception {
-    when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn("");
-    
-    notifier.notify(repo);
-
-    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
-
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
-    verify(httpClient, times(1)).execute(captor.capture());
-    verify(connectionManager, times(1)).shutdown();
-
-    assertEquals("http://localhost.jenkins/git/notifyCommit?"
-        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
-        captor.getValue().getURI().toString());    
-  }
-  
-  /**
-   * Verify that the correct url is used when providing a custom HTTP username
-   * @throws Exception
-   */
-  @Test
-  public void verifyCorrectUrlUsingCustomHttpUsername() throws Exception {
-    when(settings.getString(Notifier.HTTP_USERNAME)).thenReturn("user");
-    
-    notifier.notify(repo);
-
-    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
-
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
-    verify(httpClient, times(1)).execute(captor.capture());
-    verify(connectionManager, times(1)).shutdown();
-
-    assertEquals("http://localhost.jenkins/git/notifyCommit?"
-        + "url=http%3A%2F%2Fuser%40some.stash.com%2Fscm%2Ffoo%2Fbar.git",
-        captor.getValue().getURI().toString());    
-  }
-  
-  
 }
