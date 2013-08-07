@@ -1,13 +1,15 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import java.lang.reflect.Field;
-
-import javax.annotation.Nonnull;
-
 import com.atlassian.stash.event.StashEvent;
 import com.atlassian.stash.event.pull.PullRequestMergedEvent;
+import com.atlassian.stash.pull.PullRequest;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.user.StashUser;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.Field;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * A PullRequestMergedEvent used for testing.
@@ -26,7 +28,7 @@ public class MockedPullRequestMergedEvent extends PullRequestMergedEvent {
    * Creates a new instance
    */
   public MockedPullRequestMergedEvent() {
-    super("TEST", null, null);
+    super("TEST", mock(PullRequest.class), null);
   }
 
   /**

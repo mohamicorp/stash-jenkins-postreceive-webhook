@@ -20,13 +20,13 @@
 
     <div class="field-group">
         <label for="gitRepoUrl">{stash_i18n('stash.webhook.repo.cloneUrl.label', 'Repo Clone URL')}</label>
-        <select class="select" id="cloneType">
+        <select class="select" id="cloneType" style="max-width: 90px">
             <option value="">Select...</option>
             <option value="http">HTTP</option>
             <option value="ssh">SSH</option>
         </select>
         &nbsp;
-        <input id="gitRepoUrl" class="text" type="text" name="gitRepoUrl" value="{($config['gitRepoUrl'] != null) ? $config['gitRepoUrl'] : ''}">
+        <input id="gitRepoUrl" style="max-width: 400px" class="text" type="text" name="gitRepoUrl" value="{($config['gitRepoUrl'] != null) ? $config['gitRepoUrl'] : ''}">
         <div class="description">
             {stash_i18n('stash.webhook.repo.cloneUrl.description', 'The URL Jenkins is using to clone this repository.')}
         </div>

@@ -1,19 +1,18 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.user.StashUser;
 import com.nerdwin15.stash.webhook.Notifier;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test case for the {@link IgnoreCommittersEligibilityFilter} class
