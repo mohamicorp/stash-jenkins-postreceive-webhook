@@ -59,6 +59,12 @@ public class JenkinsWebhook implements AsyncPostReceiveRepositoryHook, Repositor
     		throws Exception {
     	String query = String.format("url=%s", 
     			URLEncoder.encode(gitRepoUrl, "UTF-8"));
+
+        // in case of jenkins url looking like http://somehost:8081 and therefore not ending with a slash
+        if (!jenkinsBase.endsWith("/")) {
+                jenkinsBase += "/";
+        }
+
     	return jenkinsBase.replaceFirst("/$", "") + "/git/notifyCommit?" + query;
     }
 
