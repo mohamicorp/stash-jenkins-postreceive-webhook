@@ -4,7 +4,7 @@ After making commits to Stash, notify Jenkins that a new build has been created.
 
 ## Requirements
 
-+  **Git Plugin** - Jenkins needs to have the [Git Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin) installed in Jenkins
++  **Git Plugin** - Jenkins needs to have the [Git Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin) installed in Jenkins and the Poll SCM option must be enabled
 
 ## Setup
 
