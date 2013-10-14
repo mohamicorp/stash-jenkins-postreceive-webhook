@@ -21,7 +21,7 @@ Once installed, follow these steps:
 
 ## Release Notes
 ### Version 2.0-SNAPSHOT
--  Made setup of the Jenkins repository easier by adding SSH/HTTP option and HTTP username
+-  Made setup of the Jenkins repository easier by adding SSH/HTTP quick select
 -  Fire notification after pull-requests have been merged
 -  Added a plugin logo
 -  Added test button to the Hook Configuration display
