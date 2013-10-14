@@ -20,7 +20,7 @@ Once installed, follow these steps:
 -  Commit some code and watch it trigger a build!
 
 ## Release Notes
-### Version 2.0-SNAPSHOT
+### Version 2.0
 -  Made setup of the Jenkins repository easier by adding SSH/HTTP quick select
 -  Fire notification after pull-requests have been merged
 -  Added a plugin logo
