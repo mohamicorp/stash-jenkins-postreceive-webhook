@@ -1,18 +1,19 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.hook.repository.RepositoryHookService;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.user.StashUser;
-import com.nerdwin15.stash.webhook.Notifier;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.repository.Repository;
+import com.atlassian.stash.setting.Settings;
+import com.atlassian.stash.user.StashUser;
+import com.nerdwin15.stash.webhook.Notifier;
+import com.nerdwin15.stash.webhook.service.SettingsService;
 
 /**
  * Test case for the {@link IgnoreCommittersEligibilityFilter} class
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.when;
  */
 public class IgnoreCommittersEligibilityFilterTest {
 
-  private RepositoryHookService hookService;
+  private SettingsService settingsService;
   private IgnoreCommittersEligibilityFilter filter;
   private Settings settings;
   private Repository repo;
@@ -33,11 +34,11 @@ public class IgnoreCommittersEligibilityFilterTest {
    */
   @Before
   public void setUp() throws Exception {
-    hookService = mock(RepositoryHookService.class);
+    settingsService = mock(SettingsService.class);
     repo = mock(Repository.class);
-    filter = new IgnoreCommittersEligibilityFilter(hookService);
+    filter = new IgnoreCommittersEligibilityFilter(settingsService);
     settings = mock(Settings.class);
-    when(hookService.getSettings(repo, Notifier.KEY)).thenReturn(settings);
+    when(settingsService.getSettings(repo)).thenReturn(settings);
     
     user = mock(StashUser.class);
     event = mock(RepositoryRefsChangedEvent.class);
