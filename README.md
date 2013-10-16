@@ -23,6 +23,9 @@ Once installed, follow these steps:
 
 ### Version 2.1-SNAPSHOT
 
+### Version 2.0.1
+- Fixed bug in which non-admin users were unable to access webhook settings
+
 ### Version 2.0
 -  Made setup of the Jenkins repository easier by adding SSH/HTTP quick select
 -  Fire notification after pull-requests have been merged
