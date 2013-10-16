@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.atlassian.stash.repository.Repository;
+import com.atlassian.stash.setting.Settings;
+import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
@@ -22,6 +24,7 @@ public class RepositoryChangeListenerTest {
   private Notifier notifier;
   private EligibilityFilterChain filterChain;
   private RepositoryChangeListener listener;
+  private SettingsService settingsService;
 
   /**
    * Setup tasks
@@ -30,7 +33,9 @@ public class RepositoryChangeListenerTest {
   public void setup() throws Exception {
     notifier = mock(Notifier.class);
     filterChain = mock(EligibilityFilterChain.class);
-    listener = new RepositoryChangeListener(filterChain, notifier);
+    settingsService = mock(SettingsService.class);
+    listener = new RepositoryChangeListener(filterChain, notifier, 
+        settingsService);
   }
 
   /**
@@ -40,8 +45,10 @@ public class RepositoryChangeListenerTest {
   public void shouldNotifyWhenChainSaysOk() throws Exception {
     RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
     Repository repo = mock(Repository.class);
+    Settings settings = mock(Settings.class);
 
     when(e.getRepository()).thenReturn(repo);
+    when(settingsService.getSettings(repo)).thenReturn(settings);
     when(filterChain.shouldDeliverNotification(e)).thenReturn(true);
 
     listener.onRefsChangedEvent(e);
@@ -56,9 +63,28 @@ public class RepositoryChangeListenerTest {
   public void shouldNotifyWhenChainSaysCancel() throws Exception {
     RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
     Repository repo = mock(Repository.class);
+    Settings settings = mock(Settings.class);
 
     when(e.getRepository()).thenReturn(repo);
+    when(settingsService.getSettings(repo)).thenReturn(settings);
     when(filterChain.shouldDeliverNotification(e)).thenReturn(false);
+
+    listener.onRefsChangedEvent(e);
+
+    verify(notifier, never()).notify(repo);
+  }
+  
+  /**
+   * Validates that if the repository has no settings set, execution stops
+   * @throws Exception
+   */
+  @Test
+  public void shouldntConsultChainWhenSettingsAreNull() throws Exception {
+    RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
+    Repository repo = mock(Repository.class);
+
+    when(e.getRepository()).thenReturn(repo);
+    when(settingsService.getSettings(repo)).thenReturn(null);
 
     listener.onRefsChangedEvent(e);
 

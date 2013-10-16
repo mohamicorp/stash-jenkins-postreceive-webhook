@@ -15,12 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
+import com.nerdwin15.stash.webhook.service.SettingsService;
 
 /**
  * Service object that does the actual notification.
@@ -60,19 +60,19 @@ public class Notifier {
       LoggerFactory.getLogger(Notifier.class);
   private static final String URL = "%s/git/notifyCommit?url=%s";
 
-  private final RepositoryHookService hookService;
   private final HttpClientFactory httpClientFactory;
+  private final SettingsService settingsService;
 
   /**
    * Create a new instance
-   * @param hookService Hook service
+   * @param settingsService Service used to get webhook settings
    * @param httpClientFactory Factory to generate HttpClients
    */
-  public Notifier(RepositoryHookService hookService, 
-          HttpClientFactory httpClientFactory) {
+  public Notifier(SettingsService settingsService,
+      HttpClientFactory httpClientFactory) {
     
-    this.hookService = hookService;
     this.httpClientFactory = httpClientFactory;
+    this.settingsService = settingsService;
   }
 
   /**
@@ -81,8 +81,8 @@ public class Notifier {
    * @return Text result from Jenkins
    */
   public @Nullable String notify(@Nonnull Repository repo) { //CHECKSTYLE:annot
-    final RepositoryHook hook = hookService.getByKey(repo, KEY);
-    final Settings settings = hookService.getSettings(repo, KEY);
+    final RepositoryHook hook = settingsService.getRepositoryHook(repo);
+    final Settings settings = settingsService.getSettings(repo);
     if (hook == null || !hook.isEnabled() || settings == null) {
       LOGGER.debug("Hook not configured correctly or not enabled, returning.");
       return null;
