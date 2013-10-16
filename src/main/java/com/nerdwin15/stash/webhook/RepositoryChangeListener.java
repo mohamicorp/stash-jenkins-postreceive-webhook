@@ -2,7 +2,7 @@ package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.hook.repository.RepositoryHookService;
+import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
@@ -14,19 +14,19 @@ public class RepositoryChangeListener {
 
   private final EligibilityFilterChain filterChain;
   private final Notifier notifier;
-  private final RepositoryHookService hookService;
+  private final SettingsService settingsService;
 
   /**
    * Construct a new instance.
    * @param filterChain The filter chain to test for eligibility
    * @param notifier The notifier service
-   * @param hookService The hook service
+   * @param settingsService Service to be used to get the Settings
    */
   public RepositoryChangeListener(EligibilityFilterChain filterChain,
-      Notifier notifier, RepositoryHookService hookService) {
+      Notifier notifier, SettingsService settingsService) {
     this.filterChain = filterChain;
     this.notifier = notifier;
-    this.hookService = hookService;
+    this.settingsService = settingsService;
   }
 
   /**
@@ -35,7 +35,7 @@ public class RepositoryChangeListener {
    */
   @EventListener
   public void onRefsChangedEvent(RepositoryRefsChangedEvent event) {
-    if (hookService.getSettings(event.getRepository(), Notifier.KEY) == null) {
+    if (settingsService.getSettings(event.getRepository()) == null) {
       return;
     }
     if (filterChain.shouldDeliverNotification(event))

@@ -14,6 +14,7 @@
     <component key="ignoreCommitersFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IgnoreCommittersEligibilityFilter" />
     <component key="eligibilityFilterChain" class="com.nerdwin15.stash.webhook.service.eligibility.ConcreteEligibilityFilterChain" />
     
+    <component key="settingsRetriever" class="com.nerdwin15.stash.webhook.service.ConcreteSettingsRetriever" />
     <component key="jenkinsRepoChangeListener" class="com.nerdwin15.stash.webhook.RepositoryChangeListener"/>
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>

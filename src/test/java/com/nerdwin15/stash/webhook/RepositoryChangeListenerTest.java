@@ -9,9 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.hook.repository.RepositoryHookService;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
+import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
@@ -24,7 +24,7 @@ public class RepositoryChangeListenerTest {
   private Notifier notifier;
   private EligibilityFilterChain filterChain;
   private RepositoryChangeListener listener;
-  private RepositoryHookService hookService;
+  private SettingsService settingsService;
 
   /**
    * Setup tasks
@@ -33,8 +33,9 @@ public class RepositoryChangeListenerTest {
   public void setup() throws Exception {
     notifier = mock(Notifier.class);
     filterChain = mock(EligibilityFilterChain.class);
-    hookService = mock(RepositoryHookService.class);
-    listener = new RepositoryChangeListener(filterChain, notifier, hookService);
+    settingsService = mock(SettingsService.class);
+    listener = new RepositoryChangeListener(filterChain, notifier, 
+        settingsService);
   }
 
   /**
@@ -47,7 +48,7 @@ public class RepositoryChangeListenerTest {
     Settings settings = mock(Settings.class);
 
     when(e.getRepository()).thenReturn(repo);
-    when(hookService.getSettings(repo, Notifier.KEY)).thenReturn(settings);
+    when(settingsService.getSettings(repo)).thenReturn(settings);
     when(filterChain.shouldDeliverNotification(e)).thenReturn(true);
 
     listener.onRefsChangedEvent(e);
@@ -65,7 +66,7 @@ public class RepositoryChangeListenerTest {
     Settings settings = mock(Settings.class);
 
     when(e.getRepository()).thenReturn(repo);
-    when(hookService.getSettings(repo, Notifier.KEY)).thenReturn(settings);
+    when(settingsService.getSettings(repo)).thenReturn(settings);
     when(filterChain.shouldDeliverNotification(e)).thenReturn(false);
 
     listener.onRefsChangedEvent(e);
@@ -83,7 +84,7 @@ public class RepositoryChangeListenerTest {
     Repository repo = mock(Repository.class);
 
     when(e.getRepository()).thenReturn(repo);
-    when(hookService.getSettings(repo, Notifier.KEY)).thenReturn(null);
+    when(settingsService.getSettings(repo)).thenReturn(null);
 
     listener.onRefsChangedEvent(e);
 

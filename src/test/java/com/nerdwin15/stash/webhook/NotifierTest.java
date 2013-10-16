@@ -17,12 +17,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.hook.repository.RepositoryHookService;
-import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
+import com.nerdwin15.stash.webhook.service.SettingsService;
 
 /**
  * Test for the Notifier class
@@ -36,13 +34,13 @@ public class NotifierTest {
   private static final String CLONE_URL =
       "http://some.stash.com/scm/foo/bar.git";
 
-  private RepositoryHookService hookService;
   private HttpClientFactory httpClientFactory;
   private HttpClient httpClient;
   private ClientConnectionManager connectionManager;
   private Repository repo;
   private RepositoryHook repoHook;
   private Settings settings;
+  private SettingsService settingsService;
   private Notifier notifier;
 
   /**
@@ -50,9 +48,9 @@ public class NotifierTest {
    */
   @Before
   public void setup() throws Exception {
-    hookService = mock(RepositoryHookService.class);
     httpClientFactory = mock(HttpClientFactory.class);
-    notifier = new Notifier(hookService, httpClientFactory);
+    settingsService = mock(SettingsService.class);
+    notifier = new Notifier(settingsService, httpClientFactory);
 
     repo = mock(Repository.class);
     repoHook = mock(RepositoryHook.class);
@@ -61,8 +59,8 @@ public class NotifierTest {
     connectionManager = mock(ClientConnectionManager.class);
 
     when(repoHook.isEnabled()).thenReturn(true);
-    when(hookService.getByKey(repo, Notifier.KEY)).thenReturn(repoHook);
-    when(hookService.getSettings(repo, Notifier.KEY)).thenReturn(settings);
+    when(settingsService.getRepositoryHook(repo)).thenReturn(repoHook);
+    when(settingsService.getSettings(repo)).thenReturn(settings);
     when(httpClientFactory
         .getHttpClient(any(Boolean.class), any(Boolean.class)))
         .thenReturn(httpClient);
@@ -80,7 +78,7 @@ public class NotifierTest {
    */
   @Test
   public void shouldReturnEarlyWhenHookIsNull() throws Exception {
-    when(hookService.getByKey(repo, Notifier.KEY)).thenReturn(null);
+    when(settingsService.getRepositoryHook(repo)).thenReturn(null);
     notifier.notify(repo);
     verify(httpClientFactory, never())
       .getHttpClient(anyBoolean(), anyBoolean());
@@ -104,7 +102,7 @@ public class NotifierTest {
    */
   @Test
   public void shouldReturnEarlyWhenSettingsAreNull() throws Exception {
-    when(hookService.getSettings(repo, Notifier.KEY)).thenReturn(null);
+    when(settingsService.getSettings(repo)).thenReturn(null);
     notifier.notify(repo);
     verify(httpClientFactory, never())
       .getHttpClient(anyBoolean(), anyBoolean());
