@@ -2,6 +2,7 @@ package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
@@ -41,5 +42,18 @@ public class RepositoryChangeListener {
     if (filterChain.shouldDeliverNotification(event))
       notifier.notify(event.getRepository());
   }
-  
+
+  /**
+   * Event listener that is notified of pull request rescope events
+   * @param event The pull request event
+   */
+  @EventListener
+  public void onPullRequestRescope(PullRequestRescopedEvent event) {
+    if (settingsService.getSettings(event.getPullRequest().getToRef().getRepository()) == null) {
+      return;
+    }
+    if (filterChain.shouldDeliverNotification(event))
+      notifier.notify(event.getPullRequest().getToRef().getRepository()); 
+  }
+
 }
