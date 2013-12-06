@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
 import com.atlassian.stash.setting.Settings;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.SettingsService;
@@ -50,4 +51,25 @@ public class IgnoreCommittersEligibilityFilter implements EligibilityFilter {
     }
     return true;
   }
+
+  @Override
+  public boolean shouldDeliverNotification(PullRequestRescopedEvent event) {
+    String eventUserName = event.getUser().getName();
+    
+    final Settings settings = settingsService.getSettings(
+        event.getPullRequest().getToRef().getRepository());
+    String ignoreCommitters = settings.getString(Notifier.IGNORE_COMMITTERS);
+    if (ignoreCommitters == null)
+      return true;
+
+    for (String committer : ignoreCommitters.split(" ")) {
+      if (committer.equalsIgnoreCase(eventUserName)) {
+        logger.debug("Ignoring push event due to ignore committer {}",
+            committer);
+        return false;
+      }
+    }
+    return true;
+  }
+
 }
