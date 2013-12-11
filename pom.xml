@@ -113,6 +113,18 @@
             <version>1.8.5</version>
             <scope>test</scope>
         </dependency>
+				<dependency>
+				   <groupId>org.powermock</groupId>
+				   <artifactId>powermock-module-junit4</artifactId>
+				   <version>${powermock.version}</version>
+				   <scope>test</scope>
+				</dependency>
+        <dependency>
+				  <groupId>org.powermock</groupId>
+				  <artifactId>powermock-api-mockito</artifactId>
+				  <version>${powermock.version}</version>
+				  <scope>test</scope>
+				</dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -154,6 +166,7 @@
         <stash.containerId>tomcat7x</stash.containerId>
         <amps.version>4.2.3</amps.version>
         <plugin.testrunner.version>1.1.1</plugin.testrunner.version>
+        <powermock.version>1.4.9</powermock.version>
     </properties>
 
     <scm>

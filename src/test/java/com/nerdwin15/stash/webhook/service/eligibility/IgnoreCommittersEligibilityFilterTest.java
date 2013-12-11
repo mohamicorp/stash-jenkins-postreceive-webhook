@@ -26,8 +26,8 @@ public class IgnoreCommittersEligibilityFilterTest {
   private IgnoreCommittersEligibilityFilter filter;
   private Settings settings;
   private Repository repo;
-  private RepositoryRefsChangedEvent event;
-  private StashUser user;
+  private EventContext eventContext;
+  private String username = "pinky";
   
   /**
    * Setup tasks
@@ -40,10 +40,10 @@ public class IgnoreCommittersEligibilityFilterTest {
     settings = mock(Settings.class);
     when(settingsService.getSettings(repo)).thenReturn(settings);
     
-    user = mock(StashUser.class);
-    event = mock(RepositoryRefsChangedEvent.class);
-    when(event.getRepository()).thenReturn(repo);
-    when(event.getUser()).thenReturn(user);
+    eventContext = mock(EventContext.class);
+    when(eventContext.getEventSource()).thenReturn(null);
+    when(eventContext.getRepository()).thenReturn(repo);
+    when(eventContext.getUsername()).thenReturn(username);
   }
   
   /**
@@ -54,7 +54,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   @Test
   public void shouldAllowWhenIgnoredCommittersNull() throws Exception {
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(null);
-    assertTrue(filter.shouldDeliverNotification(event));
+    assertTrue(filter.shouldDeliverNotification(eventContext));
   }
   
   /**
@@ -64,9 +64,9 @@ public class IgnoreCommittersEligibilityFilterTest {
    */
   @Test
   public void shouldAllowWhenIgnoredCommittersDoesntMatch() throws Exception {
-    when(user.getName()).thenReturn("user0");
-    when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn("user1");
-    assertTrue(filter.shouldDeliverNotification(event));
+    when(settings.getString(Notifier.IGNORE_COMMITTERS))
+      .thenReturn(username + "-notmatching");
+    assertTrue(filter.shouldDeliverNotification(eventContext));
   }
   
   /**
@@ -75,10 +75,8 @@ public class IgnoreCommittersEligibilityFilterTest {
    */
   @Test
   public void shouldCancelWhenIgnoredCommittersMatches() throws Exception {
-    final String username = "user1";
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(username);
-    when(user.getName()).thenReturn(username);
-    assertFalse(filter.shouldDeliverNotification(event));
+    assertFalse(filter.shouldDeliverNotification(eventContext));
   }
   
   /**
@@ -86,24 +84,10 @@ public class IgnoreCommittersEligibilityFilterTest {
    * @throws Exception
    */
   @Test
-  public void shouldCancelWheMatchesWithMultipleCommitters() throws Exception {
-    final String username = "user1";
+  public void shouldCancelWhenMatchesWithMultipleCommitters() throws Exception {
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(username 
         + " anotherUser");
-    when(user.getName()).thenReturn(username);
-    assertFalse(filter.shouldDeliverNotification(event));
+    assertFalse(filter.shouldDeliverNotification(eventContext));
   }
   
-  /**
-   * Validate that the filter should work correctly with a 
-   * PullRequestMergedEvent
-   * @throws Exception
-   */
-  @Test
-  public void shouldWorkTheSameWithPullRequestMergedEvent() throws Exception {
-    event = new MockedPullRequestMergedEvent();
-    ((MockedPullRequestMergedEvent) event).setRepository(repo);
-    ((MockedPullRequestMergedEvent) event).setUser(user);
-    assertTrue(filter.shouldDeliverNotification(event));
-  }
 }

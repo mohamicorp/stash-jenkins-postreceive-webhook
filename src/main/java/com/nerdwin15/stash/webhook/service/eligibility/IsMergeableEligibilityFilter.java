@@ -3,7 +3,6 @@ package com.nerdwin15.stash.webhook.service.eligibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
 import com.atlassian.stash.pull.PullRequest;
 import com.atlassian.stash.pull.PullRequestService;
@@ -12,12 +11,12 @@ import com.atlassian.stash.pull.PullRequestService;
  * An EligibilityFilter that checks if the commit that was
  * made, is auto-mergeable by Stash.
  * 
- * @author Melvyn de Kort
+ * @author Melvyn de Kort (lordmatanza)
  */
 public class IsMergeableEligibilityFilter implements EligibilityFilter {
 
   private static final Logger logger = // CHECKSTYLE:logger
-  LoggerFactory.getLogger(IsMergeableEligibilityFilter.class);
+      LoggerFactory.getLogger(IsMergeableEligibilityFilter.class);
 
   private PullRequestService pullRequestService;
 
@@ -31,13 +30,14 @@ public class IsMergeableEligibilityFilter implements EligibilityFilter {
   }
 
   @Override
-  public boolean shouldDeliverNotification(RepositoryRefsChangedEvent event) {
-    // This filter is not appropriate for this type of event
-    return true;
-  }
-
-  @Override
-  public boolean shouldDeliverNotification(PullRequestRescopedEvent event) {
+  public boolean shouldDeliverNotification(EventContext context) {
+    if (!PullRequestRescopedEvent.class.isAssignableFrom(
+        context.getEventSource().getClass()))
+      return true;
+    
+    PullRequestRescopedEvent event = 
+        (PullRequestRescopedEvent) context.getEventSource();
+    
     PullRequest pullRequest = event.getPullRequest();
   
     if (event.getPreviousFromHash().equals(pullRequest.getFromRef()
@@ -47,11 +47,10 @@ public class IsMergeableEligibilityFilter implements EligibilityFilter {
       return false;
     }
   
-    int repositoryId = pullRequest.getToRef().getRepository().getId();
+    int repoId = context.getRepository().getId();
     long pullRequestId = pullRequest.getId();
 
-    if (pullRequestService.canMerge(repositoryId, 
-    		pullRequestId).isConflicted()) {
+    if (pullRequestService.canMerge(repoId, pullRequestId).isConflicted()) {
       logger.debug("Ignoring push event due to conflicts in merge");
       return false;
     }

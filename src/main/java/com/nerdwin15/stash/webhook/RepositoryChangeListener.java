@@ -4,6 +4,7 @@ import com.atlassian.event.api.EventListener;
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
+import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
 
 /**
  * Listener for repository change events.  
@@ -42,8 +43,12 @@ public class RepositoryChangeListener {
     if (settingsService.getSettings(event.getRepository()) == null) {
       return;
     }
-    if (filterChain.shouldDeliverNotification(event))
-      notifier.notify(event.getRepository());
+    
+    EventContext context = new EventContext(event, event.getRepository(), 
+        event.getUser().getName());
+    
+    if (filterChain.shouldDeliverNotification(context))
+      notifier.notify(context.getRepository());
   }
 
 }

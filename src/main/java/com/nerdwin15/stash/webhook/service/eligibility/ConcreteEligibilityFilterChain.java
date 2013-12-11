@@ -2,9 +2,6 @@ package com.nerdwin15.stash.webhook.service.eligibility;
 
 import java.util.List;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
-
 /**
  * A concrete implementation of the EligiblityFilterChain.
  * 
@@ -23,16 +20,7 @@ public class ConcreteEligibilityFilterChain implements EligibilityFilterChain {
   }
   
   @Override
-  public boolean shouldDeliverNotification(RepositoryRefsChangedEvent event) {
-    for (EligibilityFilter filter : filters) {
-      if (!filter.shouldDeliverNotification(event))
-        return false;
-    }
-    return true;
-  }
-
-  @Override
-  public boolean shouldDeliverNotification(PullRequestRescopedEvent event) {
+  public boolean shouldDeliverNotification(EventContext event) {
     for (EligibilityFilter filter : filters) {
       if (!filter.shouldDeliverNotification(event))
         return false;

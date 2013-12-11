@@ -4,6 +4,7 @@ import com.atlassian.event.api.EventListener;
 import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
+import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
 
 /**
  * Event listener that listens to PullRequestRescopedEvent events.
@@ -40,8 +41,13 @@ public class PullRequestRescopeListener {
         .getRepository()) == null) {
       return;
     }
-    if (filterChain.shouldDeliverNotification(event))
-      notifier.notify(event.getPullRequest().getToRef().getRepository());
+    
+    EventContext context = new EventContext(event, 
+        event.getPullRequest().getToRef().getRepository(), 
+        event.getUser().getName());
+    
+    if (filterChain.shouldDeliverNotification(context))
+      notifier.notify(context.getRepository());
   }
   
 }
