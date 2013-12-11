@@ -49,7 +49,8 @@ public class RepositoryChangeListener {
    */
   @EventListener
   public void onPullRequestRescope(PullRequestRescopedEvent event) {
-    if (settingsService.getSettings(event.getPullRequest().getToRef().getRepository()) == null) {
+    if (settingsService.getSettings(event.getPullRequest().getToRef()
+    		.getRepository()) == null) {
       return;
     }
     if (filterChain.shouldDeliverNotification(event))

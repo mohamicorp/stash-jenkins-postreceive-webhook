@@ -23,7 +23,7 @@ public class IsMergeableEligibilityFilter implements EligibilityFilter {
 
   /**
    * Constructs a new instance
-   * @param settingsService Service to get the webhook settings
+   * @param pullRequestService Service to get the webhook settings
    */
   public IsMergeableEligibilityFilter(
       PullRequestService pullRequestService) {
@@ -40,15 +40,18 @@ public class IsMergeableEligibilityFilter implements EligibilityFilter {
   public boolean shouldDeliverNotification(PullRequestRescopedEvent event) {
     PullRequest pullRequest = event.getPullRequest();
   
-    if (event.getPreviousFromHash().equals(pullRequest.getFromRef().getLatestChangeset())) {
-      logger.debug("Ignoring push event due to push not coming from the from-side");
+    if (event.getPreviousFromHash().equals(pullRequest.getFromRef()
+    		.getLatestChangeset())) {
+      logger.debug("Ignoring push event due to push not coming from the "
+      		+ "from-side");
       return false;
     }
   
     int repositoryId = pullRequest.getToRef().getRepository().getId();
     long pullRequestId = pullRequest.getId();
 
-    if (pullRequestService.canMerge(repositoryId, pullRequestId).isConflicted()) {
+    if (pullRequestService.canMerge(repositoryId, 
+    		pullRequestId).isConflicted()) {
       logger.debug("Ignoring push event due to conflicts in merge");
       return false;
     }
