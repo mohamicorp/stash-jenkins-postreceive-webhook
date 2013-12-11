@@ -6,7 +6,11 @@ import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
- * Listener for repository change events.
+ * Listener for repository change events.  
+ * 
+ * Since it hears {@link RepositoryRefsChangedEvent} implementations, it is 
+ * notified upon {@link RepositoryPushEvent} and {@link PullRequestMergedEvent}
+ * events.
  * 
  * @author Michael Irwin (mikesir87)
  */
