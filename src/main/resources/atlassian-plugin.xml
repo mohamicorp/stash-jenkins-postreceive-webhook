@@ -10,13 +10,16 @@
     <component-import key="navBuilder" interface="com.atlassian.stash.nav.NavBuilder"/>
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
 
-    <!-- Eligility Filter Setup -->
+    <!-- Eligibility Filter Setup -->
     <component key="ignoreCommitersFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IgnoreCommittersEligibilityFilter" />
     <component key="isMergeableEligibilityFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IsMergeableEligibilityFilter" />
     <component key="eligibilityFilterChain" class="com.nerdwin15.stash.webhook.service.eligibility.ConcreteEligibilityFilterChain" />
-    
+
+    <!-- Event listeners -->    
+    <component key="repoChangeListener" class="com.nerdwin15.stash.webhook.RepositoryChangeListener"/>
+    <component key="pullRequestRescopeListener" class="com.nerdwin15.stash.webhook.PullRequestRescopeListener" />
+
     <component key="settingsRetriever" class="com.nerdwin15.stash.webhook.service.ConcreteSettingsService" />
-    <component key="jenkinsRepoChangeListener" class="com.nerdwin15.stash.webhook.RepositoryChangeListener"/>
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>
     <component-import key="sshCloneUrlResolver" interface="com.atlassian.stash.ssh.api.SshCloneUrlResolver"/>

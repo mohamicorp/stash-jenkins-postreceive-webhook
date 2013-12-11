@@ -1,16 +1,17 @@
 package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
 /**
- * Listener for repository change events.
+ * Event listener that listens to PullRequestRescopedEvent events.
  * 
  * @author Michael Irwin (mikesir87)
+ * @author Melvyn de Kort (lordmatanza)
  */
-public class RepositoryChangeListener {
+public class PullRequestRescopeListener {
 
   private final EligibilityFilterChain filterChain;
   private final Notifier notifier;
@@ -22,24 +23,25 @@ public class RepositoryChangeListener {
    * @param notifier The notifier service
    * @param settingsService Service to be used to get the Settings
    */
-  public RepositoryChangeListener(EligibilityFilterChain filterChain,
+  public PullRequestRescopeListener(EligibilityFilterChain filterChain,
       Notifier notifier, SettingsService settingsService) {
     this.filterChain = filterChain;
     this.notifier = notifier;
     this.settingsService = settingsService;
   }
-
+  
   /**
-   * Event listener that is notified of both pull request merges and push events
+   * Event listener that is notified of pull request rescope events
    * @param event The pull request event
    */
   @EventListener
-  public void onRefsChangedEvent(RepositoryRefsChangedEvent event) {
-    if (settingsService.getSettings(event.getRepository()) == null) {
+  public void onPullRequestRescope(PullRequestRescopedEvent event) {
+    if (settingsService.getSettings(event.getPullRequest().getToRef()
+        .getRepository()) == null) {
       return;
     }
     if (filterChain.shouldDeliverNotification(event))
-      notifier.notify(event.getRepository());
+      notifier.notify(event.getPullRequest().getToRef().getRepository());
   }
-
+  
 }
