@@ -3,7 +3,6 @@ package com.nerdwin15.stash.webhook;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -16,7 +15,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
+import com.atlassian.stash.event.pull.PullRequestEvent;
 import com.atlassian.stash.pull.PullRequest;
 import com.atlassian.stash.pull.PullRequestRef;
 import com.atlassian.stash.repository.Repository;
@@ -32,14 +31,14 @@ import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
  * @author Michael Irwin (mikesir87)
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(PullRequestRescopedEvent.class)
-public class PullRequestRescopeListenerTest {
+@PrepareForTest(PullRequestEvent.class)
+public class PullRequestEventListenerTest {
 
   private Notifier notifier;
   private EligibilityFilterChain filterChain;
-  private PullRequestRescopeListener listener;
+  private PullRequestEventListener listener;
   private SettingsService settingsService;
-  private PullRequestRescopedEvent event;
+  private PullRequestEvent event;
   private Repository repo;
 
   /**
@@ -50,7 +49,7 @@ public class PullRequestRescopeListenerTest {
     PullRequest request = mock(PullRequest.class);
     PullRequestRef toRef = mock(PullRequestRef.class);
     
-    event = mock(PullRequestRescopedEvent.class);
+    event = mock(PullRequestEvent.class);
     when(event.getPullRequest()).thenReturn(request);
     when(request.getToRef()).thenReturn(toRef);
     when(toRef.getRepository()).thenReturn(repo);
@@ -58,7 +57,7 @@ public class PullRequestRescopeListenerTest {
     notifier = mock(Notifier.class);
     filterChain = mock(EligibilityFilterChain.class);
     settingsService = mock(SettingsService.class);
-    listener = new PullRequestRescopeListener(filterChain, notifier, 
+    listener = new PullRequestEventListener(filterChain, notifier, 
         settingsService);
   }
 
@@ -80,7 +79,7 @@ public class PullRequestRescopeListenerTest {
     when(filterChain.shouldDeliverNotification(contextCaptor.capture()))
         .thenReturn(true);
 
-    listener.onPullRequestRescope(event);
+    listener.handleEvent(event);
 
     verify(notifier).notify(repo);
     assertEquals(event, contextCaptor.getValue().getEventSource());
@@ -107,7 +106,7 @@ public class PullRequestRescopeListenerTest {
     when(filterChain.shouldDeliverNotification(contextCaptor.capture()))
         .thenReturn(false);
 
-    listener.onPullRequestRescope(event);
+    listener.handleEvent(event);
 
     verify(notifier, never()).notify(repo);
   }
@@ -124,7 +123,7 @@ public class PullRequestRescopeListenerTest {
     when(e.getRepository()).thenReturn(repo);
     when(settingsService.getSettings(repo)).thenReturn(null);
 
-    listener.onPullRequestRescope(event);
+    listener.handleEvent(event);
 
     verify(notifier, never()).notify(repo);
   }
