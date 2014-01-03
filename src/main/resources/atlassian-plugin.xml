@@ -13,6 +13,7 @@
     <!-- Eligibility Filter Setup -->
     <component key="ignoreCommitersFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IgnoreCommittersEligibilityFilter" />
     <component key="isMergeableEligibilityFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IsMergeableEligibilityFilter" />
+    <component key="pullRequestRescopeEligibilityFilter" class="com.nerdwin15.stash.webhook.service.eligibility.PullRequestRescopeEligibilityFilter" />
     <component key="eligibilityFilterChain" class="com.nerdwin15.stash.webhook.service.eligibility.ConcreteEligibilityFilterChain" />
 
     <!-- Event listeners -->    
