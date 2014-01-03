@@ -1,5 +1,7 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
+import com.atlassian.stash.event.pull.PullRequestOpenedEvent;
+import com.atlassian.stash.event.pull.PullRequestReopenedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,22 +33,31 @@ public class IsMergeableEligibilityFilter implements EligibilityFilter {
 
   @Override
   public boolean shouldDeliverNotification(EventContext context) {
-    if (!PullRequestRescopedEvent.class.isAssignableFrom(
-        context.getEventSource().getClass()))
-      return true;
-    
-    PullRequestRescopedEvent event = 
-        (PullRequestRescopedEvent) context.getEventSource();
-    
-    PullRequest pullRequest = event.getPullRequest();
-  
-    if (event.getPreviousFromHash().equals(pullRequest.getFromRef()
-    		.getLatestChangeset())) {
-      logger.debug("Ignoring push event due to push not coming from the "
-      		+ "from-side");
-      return false;
+    PullRequest pullRequest;
+
+    if (PullRequestOpenedEvent.class.isAssignableFrom(context.getEventSource().getClass())) {
+      PullRequestOpenedEvent event = (PullRequestOpenedEvent) context.getEventSource();
+      pullRequest = event.getPullRequest();
     }
-  
+    else if (PullRequestReopenedEvent.class.isAssignableFrom(context.getEventSource().getClass())) {
+      PullRequestReopenedEvent event = (PullRequestReopenedEvent) context.getEventSource();
+      pullRequest = event.getPullRequest();
+    }
+    else if (PullRequestRescopedEvent.class.isAssignableFrom(context.getEventSource().getClass())) {
+      PullRequestRescopedEvent event = (PullRequestRescopedEvent) context.getEventSource();
+      pullRequest = event.getPullRequest();
+
+      if (event.getPreviousFromHash().equals(pullRequest.getFromRef()
+              .getLatestChangeset())) {
+        logger.debug("Ignoring push event due to push not coming from the "
+                + "from-side");
+        return false;
+      }
+    }
+    else {
+      return true;
+    }
+
     int repoId = context.getRepository().getId();
     long pullRequestId = pullRequest.getId();
 
