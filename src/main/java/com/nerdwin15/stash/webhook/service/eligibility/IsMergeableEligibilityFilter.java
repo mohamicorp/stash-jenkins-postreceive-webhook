@@ -3,15 +3,17 @@ package com.nerdwin15.stash.webhook.service.eligibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
-import com.atlassian.stash.pull.PullRequest;
+import com.atlassian.stash.event.pull.PullRequestEvent;
 import com.atlassian.stash.pull.PullRequestService;
 
 /**
  * An EligibilityFilter that checks if the commit that was
  * made, is auto-mergeable by Stash.
  * 
+ * This filter works with all PullRequestEvents that come through.
+ * 
  * @author Melvyn de Kort (lordmatanza)
+ * @author Michael Irwin (mikesir87)
  */
 public class IsMergeableEligibilityFilter implements EligibilityFilter {
 
@@ -31,24 +33,15 @@ public class IsMergeableEligibilityFilter implements EligibilityFilter {
 
   @Override
   public boolean shouldDeliverNotification(EventContext context) {
-    if (!PullRequestRescopedEvent.class.isAssignableFrom(
-        context.getEventSource().getClass()))
+    
+    if (!PullRequestEvent.class
+        .isAssignableFrom(context.getEventSource().getClass()))
       return true;
     
-    PullRequestRescopedEvent event = 
-        (PullRequestRescopedEvent) context.getEventSource();
+    PullRequestEvent event = (PullRequestEvent) context.getEventSource();
     
-    PullRequest pullRequest = event.getPullRequest();
-  
-    if (event.getPreviousFromHash().equals(pullRequest.getFromRef()
-    		.getLatestChangeset())) {
-      logger.debug("Ignoring push event due to push not coming from the "
-      		+ "from-side");
-      return false;
-    }
-  
     int repoId = context.getRepository().getId();
-    long pullRequestId = pullRequest.getId();
+    long pullRequestId = event.getPullRequest().getId();
 
     if (pullRequestService.canMerge(repoId, pullRequestId).isConflicted()) {
       logger.debug("Ignoring push event due to conflicts in merge");

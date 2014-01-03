@@ -51,34 +51,15 @@ public class IsMergeableEligibilityFilterTest {
   }
   
   /**
-   * Validate that when the event source is not a PullRequestScopedEvent,
+   * Validate that when the event source is not a PullRequestEvent,
    * the filter just passes it on.
    */
   @Test
-  public void shouldIgnoreIfEventSourceNotPullRequestScopedEvent() {
-    PullRequestMergedEvent event = mock(PullRequestMergedEvent.class);
+  public void shouldIgnoreIfEventSourceNotPullRequestEvent() {
+    String event = "Hi there";
     when(eventContext.getEventSource()).thenReturn(event);
     
     assertTrue(filter.shouldDeliverNotification(eventContext));
-  }
-
-  /**
-   * Validate that when the event is fired and from the "From" side, ignore it
-   * and don't notify Jenkins.
-   */
-  @Test
-  public void shouldNotContinueIfUpdateComesFromFromSide() {
-    PullRequest request = mock(PullRequest.class);
-    PullRequestRef ref = mock(PullRequestRef.class);
-    String hash = "some-hash";
-    
-    when(event.getPullRequest()).thenReturn(request);
-    when(request.getFromRef()).thenReturn(ref);
-    
-    when(event.getPreviousFromHash()).thenReturn(hash);
-    when(ref.getLatestChangeset()).thenReturn(hash);
-    
-    assertFalse(filter.shouldDeliverNotification(eventContext));
   }
   
   /**
