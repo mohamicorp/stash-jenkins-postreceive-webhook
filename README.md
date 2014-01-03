@@ -21,8 +21,8 @@ Once installed, follow these steps:
 
 ## Release Notes
 
-### Version 2.1-SNAPSHOT
-- Webhook triggers are fired when new commits have been added to pull requests (thanks [stupchiy](https://github.com/stupchiy) for the research and [lordmatanza](https://github.com/lordmatanza) for the pull request)
+### Version 2.1
+- Trigger webhooks when pull requests are opened, reopened, or updated (thanks [stupchiy](https://github.com/stupchiy) for the research and [lordmatanza](https://github.com/lordmatanza) for the pull request)
 
 ### Version 2.0.1
 - Fixed bug in which non-admin users were unable to access webhook settings
