@@ -109,6 +109,26 @@ public class JenkinsResource extends RestResource {
   }
   
   /**
+   * Trigger a build on the Jenkins instance
+   * @param repository The repository to trigger
+   * @return The response. Ok if it worked. Otherwise, an error.
+   */
+  @POST
+  @Path(value = "triggerJenkins")
+  public Response trigger(@Context Repository repository) {
+    try {
+      String response = notifier.notify(repository);
+      if (response == null)
+        return Response.noContent().build();
+      return Response.ok().build();
+    }
+    catch (Exception e) {
+      return Response.status(Status.INTERNAL_SERVER_ERROR)
+          .entity(e.getMessage()).build();
+    }
+  }
+  
+  /**
    * Get the default clone urls for a repository.
    * @param repository The repository to get clone urls for
    * @return A response
