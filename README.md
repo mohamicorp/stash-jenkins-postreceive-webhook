@@ -19,7 +19,30 @@ Once installed, follow these steps:
 -  Submit the form.
 -  Commit some code and watch it trigger a build!
 
+## Troubleshooting
+
+- Check your log file for any exceptions
+- Be sure you have polling turned on for your project in Jenkins (can use **H 0 1 1 0** as an example)
+- Verify that the URLs for your repository match in Jenkins and the webhook settings.  They MUST be identical.
+- Still stuck? Check out the [this wiki page](https://github.com/Nerdwin15/stash-jenkins-postreceive-webhook/wiki/Debug) or open an issue
+
+## Rate the Plugin
+
+If you found this plugin useful, please consider leaving us a rating on our [Atlassian Marketplace listing](https://marketplace.atlassian.com/manage/plugins/com.nerdwin15.stash-stash-webhook-jenkins). Thanks!
+
+## Donate to Development
+
+If you've benefited from this open-source project, please take a moment and donate to its continued maintenance and development. 
+
+Forget buying me a beer (don't drink anyways)... they're going to pay off student loans, save up for a house, college funds, and who knows? maybe a toy or two.
+
+- Square Cash: [Send email to mikesir87@gmail.com](mailto:donate@nerdwin15.com?cc=cash@square.com&subject=$XXX&body=Thanks%20for%20the%20plugin!)
+- PayPal: [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9BZWAS9K95SGQ)
+
 ## Release Notes
+
+### Version 2.2-SNAPSHOT
+- Added button to Pull Request page to trigger a build. Note that Jenkins will still only build if there is an actual change to build.
 
 ### Version 2.1
 - Trigger webhooks when pull requests are opened, reopened, or updated (thanks [stupchiy](https://github.com/stupchiy) for the research and [lordmatanza](https://github.com/lordmatanza) for the pull request)
