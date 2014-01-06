@@ -52,4 +52,23 @@
         <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-spinner</dependency>
     </stash-resource>
+    
+    <web-item key="stash.jenkinshook.trigger" name="Trigger Build" weight="50" section="stash.pull-request.toolbar.actions">
+        <conditions type="AND">
+            <condition class="com.atlassian.stash.web.conditions.PullRequestInState">
+                <param name="state">OPEN</param>
+            </condition>
+            <condition class="com.atlassian.stash.web.conditions.CanMergePullRequestCondition"/>
+        </conditions>
+        <label key="stash.web.pull-request.toolbar.triggerJenkins">Trigger Build</label>
+        <styleClass>triggerJenkinsBuild</styleClass>
+        <dependency>${project.groupId}-${project.artifactId}:jenkins-pr-triggerbutton</dependency>
+    </web-item>
+    
+    <web-resource key="jenkins-pr-triggerbutton">
+        <resource type="download" name="jenkins-pr-triggerbutton.js" location="/static/jenkins-pr-triggerbutton.js" />
+        <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
+        <context>stash.page.pullRequest.view</context>
+    </web-resource>
+
 </atlassian-plugin>
