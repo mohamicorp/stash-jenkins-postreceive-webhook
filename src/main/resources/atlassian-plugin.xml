@@ -59,6 +59,7 @@
                 <param name="state">OPEN</param>
             </condition>
             <condition class="com.atlassian.stash.web.conditions.CanMergePullRequestCondition"/>
+            <condition class="com.nerdwin15.stash.webhook.conditions.WebhookIsEnabledCondition" />
         </conditions>
         <label key="stash.web.pull-request.toolbar.triggerJenkins">Trigger Build</label>
         <styleClass>triggerJenkinsBuild</styleClass>
