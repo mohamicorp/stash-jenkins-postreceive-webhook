@@ -43,7 +43,7 @@ public class WebhookIsEnabledCondition implements Condition {
   @Override
   public boolean shouldDisplay(Map<String, Object> context) {
     final Object obj = context.get(REPOSITORY);
-    if (!(obj instanceof Repository))
+    if (obj == null || !(obj instanceof Repository))
       return false;
     
     Repository repo = (Repository) obj;
