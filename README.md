@@ -36,12 +36,15 @@ If you've benefited from this open-source project, please take a moment and dona
 
 Forget buying me a beer (don't drink anyways)... they're going to pay off student loans, save up for a house, college funds, and who knows? maybe a toy or two.
 
-- Square Cash: [Send email to mikesir87@gmail.com](mailto:donate@nerdwin15.com?cc=cash@square.com&subject=$XXX&body=Thanks%20for%20the%20plugin!)
+- Square Cash: [Send email to donate@nerdwin15.com](mailto:donate@nerdwin15.com?cc=cash@square.com&subject=$XXX&body=Thanks%20for%20the%20plugin!)
 - PayPal: [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9BZWAS9K95SGQ)
 
 ## Release Notes
 
-### Version 2.2-SNAPSHOT
+### Version 2.3-SNAPSHOT
+- Don't know yet!
+
+### Version 2.2
 - Added button to Pull Request page to trigger a build. Note that Jenkins will still only build if there is an actual change to build.
 
 ### Version 2.1
