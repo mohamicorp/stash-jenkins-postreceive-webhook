@@ -28,7 +28,7 @@ Once installed, follow these steps:
 
 ## Rate the Plugin
 
-If you found this plugin useful, please consider leaving us a rating on our [Atlassian Marketplace listing](https://marketplace.atlassian.com/manage/plugins/com.nerdwin15.stash-stash-webhook-jenkins). Thanks!
+If you found this plugin useful, please consider leaving us a rating on our [Atlassian Marketplace listing](https://marketplace.atlassian.com/plugins/com.nerdwin15.stash-stash-webhook-jenkins). Thanks!
 
 ## Donate to Development
 
