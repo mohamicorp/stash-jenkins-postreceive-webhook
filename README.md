@@ -44,6 +44,9 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 ### Version 2.3-SNAPSHOT
 - Don't know yet!
 
+### Version 2.2.1
+- Fixed bug in which notifications no longer were sent when pull request is merged
+
 ### Version 2.2
 - Added button to Pull Request page to trigger a build. Note that Jenkins will still only build if there is an actual change to build.
 
