@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.pull.PullRequestMergedEvent;
 import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
 import com.atlassian.stash.pull.PullRequest;
 import com.atlassian.stash.pull.PullRequestMergeability;
 import com.atlassian.stash.pull.PullRequestRef;
 import com.atlassian.stash.pull.PullRequestService;
+import com.atlassian.stash.pull.PullRequestState;
 import com.atlassian.stash.repository.Repository;
 
 /**
@@ -27,6 +27,7 @@ public class IsMergeableEligibilityFilterTest {
   private IsMergeableEligibilityFilter filter;
   private Repository repo;
   private EventContext eventContext;
+  private PullRequest pullRequest;
   private PullRequestRescopedEvent event;
   private String username = "pinky";
   private int repoId = 1;
@@ -37,14 +38,17 @@ public class IsMergeableEligibilityFilterTest {
   @Before
   public void setUp() throws Exception {
     pullRequestService = mock(PullRequestService.class);
-
     repo = mock(Repository.class);
+    pullRequest = mock(PullRequest.class);
+    eventContext = mock(EventContext.class);
+    event = mock(PullRequestRescopedEvent.class);
+
     when(repo.getId()).thenReturn(repoId);
     
     filter = new IsMergeableEligibilityFilter(pullRequestService);
     
-    event = mock(PullRequestRescopedEvent.class);
-    eventContext = mock(EventContext.class);
+    when(event.getPullRequest()).thenReturn(pullRequest);
+    when(pullRequest.getState()).thenReturn(PullRequestState.OPEN);
     when(eventContext.getEventSource()).thenReturn(event);
     when(eventContext.getRepository()).thenReturn(repo);
     when(eventContext.getUsername()).thenReturn(username);
@@ -68,13 +72,11 @@ public class IsMergeableEligibilityFilterTest {
   @Test
   public void shouldNotContinueIfMergeConflictOccurs() {
     Long prId = 2L;
-    PullRequest request = mock(PullRequest.class);
     PullRequestRef ref = mock(PullRequestRef.class);
     PullRequestMergeability mergability = mock(PullRequestMergeability.class);
     
-    when(event.getPullRequest()).thenReturn(request);
-    when(request.getFromRef()).thenReturn(ref);
-    when(request.getId()).thenReturn(prId);
+    when(pullRequest.getFromRef()).thenReturn(ref);
+    when(pullRequest.getId()).thenReturn(prId);
     
     when(event.getPreviousFromHash()).thenReturn("event-hash");
     when(ref.getLatestChangeset()).thenReturn("ref-hash");
@@ -90,18 +92,28 @@ public class IsMergeableEligibilityFilterTest {
   @Test
   public void shouldContinueIfMergeConflictWillNotOccur() {
     Long prId = 2L;
-    PullRequest request = mock(PullRequest.class);
     PullRequestRef ref = mock(PullRequestRef.class);
     PullRequestMergeability mergability = mock(PullRequestMergeability.class);
     
-    when(event.getPullRequest()).thenReturn(request);
-    when(request.getFromRef()).thenReturn(ref);
-    when(request.getId()).thenReturn(prId);
+    when(event.getPullRequest()).thenReturn(pullRequest);
+    when(pullRequest.getFromRef()).thenReturn(ref);
+    when(pullRequest.getId()).thenReturn(prId);
     
     when(event.getPreviousFromHash()).thenReturn("event-hash");
     when(ref.getLatestChangeset()).thenReturn("ref-hash");
     when(pullRequestService.canMerge(repoId, prId)).thenReturn(mergability);
     when(mergability.isConflicted()).thenReturn(false);
+    
+    assertTrue(filter.shouldDeliverNotification(eventContext));
+  }
+  
+  /**
+   * Validate that if the pull request is not in the OPEN state, the filter
+   * should allow continuing.
+   */
+  @Test
+  public void shouldContinueIfPullRequestNotInOpenState() {
+    when(pullRequest.getState()).thenReturn(PullRequestState.MERGED);
     
     assertTrue(filter.shouldDeliverNotification(eventContext));
   }
