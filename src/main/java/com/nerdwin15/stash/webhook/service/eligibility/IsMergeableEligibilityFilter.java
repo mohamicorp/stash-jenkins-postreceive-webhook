@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.atlassian.stash.event.pull.PullRequestEvent;
 import com.atlassian.stash.pull.PullRequestService;
+import com.atlassian.stash.pull.PullRequestState;
 
 /**
  * An EligibilityFilter that checks if the commit that was
@@ -39,6 +40,9 @@ public class IsMergeableEligibilityFilter implements EligibilityFilter {
       return true;
     
     PullRequestEvent event = (PullRequestEvent) context.getEventSource();
+    
+    if (!event.getPullRequest().getState().equals(PullRequestState.OPEN))
+      return true;
     
     int repoId = context.getRepository().getId();
     long pullRequestId = event.getPullRequest().getId();
