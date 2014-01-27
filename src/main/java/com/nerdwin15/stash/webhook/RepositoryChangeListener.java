@@ -44,8 +44,8 @@ public class RepositoryChangeListener {
       return;
     }
     
-    EventContext context = new EventContext(event, event.getRepository(), 
-        event.getUser().getName());
+    String user = (event.getUser() != null) ? event.getUser().getName() : null;
+    EventContext context = new EventContext(event, event.getRepository(), user);
     
     if (filterChain.shouldDeliverNotification(context))
       notifier.notify(context.getRepository());

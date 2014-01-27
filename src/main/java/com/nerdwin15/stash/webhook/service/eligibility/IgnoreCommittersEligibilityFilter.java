@@ -37,7 +37,7 @@ public class IgnoreCommittersEligibilityFilter implements EligibilityFilter {
     final Settings settings = settingsService.getSettings(
         event.getRepository());
     String ignoreCommitters = settings.getString(Notifier.IGNORE_COMMITTERS);
-    if (ignoreCommitters == null)
+    if (ignoreCommitters == null || eventUserName == null)
       return true;
 
     for (String committer : ignoreCommitters.split(" ")) {

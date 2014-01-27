@@ -72,6 +72,32 @@ public class RepositoryChangeListenerTest {
   }
 
   /**
+   * Validates that everything works fine when the event has a null user
+   */
+  @Test
+  public void shouldWorkFineWithNullUser() throws Exception {
+    RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
+    Repository repo = mock(Repository.class);
+    Settings settings = mock(Settings.class);
+
+    ArgumentCaptor<EventContext> contextCaptor = 
+        ArgumentCaptor.forClass(EventContext.class);
+    when(e.getUser()).thenReturn(null);
+    
+    when(e.getRepository()).thenReturn(repo);
+    when(settingsService.getSettings(repo)).thenReturn(settings);
+    when(filterChain.shouldDeliverNotification(contextCaptor.capture()))
+        .thenReturn(true);
+
+    listener.onRefsChangedEvent(e);
+
+    verify(notifier).notify(repo);
+    assertEquals(e, contextCaptor.getValue().getEventSource());
+    assertEquals(null, contextCaptor.getValue().getUsername());
+    assertEquals(repo, contextCaptor.getValue().getRepository());
+  }
+
+  /**
    * Validates that the notifier is not notified when the filter chain says no
    */
   @Test
@@ -116,4 +142,5 @@ public class RepositoryChangeListenerTest {
 
     verify(notifier, never()).notify(repo);
   }
+  
 }
