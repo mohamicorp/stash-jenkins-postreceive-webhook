@@ -44,6 +44,9 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 ### Version 2.3-SNAPSHOT
 - Don't know yet!
 
+### Version 2.2.2
+- Fixed NPE that occurs when event has a null user. Was seen using the SVN Mirror plugin.
+
 ### Version 2.2.1
 - Fixed bug in which notifications no longer were sent when pull request is merged
 
