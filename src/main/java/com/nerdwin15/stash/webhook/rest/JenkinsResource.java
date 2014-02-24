@@ -24,12 +24,12 @@ import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.rest.interceptor.ResourceContextInterceptor;
 import com.atlassian.stash.rest.util.ResourcePatterns;
-import com.atlassian.stash.rest.util.ResponseFactory;
 import com.atlassian.stash.rest.util.RestResource;
 import com.atlassian.stash.rest.util.RestUtils;
 import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
 import com.atlassian.stash.user.Permission;
 import com.atlassian.stash.user.PermissionValidationService;
+import com.nerdwin15.stash.webhook.NotificationResult;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.sun.jersey.spi.resource.Singleton;
 
@@ -85,27 +85,33 @@ public class JenkinsResource extends RestResource {
    */
   @POST
   @Path(value = "test")
-  public Response test(@Context Repository repository,
+  @Produces(MediaType.APPLICATION_JSON)
+  public Map<String, Object> test(@Context Repository repository,
         @FormParam(Notifier.JENKINS_BASE) String jenkinsBase,
         @FormParam(Notifier.CLONE_URL) String cloneUrl,
         @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts) {
     
-    if (jenkinsBase == null || cloneUrl == null)
-      return Response.status(Status.BAD_REQUEST).build();
+    if (jenkinsBase == null || cloneUrl == null) {
+      Map<String, Object> map = new HashMap<String, Object>();
+      map.put("successful", false);
+      map.put("message", "Settings must be configured");
+      return map;
+    }
     
     permissionService.validateForRepository(repository, Permission.REPO_ADMIN);
     log.debug("Triggering jenkins notification for repository {}/{}", 
         repository.getProject().getKey(), repository.getSlug());
 
-    final String response = notifier.notify(repository, jenkinsBase, 
+    NotificationResult result = notifier.notify(repository, jenkinsBase, 
         ignoreCerts, cloneUrl);
-    log.debug("Got response from jenkins: {}", response);
-    if (response == null || !response.startsWith("Scheduled")) {
-      return fail(repository);
-    }
-    log.info("Successfully triggered jenkins for repository {}/{}", 
-        repository.getProject().getKey(), repository.getSlug());
-    return Response.ok().build();
+    log.debug("Got response from jenkins: {}", result);
+
+    // Shouldn't have to do this but the result isn't being marshalled correctly
+    Map<String, Object> map = new HashMap<String, Object>();
+    map.put("successful", result.isSuccessful());
+    map.put("url", result.getUrl());
+    map.put("message", result.getMessage());
+    return map;
   }
   
   /**
@@ -117,10 +123,10 @@ public class JenkinsResource extends RestResource {
   @Path(value = "triggerJenkins")
   public Response trigger(@Context Repository repository) {
     try {
-      String response = notifier.notify(repository);
-      if (response == null)
-        return Response.noContent().build();
-      return Response.ok().build();
+      NotificationResult result = notifier.notify(repository);
+      if (result.isSuccessful())
+        return Response.ok().build();
+      return Response.noContent().build();
     }
     catch (Exception e) {
       return Response.status(Status.INTERNAL_SERVER_ERROR)
@@ -143,10 +149,4 @@ public class JenkinsResource extends RestResource {
     return Response.ok(data).build();
   }
 
-  private Response fail(final Repository repository) {
-    log.info("Triggering jenkins failed for repository {}/{}", 
-        repository.getProject().getKey(), repository.getSlug());
-    return ResponseFactory.ok("FAIL").build();
-  }
-  
 }

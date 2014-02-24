@@ -1,7 +1,7 @@
 package com.nerdwin15.stash.webhook.rest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,7 +20,6 @@ import com.atlassian.stash.nav.NavBuilder.RepoClone;
 import com.atlassian.stash.project.Project;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
-import com.atlassian.stash.user.Permission;
 import com.atlassian.stash.user.PermissionValidationService;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -33,7 +32,6 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 public class JenkinsResourceTest {
 
   private static final String JENKINS_BASE = "http://jenkins.localhost/jenkins";
-  private static final String CLONE_URL = "ssh://git@stash:7999/test/test.git";
   private static final boolean IGNORE_CERTS = false;
 
   private static final String HTTP_URL = 
@@ -76,8 +74,9 @@ public class JenkinsResourceTest {
    */
   @Test
   public void shouldFailWhenJenkinsBaseNullProvidedToTest() {
-    Response response = resource.test(repository, null, CLONE_URL, IGNORE_CERTS);
-    assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    Map<String, Object> result = 
+        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS);
+    assertFalse((Boolean) result.get("successful"));
   }
 
   /**
@@ -86,40 +85,9 @@ public class JenkinsResourceTest {
    */
   @Test
   public void shouldFailWhenCloneUrlNullProvidedToTest() {
-    Response response = resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS);
-    assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-  }
-  
-  /**
-   * Validate that the test should fail if the notifier returns null.
-   */
-  @Test
-  public void shouldFailTestWhenNotifierReturnsNull() {
-    Response response = fireTest(null);
-    assertEquals(Status.OK.getStatusCode(), response.getStatus());
-    assertEquals("FAIL", response.getEntity());
-  }
-  
-  /**
-   * Validate that the test should fail if the notifier returns something 
-   * unexpected.
-   */
-  @Test
-  public void shouldFailTestWhenNotifierReturnsUnexpectedResult() {
-    Response response = fireTest("Something unexpected");
-    assertEquals(Status.OK.getStatusCode(), response.getStatus());
-    assertEquals("FAIL", response.getEntity());
-  }
-  
-  /**
-   * Validate that the test should pass if the notifier returns the expected
-   * value.
-   */
-  @Test
-  public void shouldPassTestWhenNotifierReturnsExpectedResult() {
-    Response response = fireTest("Scheduled some sort of poll");
-    assertEquals(Status.OK.getStatusCode(), response.getStatus());
-    assertNull(response.getEntity());
+    Map<String, Object> result = 
+        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS);
+    assertFalse((Boolean) result.get("successful"));
   }
   
   /**
@@ -145,20 +113,6 @@ public class JenkinsResourceTest {
     
     verify(sshCloneUrlResolver).getCloneUrl(repository);
     verify(repoClone).buildAbsoluteWithoutUsername();
-  }
-  
-  private Response fireTest(String jenkinsResponse) {
-    when(notifier.notify(repository, JENKINS_BASE, IGNORE_CERTS, CLONE_URL))
-      .thenReturn(jenkinsResponse);
-    
-    Response response = resource.test(repository, JENKINS_BASE, CLONE_URL, 
-        IGNORE_CERTS);
-    
-    verify(permissionValidationService)
-      .validateForRepository(repository, Permission.REPO_ADMIN);
-    verify(notifier).notify(repository, JENKINS_BASE, IGNORE_CERTS, CLONE_URL);
-    
-    return response;
   }
   
 }

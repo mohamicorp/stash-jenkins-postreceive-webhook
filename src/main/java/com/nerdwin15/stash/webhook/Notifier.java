@@ -80,7 +80,7 @@ public class Notifier {
    * @param repo The repository to base the notification on.
    * @return Text result from Jenkins
    */
-  public @Nullable String notify(@Nonnull Repository repo) { //CHECKSTYLE:annot
+  public @Nullable NotificationResult notify(@Nonnull Repository repo) { //CHECKSTYLE:annot
     final RepositoryHook hook = settingsService.getRepositoryHook(repo);
     final Settings settings = settingsService.getSettings(repo);
     if (hook == null || !hook.isEnabled() || settings == null) {
@@ -99,9 +99,9 @@ public class Notifier {
    * @param jenkinsBase Base URL for Jenkins instance
    * @param ignoreCerts True if all certs should be allowed
    * @param cloneUrl The repository url
-   * @return The response body for the notification.
+   * @return The notification result.
    */
-  public @Nullable String notify(@Nonnull Repository repo, //CHECKSTYLE:annot
+  public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
       String jenkinsBase, boolean ignoreCerts, String cloneUrl) {
     
     HttpClient client = null;
@@ -115,17 +115,22 @@ public class Notifier {
       HttpResponse response = client.execute(new HttpGet(url));
       LOGGER.debug("Successfully triggered jenkins with url '{}': ", url);
       InputStream content = response.getEntity().getContent();
-      return CharStreams.toString(
+      String responseBody =  CharStreams.toString(
           new InputStreamReader(content, Charsets.UTF_8));
+      boolean successful = responseBody.startsWith("Scheduled");
+      
+      NotificationResult result = new NotificationResult(successful, url, 
+              "Jenkins response: " + responseBody);
+      return result;
     } catch (Exception e) {
       LOGGER.error("Error triggering jenkins with url '" + url + "'", e);
+      return new NotificationResult(false, url, e.getMessage());
     } finally {
       if (client != null) {
         client.getConnectionManager().shutdown();
         LOGGER.debug("Successfully shutdown connection");
       }
     }
-    return null;
   }
 
   /**

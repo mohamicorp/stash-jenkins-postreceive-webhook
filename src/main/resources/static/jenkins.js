@@ -74,10 +74,12 @@ define('plugin/jenkins/test', [
                 }
             }).always(function () {
                 setDeleteButtonEnabled(true)
-            }).success(function () {
-                setStatus("Success!", "green");
-            }).error(function () {
-                setStatus("It didn't work!", "red");
+            }).success(function (data) {
+            	if (data.successful) {
+                    setStatus("Success!", "green");
+            	} else {
+            	    setStatus("Error: " + data.message, "red");
+            	}
             });
         });
     }
