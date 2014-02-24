@@ -41,8 +41,11 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
-### Version 2.3-SNAPSHOT
+### Version 2.4-SNAPSHOT
 - Don't know yet!
+
+### Version 2.3.0
+- Created more helpful error messages during testing of the webhook on the configuration screen.
 
 ### Version 2.2.2
 - Fixed NPE that occurs when event has a null user. Was seen using the SVN Mirror plugin.
