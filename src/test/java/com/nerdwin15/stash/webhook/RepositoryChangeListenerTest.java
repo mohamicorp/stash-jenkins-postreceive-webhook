@@ -65,7 +65,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier).notify(repo);
+    verify(notifier).notifyBackground(repo);
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -91,7 +91,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier).notify(repo);
+    verify(notifier).notifyBackground(repo);
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(null, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -120,7 +120,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier, never()).notify(repo);
+    verify(notifier, never()).notifyBackground(repo);
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -140,7 +140,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier, never()).notify(repo);
+    verify(notifier, never()).notifyBackground(repo);
   }
   
 }

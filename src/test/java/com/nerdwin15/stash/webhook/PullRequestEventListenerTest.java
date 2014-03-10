@@ -81,7 +81,7 @@ public class PullRequestEventListenerTest {
 
     listener.handleEvent(event);
 
-    verify(notifier).notify(repo);
+    verify(notifier).notifyBackground(repo);
     assertEquals(event, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -108,7 +108,7 @@ public class PullRequestEventListenerTest {
 
     listener.handleEvent(event);
 
-    verify(notifier, never()).notify(repo);
+    verify(notifier, never()).notifyBackground(repo);
   }
   
   /**
@@ -125,6 +125,6 @@ public class PullRequestEventListenerTest {
 
     listener.handleEvent(event);
 
-    verify(notifier, never()).notify(repo);
+    verify(notifier, never()).notifyBackground(repo);
   }
 }
