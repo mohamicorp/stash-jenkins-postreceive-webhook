@@ -1,5 +1,4 @@
-
-require([
+define('plugin/jenkins/pr-triggerbutton', [
   'jquery',
   'aui',
   'model/page-state'
@@ -27,4 +26,8 @@ require([
     return false;
   });
 
+});
+
+AJS.$(document).ready(function() {
+    require('plugin/jenkins/pr-triggerbutton');
 });
