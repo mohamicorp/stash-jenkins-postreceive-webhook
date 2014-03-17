@@ -77,7 +77,7 @@ public class PullRequestEventListener {
         event.getUser().getName());
     
     if (filterChain.shouldDeliverNotification(context))
-      notifier.notify(context.getRepository());
+      notifier.notifyBackground(context.getRepository());
   }
   
 }
