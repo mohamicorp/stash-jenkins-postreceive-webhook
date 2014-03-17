@@ -4,10 +4,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.atlassian.util.concurrent.ThreadFactories;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -21,6 +26,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
 import com.nerdwin15.stash.webhook.service.SettingsService;
+import org.springframework.beans.factory.DisposableBean;
 
 /**
  * Service object that does the actual notification.
@@ -28,7 +34,7 @@ import com.nerdwin15.stash.webhook.service.SettingsService;
  * @author Michael Irwin (mikesir87)
  * @author Peter Leibiger (kuhnroyal)
  */
-public class Notifier {
+public class Notifier implements DisposableBean {
 
   /**
    * Key for the repository hook
@@ -62,6 +68,7 @@ public class Notifier {
 
   private final HttpClientFactory httpClientFactory;
   private final SettingsService settingsService;
+  private final ExecutorService executorService;
 
   /**
    * Create a new instance
@@ -73,6 +80,23 @@ public class Notifier {
     
     this.httpClientFactory = httpClientFactory;
     this.settingsService = settingsService;
+    this.executorService = Executors.newCachedThreadPool(ThreadFactories.namedThreadFactory("JenkinsWebhook", ThreadFactories.Type.DAEMON));
+  }
+
+  /**
+   * Send notification to Jenkins for the provided repository on a background thread.
+   * This is better when running as a background task, to release the calling thread.
+   * @param repo The repository to base the notification on.
+   * @return A future of the text result from Jenkins
+   */
+  @Nonnull
+  public Future<NotificationResult> notifyBackground(@Nonnull final Repository repo) {
+    return executorService.submit(new Callable<NotificationResult>() {
+      @Override
+      public NotificationResult call() throws Exception {
+        return Notifier.this.notify(repo);
+      }
+    });
   }
 
   /**
@@ -131,6 +155,11 @@ public class Notifier {
         LOGGER.debug("Successfully shutdown connection");
       }
     }
+  }
+
+  @Override
+  public void destroy() {
+    executorService.shutdownNow();
   }
 
   /**
