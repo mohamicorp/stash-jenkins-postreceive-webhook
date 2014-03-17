@@ -44,6 +44,9 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 ### Version 2.4-SNAPSHOT
 - Don't know yet!
 
+### Version 2.3.1
+- Fixed compatibility issue with versions of Stash before 2.8 (thanks [xuey90](https://github.com/xuey90) for the pull request)
+
 ### Version 2.3.0
 - Created more helpful error messages during testing of the webhook on the configuration screen.
 
