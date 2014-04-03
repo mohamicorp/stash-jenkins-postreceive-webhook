@@ -21,8 +21,6 @@ import com.atlassian.stash.user.StashUser;
  */
 public class MockedRepositoryEvent implements RepositoryRefsChangedEvent {
 
-  private static final long serialVersionUID = 6015228907835452814L;
-
   private Repository repository;
   private StashUser user;
   

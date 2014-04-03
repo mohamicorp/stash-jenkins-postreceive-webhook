@@ -42,5 +42,14 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
       errors.addFieldError(Notifier.CLONE_URL, 
           "The repository clone url is required");
     }
+    
+    final String branchSelection = settings.getString(Notifier.BRANCH_OPTIONS);
+    if (!Strings.isNullOrEmpty(branchSelection)) {
+      String branches = settings.getString(Notifier.BRANCH_OPTIONS_BRANCHES);
+      if (Strings.isNullOrEmpty(branches)) {
+        errors.addFieldError(Notifier.BRANCH_OPTIONS_BRANCHES, 
+            "No branches were specified to " + branchSelection);
+      }
+    }
   }
 }

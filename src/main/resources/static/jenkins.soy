@@ -68,6 +68,21 @@
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['ignoreCommitters'] : null /}
     {/call}
+
+    <div class="field-group">
+        <label for="branchOptions">{stash_i18n('stash.webhook.repo.branchOptions.label', 'Branch Options')}</label>
+        <select class="select" id="branchOptions" name="branchOptions" style="max-width: 110px">
+            <option value="" {($config['branchOptions'] == null) ? 'selected="selected"' : ''}>Build all</option>
+            <option value="whitelist" {($config['branchOptions'] == 'whitelist') ? 'selected="selected"' : ''}>Build from:</option>
+            <option value="blacklist" {($config['branchOptions'] == 'blacklist') ? 'selected="selected"' : ''}>Ignore from:</option>
+        </select>
+        &nbsp;
+        <input id="branchOptionsBranches" style="max-width: 400px" class="text" type="text" name="branchOptionsBranches" value="{($config['branchOptionsBranches'] != null) ? $config['branchOptionsBranches'] : ''}">
+        <div class="description">
+            {stash_i18n('stash.webhook.repo.branchOptions.description', 'Build from only certain branches or ignore certain branches. Space-delimited. Case-insensitive. Wildcard usage of * accepted only at end of name.')}
+        </div>
+        {(($errors) ? '<div class="error">' + $errors['branchOptionsBranches'] + '</div>' : '')|noAutoescape}
+    </div>
     
     <script>
         require('plugin/jenkins/test').onReady();

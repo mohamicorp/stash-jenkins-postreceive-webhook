@@ -62,6 +62,16 @@ public class Notifier implements DisposableBean {
    */
   public static final String IGNORE_COMMITTERS = "ignoreCommitters";
 
+  /**
+   * Field name for the branch options selection property
+   */
+  public static final String BRANCH_OPTIONS = "branchOptions";
+
+  /**
+   * Field name for the branch options branches property
+   */
+  public static final String BRANCH_OPTIONS_BRANCHES = "branchOptionsBranches";
+
   private static final Logger LOGGER = 
       LoggerFactory.getLogger(Notifier.class);
   private static final String URL = "%s/git/notifyCommit?url=%s";

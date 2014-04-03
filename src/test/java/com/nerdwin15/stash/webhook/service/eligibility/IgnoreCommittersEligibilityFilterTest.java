@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.user.StashUser;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 

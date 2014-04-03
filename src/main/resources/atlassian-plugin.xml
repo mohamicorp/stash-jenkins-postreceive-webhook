@@ -10,7 +10,10 @@
     <component-import key="navBuilder" interface="com.atlassian.stash.nav.NavBuilder"/>
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
 
+    <component key="branchEvaluator" class="com.nerdwin15.stash.webhook.service.ConcreteBranchEvaluator" />
+
     <!-- Eligibility Filter Setup -->
+    <component key="branchesFilter" class="com.nerdwin15.stash.webhook.service.eligibility.BranchEligibilityFilter" />
     <component key="ignoreCommitersFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IgnoreCommittersEligibilityFilter" />
     <component key="isMergeableEligibilityFilter" class="com.nerdwin15.stash.webhook.service.eligibility.IsMergeableEligibilityFilter" />
     <component key="pullRequestRescopeEligibilityFilter" class="com.nerdwin15.stash.webhook.service.eligibility.PullRequestRescopeEligibilityFilter" />
