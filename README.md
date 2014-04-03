@@ -41,7 +41,7 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
-### Version 2.4-SNAPSHOT
+### Version 2.4.0
 - Added ability to whitelist or blacklist specific branches for triggering of Jenkins.  (whitelist = branch HAS to be in list to trigger; blacklist = branch is IGNORED if in the list)
 
 ### Version 2.3.1
