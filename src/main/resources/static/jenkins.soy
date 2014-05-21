@@ -35,7 +35,7 @@
     {call widget.aui.form.checkbox}
         {param id: 'ignoreCerts' /}
         {param checked: $config['ignoreCerts'] /}
-        {param labelHtml}
+        {param labelContent}
             {stash_i18n('stash.webhook.ignoreCerts.label', 'Skip SSL Certificate Validation')}
         {/param}
         {param description: stash_i18n('stash.webhook.ignoreCerts.description', 'When connecting to Jenkins, allow all certificates to be accepted, including self-signed certs') /}
@@ -43,7 +43,7 @@
     
     {call widget.aui.form.field}
         {param id: 'test-form' /}
-        {param labelHtml: stash_i18n('stash.webhook.test', 'Configuration check') /}
+        {param labelContent: stash_i18n('stash.webhook.test', 'Configuration check') /}
         {{param description: stash_i18n('stash.webhook.test.description', 'Test the configured connection with Jenkins.') /}}
         {param input}
             {call widget.aui.form.button}

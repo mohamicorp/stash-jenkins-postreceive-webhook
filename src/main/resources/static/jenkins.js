@@ -8,8 +8,8 @@ define('plugin/jenkins/test', [
     'exports'
 ], function ($, AJS, ajax, navBuilder, pageState, errorUtil, exports) {
     function resourceUrl(resourceName) {
-        return AJS.contextPath() + '/rest/jenkins/latest/projects/' + pageState.getProject().key +
-            '/repos/' + pageState.getRepository().slug + '/' + resourceName;
+        return AJS.contextPath() + '/rest/jenkins/latest/projects/' + pageState.getProject().get("key") +
+            '/repos/' + pageState.getRepository().get("slug") + '/' + resourceName;
     }
 
     function init() {
