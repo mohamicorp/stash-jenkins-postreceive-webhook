@@ -17,12 +17,10 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.plugins.rest.common.interceptor.InterceptorChain;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.atlassian.stash.i18n.I18nService;
 import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.rest.interceptor.ResourceContextInterceptor;
 import com.atlassian.stash.rest.util.ResourcePatterns;
 import com.atlassian.stash.rest.util.RestResource;
 import com.atlassian.stash.rest.util.RestUtils;
@@ -44,7 +42,6 @@ import com.sun.jersey.spi.resource.Singleton;
 @Produces({ RestUtils.APPLICATION_JSON_UTF8 })
 @Singleton
 @AnonymousAllowed
-@InterceptorChain(ResourceContextInterceptor.class)
 public class JenkinsResource extends RestResource {
 
   private static final Logger log = //CHECKSTYLE:doesntMatter
