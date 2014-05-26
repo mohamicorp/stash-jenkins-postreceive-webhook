@@ -41,6 +41,12 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
+### Version 2.4.2
+- Fixed syntax error in Javascript for the "Trigger Build" button (thanks [dojcsak](https://github.com/dojcsak) for the pull request)
+
+### Version 2.4.1
+- Stash 3.0 support
+
 ### Version 2.4.0
 - Added ability to whitelist or blacklist specific branches for triggering of Jenkins.  (whitelist = branch HAS to be in list to trigger; blacklist = branch is IGNORED if in the list)
 
