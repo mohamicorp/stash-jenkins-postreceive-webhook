@@ -8,6 +8,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -94,13 +95,16 @@ public class JenkinsResource extends RestResource {
       map.put("message", "Settings must be configured");
       return map;
     }
-    
+
     permissionService.validateForRepository(repository, Permission.REPO_ADMIN);
     log.debug("Triggering jenkins notification for repository {}/{}", 
         repository.getProject().getKey(), repository.getSlug());
 
+    /* @todo carl.loa.odin@klarna.com: Send null instead of master and sha1 and
+     *   handle this in notify
+     */
     NotificationResult result = notifier.notify(repository, jenkinsBase, 
-        ignoreCerts, cloneUrl);
+        ignoreCerts, cloneUrl, null, null);
     log.debug("Got response from jenkins: {}", result);
 
     // Shouldn't have to do this but the result isn't being marshalled correctly
@@ -118,9 +122,11 @@ public class JenkinsResource extends RestResource {
    */
   @POST
   @Path(value = "triggerJenkins")
-  public Response trigger(@Context Repository repository) {
+  public Response trigger(@Context Repository repository,
+      @QueryParam("branch") String branch, @QueryParam("sha1") String sha1) {
+
     try {
-      NotificationResult result = notifier.notify(repository);
+      NotificationResult result = notifier.notify(repository, branch, sha1);
       if (result.isSuccessful())
         return Response.ok().build();
       return Response.noContent().build();

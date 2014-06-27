@@ -6,7 +6,9 @@ define('plugin/jenkins/pr-triggerbutton', [
 
   var resourceUrl = AJS.contextPath() + '/rest/jenkins/latest/projects/' 
     + pageState.getProject().getKey() + '/repos/' 
-    + pageState.getRepository().getSlug() + '/triggerJenkins';
+    + pageState.getRepository().getSlug() + '/triggerJenkins'
+    + '?branch=' + pageState.getPullRequest().getFromRef().getDisplayId()
+    + '&sha1=' + pageState.getPullRequest().getFromRef().getLatestChangeset();
 
   var waiting = '<span class="aui-icon aui-icon-wait">Wait</span>';
   

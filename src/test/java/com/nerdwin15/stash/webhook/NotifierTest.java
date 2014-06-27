@@ -79,7 +79,7 @@ public class NotifierTest {
   @Test
   public void shouldReturnEarlyWhenHookIsNull() throws Exception {
     when(settingsService.getRepositoryHook(repo)).thenReturn(null);
-    notifier.notify(repo);
+    notifier.notify(repo, "refs/heads/master", "sha1");
     verify(httpClientFactory, never())
       .getHttpClient(anyBoolean(), anyBoolean());
   }
@@ -91,7 +91,7 @@ public class NotifierTest {
   @Test
   public void shouldReturnEarlyWhenHookIsNotEnabled() throws Exception {
     when(repoHook.isEnabled()).thenReturn(false);
-    notifier.notify(repo);
+    notifier.notify(repo, "refs/heads/master", "sha1");
     verify(httpClientFactory, never())
         .getHttpClient(anyBoolean(), anyBoolean());
   }
@@ -103,7 +103,7 @@ public class NotifierTest {
   @Test
   public void shouldReturnEarlyWhenSettingsAreNull() throws Exception {
     when(settingsService.getSettings(repo)).thenReturn(null);
-    notifier.notify(repo);
+    notifier.notify(repo, "refs/heads/master", "sha1");
     verify(httpClientFactory, never())
       .getHttpClient(anyBoolean(), anyBoolean());
   }
@@ -114,7 +114,7 @@ public class NotifierTest {
    */
   @Test
   public void shouldCallTheCorrectUrlWithoutSsl() throws Exception {
-    notifier.notify(repo);
+    notifier.notify(repo, "refs/heads/master", "sha1");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -123,7 +123,9 @@ public class NotifierTest {
     verify(connectionManager, times(1)).shutdown();
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?" 
-        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
 
@@ -136,7 +138,7 @@ public class NotifierTest {
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL.replace("http", "https"));
 
-    notifier.notify(repo);
+    notifier.notify(repo, "refs/heads/master", "sha1");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -145,7 +147,9 @@ public class NotifierTest {
     verify(connectionManager, times(1)).shutdown();
 
     assertEquals("https://localhost.jenkins/git/notifyCommit?" 
-        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
 
@@ -160,7 +164,7 @@ public class NotifierTest {
       .thenReturn(JENKINS_BASE_URL.replace("http", "https"));
     when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(true);
 
-    notifier.notify(repo);
+    notifier.notify(repo, "refs/heads/master", "sha1");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -169,7 +173,9 @@ public class NotifierTest {
     verify(connectionManager, times(1)).shutdown();
 
     assertEquals("https://localhost.jenkins/git/notifyCommit?"
-        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
 
@@ -184,7 +190,7 @@ public class NotifierTest {
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL.concat("/"));
 
-    notifier.notify(repo);
+    notifier.notify(repo, "refs/heads/master", "sha1");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -193,7 +199,9 @@ public class NotifierTest {
     verify(connectionManager, times(1)).shutdown();
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
-        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git",
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
     

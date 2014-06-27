@@ -6,10 +6,12 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import com.atlassian.stash.repository.RefChange;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -66,6 +68,11 @@ public class PullRequestEventListenerTest {
    */
   @Test
   public void shouldNotifyWhenChainSaysOk() throws Exception {
+    PullRequestRef r = Mockito.mock(PullRequestRef.class);
+    Mockito.when(r.toString()).thenReturn("project/repo:refs/heads/master");
+    Mockito.when(r.getLatestChangeset()).thenReturn("sha1");
+    when(event.getPullRequest().getFromRef()).thenReturn(r);
+
     Settings settings = mock(Settings.class);
 
     StashUser user = PowerMockito.mock(StashUser.class);
@@ -81,7 +88,7 @@ public class PullRequestEventListenerTest {
 
     listener.handleEvent(event);
 
-    verify(notifier).notifyBackground(repo);
+    verify(notifier).notifyBackground(repo, "master", "sha1");
     assertEquals(event, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -108,7 +115,7 @@ public class PullRequestEventListenerTest {
 
     listener.handleEvent(event);
 
-    verify(notifier, never()).notifyBackground(repo);
+    verify(notifier, never()).notifyBackground(repo, "master", "sha1");
   }
   
   /**
@@ -125,6 +132,6 @@ public class PullRequestEventListenerTest {
 
     listener.handleEvent(event);
 
-    verify(notifier, never()).notifyBackground(repo);
+    verify(notifier, never()).notifyBackground(repo, "master", "sha1");
   }
 }

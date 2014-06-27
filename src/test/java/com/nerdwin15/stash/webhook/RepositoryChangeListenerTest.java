@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.atlassian.stash.repository.RefChange;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,6 +18,9 @@ import com.atlassian.stash.user.StashUser;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
+
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * Test case for the RepositoryChangeListener class.
@@ -51,6 +55,17 @@ public class RepositoryChangeListenerTest {
     Repository repo = mock(Repository.class);
     Settings settings = mock(Settings.class);
 
+    LinkedList<RefChange> lst = mock(LinkedList.class);
+    when(e.getRefChanges()).thenReturn(lst);
+
+    Iterator<RefChange> iter = mock(Iterator.class);
+    when(lst.iterator()).thenReturn(iter);
+
+    RefChange r = mock(RefChange.class);
+    when(r.getToHash()).thenReturn("sha1");
+    when(r.getRefId()).thenReturn("refs/heads/master");
+    when(iter.next()).thenReturn(r);
+
     StashUser user = mock(StashUser.class);
     String username = "pinky";
     ArgumentCaptor<EventContext> contextCaptor = 
@@ -65,7 +80,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier).notifyBackground(repo);
+    verify(notifier).notifyBackground(repo, "master", "sha1");
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -77,6 +92,18 @@ public class RepositoryChangeListenerTest {
   @Test
   public void shouldWorkFineWithNullUser() throws Exception {
     RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
+
+    LinkedList<RefChange> lst = mock(LinkedList.class);
+    when(e.getRefChanges()).thenReturn(lst);
+
+    Iterator<RefChange> iter = mock(Iterator.class);
+    when(lst.iterator()).thenReturn(iter);
+
+    RefChange r = mock(RefChange.class);
+    when(r.getToHash()).thenReturn("sha1");
+    when(r.getRefId()).thenReturn("refs/heads/master");
+    when(iter.next()).thenReturn(r);
+
     Repository repo = mock(Repository.class);
     Settings settings = mock(Settings.class);
 
@@ -91,7 +118,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier).notifyBackground(repo);
+    verify(notifier).notifyBackground(repo, "master", "sha1");
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(null, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -105,7 +132,18 @@ public class RepositoryChangeListenerTest {
     RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
     Repository repo = mock(Repository.class);
     Settings settings = mock(Settings.class);
-    
+
+    LinkedList<RefChange> lst = mock(LinkedList.class);
+    when(e.getRefChanges()).thenReturn(lst);
+
+    Iterator<RefChange> iter = mock(Iterator.class);
+    when(lst.iterator()).thenReturn(iter);
+
+    RefChange r = mock(RefChange.class);
+    when(r.getToHash()).thenReturn("sha1");
+    when(r.getRefId()).thenReturn("refs/heads/master");
+    when(iter.next()).thenReturn(r);
+
     StashUser user = mock(StashUser.class);
     String username = "pinky";
     ArgumentCaptor<EventContext> contextCaptor = 
@@ -120,7 +158,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier, never()).notifyBackground(repo);
+    verify(notifier, never()).notifyBackground(repo, "master", "sha1");
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -140,7 +178,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier, never()).notifyBackground(repo);
+    verify(notifier, never()).notifyBackground(repo, "master", "sha1");
   }
   
 }

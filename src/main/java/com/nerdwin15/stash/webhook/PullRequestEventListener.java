@@ -71,13 +71,18 @@ public class PullRequestEventListener {
         .getRepository()) == null) {
       return;
     }
-    
+
+    // Get branch name from stash ref 'project/repo:refs/heads/master'
+    String strRef = event.getPullRequest().getFromRef().toString()
+        .replaceFirst(".*refs/heads/", "");
+    String strSha1 = event.getPullRequest().getFromRef().getLatestChangeset();
+
     EventContext context = new EventContext(event, 
         event.getPullRequest().getToRef().getRepository(), 
         event.getUser().getName());
     
     if (filterChain.shouldDeliverNotification(context))
-      notifier.notifyBackground(context.getRepository());
+      notifier.notifyBackground(context.getRepository(), strRef, strSha1);
   }
   
 }
