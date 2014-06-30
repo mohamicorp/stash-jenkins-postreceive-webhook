@@ -53,15 +53,6 @@ public class PullRequestEventListener {
   }
   
   /**
-   * Event listener that is notified of pull request rescope events
-   * @param event The pull request event
-   */
-  @EventListener
-  public void onPullRequestRescope(PullRequestRescopedEvent event) {
-    handleEvent(event);
-  }
-  
-  /**
    * Actually handles the event that was triggered. 
    * (Made protected to make unit testing easier)
    * @param event The event to be handled
