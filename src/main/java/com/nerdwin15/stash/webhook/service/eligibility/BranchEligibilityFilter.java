@@ -1,6 +1,8 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import com.atlassian.stash.event.RepositoryPushEvent;
+import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.repository.RefChange;
+import com.atlassian.stash.repository.RefChangeType;
 import com.atlassian.stash.setting.Settings;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.BranchEvaluator;
@@ -29,31 +31,36 @@ public class BranchEligibilityFilter
     this.settingsService = settingsService;
     this.branchEvaluator = branchEvaluator;
   }
-  
-  
+
+
   /**
    * {@inheritDoc}
    */
   @Override
   public boolean shouldDeliverNotification(EventContext context) {
-    if (!RepositoryPushEvent.class.isAssignableFrom(context.getEventSource()
+    if (!RepositoryRefsChangedEvent.class.isAssignableFrom(context.getEventSource()
         .getClass()))
       return true;
-    
-    RepositoryPushEvent event = (RepositoryPushEvent) context.getEventSource();
+
+    RepositoryRefsChangedEvent event = (RepositoryRefsChangedEvent) context.getEventSource();
+
+    // Don't trigger Jenkins Webhook on deleted branches
+    RefChange refCh = event.getRefChanges().iterator().next();
+    if (refCh.getType().compareTo(RefChangeType.DELETE) == 0)
+      return false;
 
     final Settings settings = settingsService.getSettings(
         context.getRepository());
     String branchOption = settings.getString(Notifier.BRANCH_OPTIONS);
-    if (branchOption == null || 
+    if (branchOption == null ||
         (!branchOption.equals("blacklist") && !branchOption.equals("whitelist")))
       return true;
-    
-    String[] branchesSettings = 
+
+    String[] branchesSettings =
         settings.getString(Notifier.BRANCH_OPTIONS_BRANCHES).split(" ");
-    Iterable<String> branches = 
+    Iterable<String> branches =
         branchEvaluator.getBranches(event.getRefChanges());
-    
+
     boolean haveMatch = hasMatch(branchesSettings, branches);
     if (haveMatch && branchOption.equals("blacklist"))
       return false;
