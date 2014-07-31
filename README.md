@@ -47,7 +47,7 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 - Added more metadata in webhook notification to Jenkins, including the sha1
 - Allows "Trigger Build" button to trigger a build multiple times
 
-Special shoutout to [load](https://github.com/loa) for his pull request, work, and patience
+Special shoutout to [loa](https://github.com/loa) for his pull request, work, and patience
 
 ### Version 2.4.2
 - Fixed syntax error in Javascript for the "Trigger Build" button (thanks [dojcsak](https://github.com/dojcsak) for the pull request)
