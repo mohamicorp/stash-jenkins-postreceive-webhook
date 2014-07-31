@@ -42,10 +42,11 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 ## Release Notes
 
 ### Version 2.5.0
-- ** Now requires Git Plugin version 2.0.2 or greater in Jenkins**
+- **Now requires Git Plugin version 2.0.2 or greater in Jenkins**
 - No longer requires polling to be enabled for the git repository in Jenkins setup
 - Added more metadata in webhook notification to Jenkins, including the sha1
 - Allows "Trigger Build" button to trigger a build multiple times
+
 Special shoutout to [load](https://github.com/loa) for his pull request, work, and patience
 
 ### Version 2.4.2
