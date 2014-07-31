@@ -74,7 +74,8 @@ public class Notifier implements DisposableBean {
 
   private static final Logger LOGGER = 
       LoggerFactory.getLogger(Notifier.class);
-  private static final String URL = "%s/git/notifyCommit?url=%s";
+  private static final String URL_SHORT = "%s/git/notifyCommit?url=%s";
+  private static final String URL = "%s/git/notifyCommit?url=%s&branches=%s&sha1=%s";
 
   private final HttpClientFactory httpClientFactory;
   private final SettingsService settingsService;
@@ -100,11 +101,12 @@ public class Notifier implements DisposableBean {
    * @return A future of the text result from Jenkins
    */
   @Nonnull
-  public Future<NotificationResult> notifyBackground(@Nonnull final Repository repo) {
+  public Future<NotificationResult> notifyBackground(@Nonnull final Repository repo, //CHECKSTYLE:annot
+      final String strRef, final String strSha1) {
     return executorService.submit(new Callable<NotificationResult>() {
       @Override
       public NotificationResult call() throws Exception {
-        return Notifier.this.notify(repo);
+        return Notifier.this.notify(repo, strRef, strSha1);
       }
     });
   }
@@ -114,7 +116,8 @@ public class Notifier implements DisposableBean {
    * @param repo The repository to base the notification on.
    * @return Text result from Jenkins
    */
-  public @Nullable NotificationResult notify(@Nonnull Repository repo) { //CHECKSTYLE:annot
+  public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
+      String strRef, String strSha1) {
     final RepositoryHook hook = settingsService.getRepositoryHook(repo);
     final Settings settings = settingsService.getSettings(repo);
     if (hook == null || !hook.isEnabled() || settings == null) {
@@ -124,7 +127,8 @@ public class Notifier implements DisposableBean {
 
     return notify(repo, settings.getString(JENKINS_BASE), 
         settings.getBoolean(IGNORE_CERTS, false),
-        settings.getString(CLONE_URL));
+        settings.getString(CLONE_URL),
+        strRef, strSha1);
   }
 
   /**
@@ -136,11 +140,12 @@ public class Notifier implements DisposableBean {
    * @return The notification result.
    */
   public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
-      String jenkinsBase, boolean ignoreCerts, String cloneUrl) {
+      String jenkinsBase, boolean ignoreCerts, String cloneUrl,
+      String strRef, String strSha1) {
     
     HttpClient client = null;
     final String url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
-        cloneUrl);
+        cloneUrl, strRef, strSha1);
 
     try {
       client = httpClientFactory.getHttpClient(url.startsWith("https"), 
@@ -180,8 +185,11 @@ public class Notifier implements DisposableBean {
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(Repository repository, String jenkinsBase, 
-      String cloneUrl) {
-    return String.format(URL, jenkinsBase, urlEncode(cloneUrl));
+      String cloneUrl, String strRef, String strSha1) {
+    if (strRef == null)
+      return String.format(URL_SHORT, jenkinsBase, urlEncode(cloneUrl));
+    else
+      return String.format(URL, jenkinsBase, urlEncode(cloneUrl), strRef, strSha1);
   }
   
   private static String urlEncode(String string) {

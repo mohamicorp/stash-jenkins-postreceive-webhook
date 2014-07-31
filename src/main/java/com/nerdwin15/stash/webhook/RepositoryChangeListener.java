@@ -2,6 +2,7 @@ package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.repository.RefChange;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
@@ -43,12 +44,17 @@ public class RepositoryChangeListener {
     if (settingsService.getSettings(event.getRepository()) == null) {
       return;
     }
-    
+
+    RefChange refCh = event.getRefChanges().iterator().next();
+    // Get branch name from ref 'refs/heads/master'
+    String strRef = refCh.getRefId().replaceFirst("refs/heads/", "");
+    String strSha1 = refCh.getToHash();
+
     String user = (event.getUser() != null) ? event.getUser().getName() : null;
     EventContext context = new EventContext(event, event.getRepository(), user);
     
     if (filterChain.shouldDeliverNotification(context))
-      notifier.notifyBackground(context.getRepository());
+      notifier.notifyBackground(context.getRepository(), strRef, strSha1);
   }
 
 }

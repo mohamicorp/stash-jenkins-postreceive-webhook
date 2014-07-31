@@ -53,31 +53,27 @@ public class PullRequestEventListener {
   }
   
   /**
-   * Event listener that is notified of pull request rescope events
-   * @param event The pull request event
-   */
-  @EventListener
-  public void onPullRequestRescope(PullRequestRescopedEvent event) {
-    handleEvent(event);
-  }
-  
-  /**
    * Actually handles the event that was triggered. 
    * (Made protected to make unit testing easier)
    * @param event The event to be handled
    */
   protected void handleEvent(PullRequestEvent event) {
-    if (settingsService.getSettings(event.getPullRequest().getToRef()
-        .getRepository()) == null) {
-      return;
-    }
-    
-    EventContext context = new EventContext(event, 
-        event.getPullRequest().getToRef().getRepository(), 
-        event.getUser().getName());
-    
-    if (filterChain.shouldDeliverNotification(context))
-      notifier.notifyBackground(context.getRepository());
+//    if (settingsService.getSettings(event.getPullRequest().getToRef()
+//        .getRepository()) == null) {
+//      return;
+//    }
+//
+//    Get branch name from stash ref 'project/repo:refs/heads/master'
+//    String strRef = event.getPullRequest().getFromRef().toString()
+//        .replaceFirst(".*refs/heads/", "");
+//    String strSha1 = event.getPullRequest().getFromRef().getLatestChangeset();
+//
+//    EventContext context = new EventContext(event,
+//        event.getPullRequest().getToRef().getRepository(),
+//        event.getUser().getName());
+//
+//    if (filterChain.shouldDeliverNotification(context))
+//      notifier.notifyBackground(context.getRepository(), strRef, strSha1);
   }
   
 }

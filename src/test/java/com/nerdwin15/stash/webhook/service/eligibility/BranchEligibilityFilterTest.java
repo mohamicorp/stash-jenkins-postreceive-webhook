@@ -8,8 +8,11 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.LinkedList;
 
+import com.atlassian.stash.repository.RefChangeType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,7 +39,11 @@ public class BranchEligibilityFilterTest {
   private RepositoryPushEvent event;
   private EventContext eventContext;
   private String branches = "ignoreMe wild*";
-  private Collection<RefChange> changes = new ArrayList<RefChange>();
+  private Collection<RefChange> changes = mock(LinkedList.class);
+  private Iterator<RefChange> iterChanges = mock(Iterator.class);
+  private RefChange change = mock(RefChange.class);
+  private RefChangeType changeTypeUpdate = RefChangeType.UPDATE;
+  private RefChangeType changeTypeDelete = RefChangeType.DELETE;
   
   /**
    * Perform setup tasks
@@ -49,7 +56,10 @@ public class BranchEligibilityFilterTest {
     event = mock(RepositoryPushEvent.class);
     repo = mock(Repository.class);
     eventContext = mock(EventContext.class);
-    
+
+    when(change.getType()).thenReturn(changeTypeUpdate);
+    when(iterChanges.next()).thenReturn(change);
+    when(changes.iterator()).thenReturn(iterChanges);
     when(event.getRefChanges()).thenReturn(changes);
     when(eventContext.getEventSource()).thenReturn(event);
     when(eventContext.getRepository()).thenReturn(repo);
@@ -121,6 +131,19 @@ public class BranchEligibilityFilterTest {
     assertTrue(filter.shouldDeliverNotification(eventContext));
 
     when(branchEvaluator.getBranches(changes)).thenReturn(iterable("asdf"));
+    assertFalse(filter.shouldDeliverNotification(eventContext));
+  }
+
+  /**
+   * Ensure that if a branch is deleted, a notification isn't sent for it.
+   */
+  @Test
+  public void testEnsureDeleteBranchNoNotification() {
+    when(change.getType()).thenReturn(changeTypeDelete);
+    when(iterChanges.next()).thenReturn(change);
+    when(changes.iterator()).thenReturn(iterChanges);
+    when(event.getRefChanges()).thenReturn(changes);
+    when(eventContext.getEventSource()).thenReturn(event);
     assertFalse(filter.shouldDeliverNotification(eventContext));
   }
   
