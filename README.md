@@ -41,6 +41,10 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
+### Version 2.5.1
+- Fixed a Javascript error when opening plugin settings
+- Added datacenter compatible flag
+
 ### Version 2.5.0
 - **Git Plugin version 2.0.2 or greater in Jenkins is highly recommended**
 - No longer requires polling to be enabled for the git repository in Jenkins setup
