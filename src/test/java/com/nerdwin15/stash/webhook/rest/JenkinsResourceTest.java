@@ -33,6 +33,7 @@ public class JenkinsResourceTest {
 
   private static final String JENKINS_BASE = "http://jenkins.localhost/jenkins";
   private static final boolean IGNORE_CERTS = false;
+  private static final boolean OMIT_HASH_CODE = false;
 
   private static final String HTTP_URL = 
       "https://stash.localhost/stash/scm/test/test.git";
@@ -75,7 +76,7 @@ public class JenkinsResourceTest {
   @Test
   public void shouldFailWhenJenkinsBaseNullProvidedToTest() {
     Map<String, Object> result = 
-        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS);
+        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS, OMIT_HASH_CODE);
     assertFalse((Boolean) result.get("successful"));
   }
 
@@ -86,7 +87,7 @@ public class JenkinsResourceTest {
   @Test
   public void shouldFailWhenCloneUrlNullProvidedToTest() {
     Map<String, Object> result = 
-        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS);
+        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS, OMIT_HASH_CODE);
     assertFalse((Boolean) result.get("successful"));
   }
   

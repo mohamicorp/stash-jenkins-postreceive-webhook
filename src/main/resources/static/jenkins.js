@@ -18,6 +18,7 @@ define('plugin/jenkins/test', [
             $cloneUrl = $("#gitRepoUrl"),
             $cloneType = $("#cloneType"),
             $ignoreCerts = $("#ignoreCerts"),
+            $omitHashCode = $("#omitHashCode"),
             $status,
             defaultUrls;
 
@@ -36,13 +37,13 @@ define('plugin/jenkins/test', [
                 $button.prop("disabled", "disabled").addClass("disabled");
             }
         }
-        
+
         ajax.rest({
         	url: resourceUrl('config')
         }).success(function(data) {
         	defaultUrls = data;
         });
-        
+
         $cloneType.change(function() {
         	var val = $(this).val();
         	if (val == "ssh") {
@@ -51,7 +52,7 @@ define('plugin/jenkins/test', [
         		$cloneUrl.val( defaultUrls.http );
         	}
         });
-        
+
         if ($cloneUrl.val() != "") {
         	var cloneUrl = $cloneUrl.val();
         	if (cloneUrl.search("ssh") === 0) {
@@ -70,7 +71,8 @@ define('plugin/jenkins/test', [
                 data: {
                     'jenkinsBase': [$jenkinsBase.val()],
                     'gitRepoUrl': [$cloneUrl.val()],
-                    'ignoreCerts': [$ignoreCerts.attr('checked') ? "TRUE" : "FALSE"]
+                    'ignoreCerts': [$ignoreCerts.attr('checked') ? "TRUE" : "FALSE"],
+                    'omitHashCode': [$omitHashCode.attr('checked') ? "TRUE" : "FALSE"]
                 }
             }).always(function () {
                 setDeleteButtonEnabled(true)
