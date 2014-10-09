@@ -87,7 +87,8 @@ public class JenkinsResource extends RestResource {
   public Map<String, Object> test(@Context Repository repository,
         @FormParam(Notifier.JENKINS_BASE) String jenkinsBase,
         @FormParam(Notifier.CLONE_URL) String cloneUrl,
-        @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts) {
+        @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts,
+        @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode) {
     
     if (jenkinsBase == null || cloneUrl == null) {
       Map<String, Object> map = new HashMap<String, Object>();
@@ -104,7 +105,7 @@ public class JenkinsResource extends RestResource {
      *   handle this in notify
      */
     NotificationResult result = notifier.notify(repository, jenkinsBase, 
-        ignoreCerts, cloneUrl, null, null);
+        ignoreCerts, cloneUrl, null, null, omitHashCode);
     log.debug("Got response from jenkins: {}", result);
 
     // Shouldn't have to do this but the result isn't being marshalled correctly

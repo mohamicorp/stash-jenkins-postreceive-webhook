@@ -43,7 +43,19 @@
         {/param}
         {param description: stash_i18n('stash.webhook.ignoreCerts.description', 'When connecting to Jenkins, allow all certificates to be accepted, including self-signed certs') /}
     {/call}
-    
+
+    {call widget.aui.form.checkbox}
+        {param id: 'omitHashCode' /}
+        {param checked: $config['omitHashCode'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.omitHashCode.label', 'Omit SHA1 Hash Code')}
+        {/param}
+        {param labelHtml}
+            {stash_i18n('stash.webhook.omitHashCode.label', 'Omit SHA1 Hash Code')}
+        {/param}
+        {param description: stash_i18n('stash.webhook.omitHashCode.description', 'Do not send the commit\'s SHA1 hash code to Jenkins') /}
+    {/call}
+
     {call widget.aui.form.field}
         {param id: 'test-form' /}
         {param labelContent: stash_i18n('stash.webhook.test', 'Configuration check') /}
@@ -57,11 +69,11 @@
             {/call}
         {/param}
     {/call}
-    
+
     <hr />
-    
+
     <h3>{stash_i18n('stash.webhook.advancedConfiguration.label', 'Advanced Configuration')}</h3>
-      
+
     {call aui.form.textField}
         {param id: 'ignoreCommitters' /}
         {param value: $config['ignoreCommitters'] /}
@@ -87,7 +99,7 @@
         </div>
         {(($errors) ? '<div class="error">' + $errors['branchOptionsBranches'] + '</div>' : '')|noAutoescape}
     </div>
-    
+
     <script>
         require('plugin/jenkins/test').onReady();
     </script>

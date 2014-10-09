@@ -58,6 +58,11 @@ public class Notifier implements DisposableBean {
   public static final String IGNORE_CERTS = "ignoreCerts";
 
   /**
+   * Field name for the omit hash code property
+   */
+  public static final String OMIT_HASH_CODE = "omitHashCode";
+
+  /**
    * Field name for the ignore committers property
    */
   public static final String IGNORE_COMMITTERS = "ignoreCommitters";
@@ -76,6 +81,7 @@ public class Notifier implements DisposableBean {
       LoggerFactory.getLogger(Notifier.class);
   private static final String URL_SHORT = "%s/git/notifyCommit?url=%s";
   private static final String URL = "%s/git/notifyCommit?url=%s&branches=%s&sha1=%s";
+  private static final String URL_NO_HASH = "%s/git/notifyCommit?url=%s&branches=%s";
 
   private final HttpClientFactory httpClientFactory;
   private final SettingsService settingsService;
@@ -128,7 +134,8 @@ public class Notifier implements DisposableBean {
     return notify(repo, settings.getString(JENKINS_BASE), 
         settings.getBoolean(IGNORE_CERTS, false),
         settings.getString(CLONE_URL),
-        strRef, strSha1);
+        strRef, strSha1,
+        settings.getBoolean(OMIT_HASH_CODE, false));
   }
 
   /**
@@ -137,15 +144,18 @@ public class Notifier implements DisposableBean {
    * @param jenkinsBase Base URL for Jenkins instance
    * @param ignoreCerts True if all certs should be allowed
    * @param cloneUrl The repository url
+   * @param strSha1 The commit's SHA1 hash code.
+   * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
+   *        in notification to Jenkins.
    * @return The notification result.
    */
   public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
       String jenkinsBase, boolean ignoreCerts, String cloneUrl,
-      String strRef, String strSha1) {
+      String strRef, String strSha1, boolean omitHashCode) {
     
     HttpClient client = null;
     final String url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
-        cloneUrl, strRef, strSha1);
+        cloneUrl, strRef, strSha1, omitHashCode);
 
     try {
       client = httpClientFactory.getHttpClient(url.startsWith("https"), 
@@ -185,10 +195,12 @@ public class Notifier implements DisposableBean {
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(Repository repository, String jenkinsBase, 
-      String cloneUrl, String strRef, String strSha1) {
+      String cloneUrl, String strRef, String strSha1, boolean omitHashCode) {
     if (strRef == null)
       return String.format(URL_SHORT, jenkinsBase, urlEncode(cloneUrl));
-    else
+    else if (omitHashCode)
+      return String.format(URL_NO_HASH, jenkinsBase, urlEncode(cloneUrl), strRef);
+    else 
       return String.format(URL, jenkinsBase, urlEncode(cloneUrl), strRef, strSha1);
   }
   
