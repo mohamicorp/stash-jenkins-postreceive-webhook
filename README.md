@@ -41,6 +41,10 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
+### Version 2.6.0
+- Added ability to not send commit hash in Jenkins notification
+- Reverted pull-request notifications back to where it was before
+
 ### Version 2.5.1
 - Fixed a Javascript error when opening plugin settings
 - Added datacenter compatible flag
