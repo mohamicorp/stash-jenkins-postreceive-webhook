@@ -68,6 +68,28 @@ public class PostReceiveHookTest {
   }
 
   /**
+   * Validate that an error is added when the repo clone type is null
+   * @throws Exception
+   */
+  @Test
+  public void shouldAddErrorWhenCloneTypeNull() throws Exception {
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn(null);
+    hook.validate(settings, errors, repo);
+    verify(errors).addFieldError(eq(Notifier.CLONE_TYPE), anyString());
+  }
+
+ /**
+   * Validate that an error is added when the repo clone type is invalid
+   * @throws Exception
+   */
+  @Test
+  public void shouldAddErrorWhenCloneTypeInvalid() throws Exception {
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("invalid");
+    hook.validate(settings, errors, repo);
+    verify(errors).addFieldError(eq(Notifier.CLONE_TYPE), anyString());
+  }
+
+  /**
    * Validate that an error is added when the repo clone url is null
    * @throws Exception
    */

@@ -20,10 +20,10 @@
 
     <div class="field-group">
         <label for="gitRepoUrl">{stash_i18n('stash.webhook.repo.cloneUrl.label', 'Repo Clone URL')}</label>
-        <select class="select" id="cloneType" style="max-width: 90px">
-            <option value="">Select...</option>
-            <option value="http">HTTP</option>
-            <option value="ssh">SSH</option>
+        <select class="select" id="cloneType" name="cloneType" style="max-width: 90px">
+            <option value="http" {($config['cloneType'] == 'http') ? 'selected="selected"' : ''}>HTTP</option>
+            <option value="ssh" {($config['cloneType'] == 'ssh') ? 'selected="selected"' : ''}>SSH</option>
+            <option value="custom" {($config['cloneType'] != 'http' and $config['cloneType'] != 'ssh') ? 'selected="selected"' : ''}>Custom</option>
         </select>
         &nbsp;
         <input id="gitRepoUrl" style="max-width: 400px" class="text" type="text" name="gitRepoUrl" value="{($config['gitRepoUrl'] != null) ? $config['gitRepoUrl'] : ''}">

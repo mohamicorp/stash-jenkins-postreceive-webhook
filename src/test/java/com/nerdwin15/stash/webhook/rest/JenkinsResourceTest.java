@@ -76,18 +76,28 @@ public class JenkinsResourceTest {
   @Test
   public void shouldFailWhenJenkinsBaseNullProvidedToTest() {
     Map<String, Object> result = 
-        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS, OMIT_HASH_CODE);
+        resource.test(repository, null, "http", null, IGNORE_CERTS, OMIT_HASH_CODE);
     assertFalse((Boolean) result.get("successful"));
   }
 
   /**
-   * Validate that if a null repo clone url is provided, a BAD_REQUEST is 
-   * returned.
+   * Validate that if a null CloneType is provided, a BAD_REQUEST is returned.
+   */
+  @Test
+  public void shouldFailWhenCloneTypeNullProvidedToTest() {
+    Map<String, Object> result =
+        resource.test(repository, JENKINS_BASE, null, HTTP_URL, IGNORE_CERTS, OMIT_HASH_CODE);
+    assertFalse((Boolean) result.get("successful"));
+  }
+
+  /**
+   * Validate that if a null repo clone url is provided when the clone type 
+   * is set to CUSTOM, then a BAD_REQUEST is returned.
    */
   @Test
   public void shouldFailWhenCloneUrlNullProvidedToTest() {
     Map<String, Object> result = 
-        resource.test(repository, JENKINS_BASE, null, IGNORE_CERTS, OMIT_HASH_CODE);
+        resource.test(repository, JENKINS_BASE, "custom", null, IGNORE_CERTS, OMIT_HASH_CODE);
     assertFalse((Boolean) result.get("successful"));
   }
   

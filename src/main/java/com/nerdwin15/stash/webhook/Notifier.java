@@ -20,8 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.stash.hook.repository.RepositoryHook;
+import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
+import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
@@ -46,6 +48,11 @@ public class Notifier implements DisposableBean {
    * Field name for the Jenkins base URL property
    */
   public static final String JENKINS_BASE = "jenkinsBase";
+
+  /**
+   * Field name for the Repo clone type property
+   */
+  public static final String CLONE_TYPE = "cloneType";
 
   /**
    * Field name for the Repo Clone Url property
@@ -86,18 +93,26 @@ public class Notifier implements DisposableBean {
   private final HttpClientFactory httpClientFactory;
   private final SettingsService settingsService;
   private final ExecutorService executorService;
+  private final NavBuilder navBuilder;
+  private final SshCloneUrlResolver sshCloneUrlResolver;
 
   /**
    * Create a new instance
    * @param settingsService Service used to get webhook settings
    * @param httpClientFactory Factory to generate HttpClients
+   * @param navBuilder navBuilder to generate http urls
+   * @param sshCloneUrlResolver ssh clone URL resolver
    */
   public Notifier(SettingsService settingsService,
-      HttpClientFactory httpClientFactory) {
+      HttpClientFactory httpClientFactory,
+      NavBuilder navBuilder,
+      SshCloneUrlResolver sshCloneUrlResolver) {
     
     this.httpClientFactory = httpClientFactory;
     this.settingsService = settingsService;
     this.executorService = Executors.newCachedThreadPool(ThreadFactories.namedThreadFactory("JenkinsWebhook", ThreadFactories.Type.DAEMON));
+    this.navBuilder = navBuilder;
+    this.sshCloneUrlResolver = sshCloneUrlResolver;
   }
 
   /**
@@ -133,6 +148,7 @@ public class Notifier implements DisposableBean {
 
     return notify(repo, settings.getString(JENKINS_BASE), 
         settings.getBoolean(IGNORE_CERTS, false),
+        settings.getString(CLONE_TYPE),
         settings.getString(CLONE_URL),
         strRef, strSha1,
         settings.getBoolean(OMIT_HASH_CODE, false));
@@ -143,6 +159,7 @@ public class Notifier implements DisposableBean {
    * @param repo The repository to base the notification on.
    * @param jenkinsBase Base URL for Jenkins instance
    * @param ignoreCerts True if all certs should be allowed
+   * @param cloneType The repository type
    * @param cloneUrl The repository url
    * @param strSha1 The commit's SHA1 hash code.
    * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
@@ -150,12 +167,19 @@ public class Notifier implements DisposableBean {
    * @return The notification result.
    */
   public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
-      String jenkinsBase, boolean ignoreCerts, String cloneUrl,
+      String jenkinsBase, boolean ignoreCerts, String cloneType, String cloneUrl,
       String strRef, String strSha1, boolean omitHashCode) {
     
     HttpClient client = null;
-    final String url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
-        cloneUrl, strRef, strSha1, omitHashCode);
+    String url;
+
+    try {
+        url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
+            cloneType, cloneUrl, strRef, strSha1, omitHashCode);
+    } catch (Exception e) {
+        LOGGER.error("Error getting Jenkins URL", e);
+        return new NotificationResult(false, null, e.getMessage());
+    }
 
     try {
       client = httpClientFactory.getHttpClient(url.startsWith("https"), 
@@ -191,11 +215,25 @@ public class Notifier implements DisposableBean {
    * Get the url for notifying of Jenkins. Protected for testing purposes
    * @param repository The repository to base the request to.
    * @param jenkinsBase The base URL of the Jenkins instance
+   * @param cloneType The type used to clone the repository
    * @param cloneUrl The url used for cloning the repository
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(Repository repository, String jenkinsBase, 
-      String cloneUrl, String strRef, String strSha1, boolean omitHashCode) {
+      String cloneType, String cloneUrl, String strRef, String strSha1, boolean omitHashCode) {
+    // Older installs won't have a cloneType value - treat as custom
+    if (cloneType != null && !cloneType.equals("custom")) {
+        if (cloneType.equals("http")) {
+            cloneUrl = navBuilder.repo(repository).clone("git")
+                .buildAbsoluteWithoutUsername();
+        } else if (cloneType.equals("ssh")) {
+            cloneUrl = sshCloneUrlResolver.getCloneUrl(repository);
+        } else {
+            LOGGER.error("Unknown cloneType: {}", cloneType);
+            throw new RuntimeException("Unknown cloneType: " + cloneType);
+        }
+    }
+
     if (strRef == null)
       return String.format(URL_SHORT, jenkinsBase, urlEncode(cloneUrl));
     else if (omitHashCode)

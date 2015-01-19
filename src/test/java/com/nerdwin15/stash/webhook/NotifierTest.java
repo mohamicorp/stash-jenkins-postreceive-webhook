@@ -17,10 +17,13 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.atlassian.stash.hook.repository.RepositoryHook;
+import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
+import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
 import com.nerdwin15.stash.webhook.service.SettingsService;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Test for the Notifier class
@@ -31,8 +34,12 @@ import com.nerdwin15.stash.webhook.service.SettingsService;
 public class NotifierTest {
 
   private static final String JENKINS_BASE_URL = "http://localhost.jenkins";
-  private static final String CLONE_URL =
+  private static final String HTTP_CLONE_URL =
       "http://some.stash.com/scm/foo/bar.git";
+  private static final String SSH_CLONE_URL =
+      "ssh://git@some.stash.com:12345/foo/bar.git";
+  private static final String CUSTOM_CLONE_URL =
+      "http://custom.host/custom.git";
 
   private HttpClientFactory httpClientFactory;
   private HttpClient httpClient;
@@ -42,6 +49,8 @@ public class NotifierTest {
   private Settings settings;
   private SettingsService settingsService;
   private Notifier notifier;
+  private NavBuilder navBuilder;
+  private SshCloneUrlResolver sshCloneUrlResolver;
 
   /**
    * Setup tasks
@@ -50,7 +59,9 @@ public class NotifierTest {
   public void setup() throws Exception {
     httpClientFactory = mock(HttpClientFactory.class);
     settingsService = mock(SettingsService.class);
-    notifier = new Notifier(settingsService, httpClientFactory);
+    navBuilder = mock(NavBuilder.class);
+    sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
+    notifier = new Notifier(settingsService, httpClientFactory, navBuilder, sshCloneUrlResolver);
 
     repo = mock(Repository.class);
     repoHook = mock(RepositoryHook.class);
@@ -66,9 +77,17 @@ public class NotifierTest {
         .thenReturn(httpClient);
     when(httpClient.getConnectionManager()).thenReturn(connectionManager);
 
+    NavBuilder.Repo navBuilderRepo = mock(NavBuilder.Repo.class);
+    NavBuilder.RepoClone navBuilderRepoClone = mock(NavBuilder.RepoClone.class);
+    when(navBuilder.repo(repo)).thenReturn(navBuilderRepo);
+    when(navBuilderRepo.clone("git")).thenReturn(navBuilderRepoClone);
+    when(navBuilderRepoClone.buildAbsoluteWithoutUsername()).thenReturn(HTTP_CLONE_URL);
+
+    when(sshCloneUrlResolver.getCloneUrl(repo)).thenReturn(SSH_CLONE_URL);
+
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL);
-    when(settings.getString(Notifier.CLONE_URL)).thenReturn(CLONE_URL);
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("http");
     when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(false);
   }
 
@@ -106,6 +125,110 @@ public class NotifierTest {
     notifier.notify(repo, "refs/heads/master", "sha1");
     verify(httpClientFactory, never())
       .getHttpClient(anyBoolean(), anyBoolean());
+  }
+
+  /**
+   * Validates that the URL is correct when using an HTTP clone type
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectUrlWithHttpCloneType() throws Exception {
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("http");
+    notifier.notify(repo, "refs/heads/master", "sha1");
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClient, times(1)).execute(captor.capture());
+    verify(connectionManager, times(1)).shutdown();
+
+    assertEquals("http://localhost.jenkins/git/notifyCommit?"
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
+        captor.getValue().getURI().toString());
+  }
+
+  /**
+   * Validates that the URL is correct when using an SSH clone type
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectUrlWithSshCloneType() throws Exception {
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("ssh");
+    notifier.notify(repo, "refs/heads/master", "sha1");
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClient, times(1)).execute(captor.capture());
+    verify(connectionManager, times(1)).shutdown();
+
+    assertEquals("http://localhost.jenkins/git/notifyCommit?"
+        + "url=ssh%3A%2F%2Fgit%40some.stash.com%3A12345%2Ffoo%2Fbar.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
+        captor.getValue().getURI().toString());
+  }
+
+  /**
+   * Validates that the URL is correct when using a custom clone type
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectUrlWithCustomCloneType() throws Exception {
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("custom");
+    when(settings.getString(Notifier.CLONE_URL)).thenReturn(CUSTOM_CLONE_URL);
+
+    notifier.notify(repo, "refs/heads/master", "sha1");
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClient, times(1)).execute(captor.capture());
+    verify(connectionManager, times(1)).shutdown();
+
+    assertEquals("http://localhost.jenkins/git/notifyCommit?"
+        + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
+        captor.getValue().getURI().toString());
+  }
+
+  /**
+   * Validates that the URL is correct when using a null clone type
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectUrlWithNullCloneType() throws Exception {
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn(null);
+    when(settings.getString(Notifier.CLONE_URL)).thenReturn(CUSTOM_CLONE_URL);
+
+    notifier.notify(repo, "refs/heads/master", "sha1");
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClient, times(1)).execute(captor.capture());
+    verify(connectionManager, times(1)).shutdown();
+
+    assertEquals("http://localhost.jenkins/git/notifyCommit?"
+        + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
+        + "&branches=refs/heads/master"
+        + "&sha1=sha1",
+        captor.getValue().getURI().toString());
+  }
+
+  /**
+   * Validates that the URL is correct when using a null clone type
+   * @throws Exception
+   */
+  @Test
+  public void shouldFailWithInvalidCloneType() throws Exception {
+    when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("invalid");
+
+    NotificationResult res = notifier.notify(repo, "refs/heads/master", "sha1");
+    assertFalse(res.isSuccessful());
   }
 
   /**
