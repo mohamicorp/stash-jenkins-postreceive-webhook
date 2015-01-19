@@ -77,6 +77,7 @@ public class JenkinsResource extends RestResource {
    * Fire off the test of the Jenkins configuration
    * @param repository The repository to base the notification on
    * @param jenkinsBase The base URL for the Jenkins instance
+   * @param cloneType The clone type for repository cloning
    * @param cloneUrl The url used for repository cloning
    * @param ignoreCerts True if all certs should be accepted.
    * @return The response to send back to the user.
@@ -86,11 +87,12 @@ public class JenkinsResource extends RestResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Map<String, Object> test(@Context Repository repository,
         @FormParam(Notifier.JENKINS_BASE) String jenkinsBase,
+        @FormParam(Notifier.CLONE_TYPE) String cloneType,
         @FormParam(Notifier.CLONE_URL) String cloneUrl,
         @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts,
         @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode) {
     
-    if (jenkinsBase == null || cloneUrl == null) {
+    if (jenkinsBase == null || cloneType == null || (cloneType.equals("custom") && cloneUrl == null)) {
       Map<String, Object> map = new HashMap<String, Object>();
       map.put("successful", false);
       map.put("message", "Settings must be configured");
@@ -105,7 +107,7 @@ public class JenkinsResource extends RestResource {
      *   handle this in notify
      */
     NotificationResult result = notifier.notify(repository, jenkinsBase, 
-        ignoreCerts, cloneUrl, null, null, omitHashCode);
+        ignoreCerts, cloneType, cloneUrl, null, null, omitHashCode);
     log.debug("Got response from jenkins: {}", result);
 
     // Shouldn't have to do this but the result isn't being marshalled correctly
