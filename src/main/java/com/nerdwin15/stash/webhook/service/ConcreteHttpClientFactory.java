@@ -1,5 +1,6 @@
 package com.nerdwin15.stash.webhook.service;
 
+import java.net.ProxySelector;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -8,11 +9,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.BasicClientConnectionManager;
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 
 /**
  * An implementation of the {@link HttpClientFactory} that returns a
@@ -28,11 +31,13 @@ import org.apache.http.impl.conn.BasicClientConnectionManager;
  */
 public class ConcreteHttpClientFactory implements HttpClientFactory {
 
-  private static final Integer SSL_PORT = 443;
+  private static final Integer HTTP_PORT = 80;
+  private static final Integer HTTPS_PORT = 443;
   
   /**
    * {@inheritDoc}
    */
+  @Override
   public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts) 
       throws Exception {
     return createHttpClient(usingSsl && trustAllCerts);
@@ -45,23 +50,22 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
    * @return The requested HttpClient
    * @throws Exception
    */
-  protected HttpClient createHttpClient(Boolean useConfigured) 
-      throws Exception {
-    if (useConfigured)
-      return configuredClient();
-    return new DefaultHttpClient();
-  }
+  protected HttpClient createHttpClient(boolean useConfigured) throws Exception {
+    SchemeRegistry schemeRegistry;
+    DefaultHttpClient client;
+    if (useConfigured) {
+        SSLContext sslContext = createContext();
+        schemeRegistry = createScheme(sslContext);
+        client = new DefaultHttpClient(
+            new BasicClientConnectionManager(schemeRegistry));
+    } else {
+        client = new DefaultHttpClient();
+        schemeRegistry = client.getConnectionManager().getSchemeRegistry();
+    }
 
-  /**
-   * Creates a HttpClient that is configured to accept any certificate.
-   * @return The configured certificate
-   * @throws Exception
-   */
-  protected HttpClient configuredClient() throws Exception {
-    SSLContext sslContext = createContext();
-    SchemeRegistry schemeRegistry = createScheme(sslContext);
-    return new DefaultHttpClient(
-        new BasicClientConnectionManager(schemeRegistry));
+    client.setRoutePlanner(new ProxySelectorRoutePlanner(schemeRegistry,
+        ProxySelector.getDefault()));
+    return client;
   }
 
   /**
@@ -90,7 +94,9 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
       throws Exception {
     SchemeRegistry schemeRegistry = new SchemeRegistry();
     schemeRegistry.register(
-        new Scheme("https", SSL_PORT, new SSLSocketFactory(sslContext)));
+        new Scheme("https", HTTPS_PORT, new SSLSocketFactory(sslContext)));
+    schemeRegistry.register(
+        new Scheme("http", HTTP_PORT, PlainSocketFactory.getSocketFactory()));
     return schemeRegistry;
   }
 

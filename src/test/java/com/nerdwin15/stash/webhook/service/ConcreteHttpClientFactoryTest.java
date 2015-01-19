@@ -8,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,12 +35,10 @@ public class ConcreteHttpClientFactoryTest {
   @Test
   public void validateNonSslGeneration() throws Exception {
     factory.getHttpClient(false, false);
-    assertFalse(factory.wasClientCustomConfigured());
     assertFalse(factory.wasSslContextCreated());
     assertFalse(factory.wasSchemeRegistryCreated());
 
     factory.getHttpClient(false, true);
-    assertFalse(factory.wasClientCustomConfigured());
     assertFalse(factory.wasSslContextCreated());
     assertFalse(factory.wasSchemeRegistryCreated());
   }
@@ -52,7 +49,6 @@ public class ConcreteHttpClientFactoryTest {
   @Test
   public void validateUsingDefaultCertificates() throws Exception {
     factory.getHttpClient(true, false);
-    assertFalse(factory.wasClientCustomConfigured());
     assertFalse(factory.wasSslContextCreated());
     assertFalse(factory.wasSchemeRegistryCreated());
   }
@@ -63,7 +59,6 @@ public class ConcreteHttpClientFactoryTest {
   @Test
   public void validateIgnoringSslCertValidation() throws Exception {
     factory.getHttpClient(true, true);
-    assertTrue(factory.wasClientCustomConfigured());
     assertTrue(factory.wasSslContextCreated());
     assertTrue(factory.wasSchemeRegistryCreated());
   }
@@ -77,13 +72,8 @@ public class ConcreteHttpClientFactoryTest {
    */
   private class InstrumentedConcreteHttpClientFactory 
       extends ConcreteHttpClientFactory {
-    private boolean clientConfigured = false;
     private boolean sslContextCreated = false;
     private boolean schemeRegistryCreated = false;
-
-    public boolean wasClientCustomConfigured() {
-      return clientConfigured;
-    }
 
     public boolean wasSchemeRegistryCreated() {
       return schemeRegistryCreated;
@@ -91,13 +81,6 @@ public class ConcreteHttpClientFactoryTest {
 
     public boolean wasSslContextCreated() {
       return sslContextCreated;
-    }
-
-    @Override
-    protected HttpClient createHttpClient(Boolean useConfigured) 
-        throws Exception {
-      clientConfigured = useConfigured;
-      return super.createHttpClient(useConfigured);
     }
 
     @Override
