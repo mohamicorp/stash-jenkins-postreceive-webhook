@@ -21,9 +21,14 @@ import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
+import com.atlassian.stash.user.Permission;
+import com.atlassian.stash.user.SecurityService;
+import com.atlassian.stash.util.Operation;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import static org.junit.Assert.assertFalse;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  * Test for the Notifier class
@@ -50,6 +55,7 @@ public class NotifierTest {
   private SettingsService settingsService;
   private Notifier notifier;
   private NavBuilder navBuilder;
+  private SecurityService securityService;
   private SshCloneUrlResolver sshCloneUrlResolver;
 
   /**
@@ -60,8 +66,27 @@ public class NotifierTest {
     httpClientFactory = mock(HttpClientFactory.class);
     settingsService = mock(SettingsService.class);
     navBuilder = mock(NavBuilder.class);
+    securityService = mock(SecurityService.class);
+
+    // When the security service is called, run the underlying operation
+    try {
+        when(securityService.doWithPermission(any(String.class), any(Permission.class), any(Operation.class)))
+                .thenAnswer(new Answer<Object>() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        Operation<Object, Throwable> op
+                        = (Operation<Object, Throwable>) args[2];
+                        
+                        return op.perform();
+                    }
+                });
+    } catch (Throwable t) {
+        // Mock setup - can never happen
+    }
+
     sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
-    notifier = new Notifier(settingsService, httpClientFactory, navBuilder, sshCloneUrlResolver);
+    notifier = new Notifier(settingsService, httpClientFactory, navBuilder, securityService, sshCloneUrlResolver);
 
     repo = mock(Repository.class);
     repoHook = mock(RepositoryHook.class);

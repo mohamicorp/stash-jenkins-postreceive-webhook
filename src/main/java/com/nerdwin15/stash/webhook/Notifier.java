@@ -24,6 +24,9 @@ import com.atlassian.stash.nav.NavBuilder;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
+import com.atlassian.stash.user.Permission;
+import com.atlassian.stash.user.SecurityService;
+import com.atlassian.stash.util.UncheckedOperation;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
@@ -94,6 +97,7 @@ public class Notifier implements DisposableBean {
   private final SettingsService settingsService;
   private final ExecutorService executorService;
   private final NavBuilder navBuilder;
+  private final SecurityService securityService;
   private final SshCloneUrlResolver sshCloneUrlResolver;
 
   /**
@@ -101,17 +105,20 @@ public class Notifier implements DisposableBean {
    * @param settingsService Service used to get webhook settings
    * @param httpClientFactory Factory to generate HttpClients
    * @param navBuilder navBuilder to generate http urls
+   * @param securityService securityService
    * @param sshCloneUrlResolver ssh clone URL resolver
    */
   public Notifier(SettingsService settingsService,
       HttpClientFactory httpClientFactory,
       NavBuilder navBuilder,
+      SecurityService securityService,
       SshCloneUrlResolver sshCloneUrlResolver) {
     
     this.httpClientFactory = httpClientFactory;
     this.settingsService = settingsService;
     this.executorService = Executors.newCachedThreadPool(ThreadFactories.namedThreadFactory("JenkinsWebhook", ThreadFactories.Type.DAEMON));
     this.navBuilder = navBuilder;
+    this.securityService = securityService;
     this.sshCloneUrlResolver = sshCloneUrlResolver;
   }
 
@@ -216,18 +223,25 @@ public class Notifier implements DisposableBean {
    * @param repository The repository to base the request to.
    * @param jenkinsBase The base URL of the Jenkins instance
    * @param cloneType The type used to clone the repository
-   * @param cloneUrl The url used for cloning the repository
+   * @param customCloneUrl The url used for cloning the repository
    * @return The url to use for notifying Jenkins
    */
-  protected String getUrl(Repository repository, String jenkinsBase, 
-      String cloneType, String cloneUrl, String strRef, String strSha1, boolean omitHashCode) {
+  protected String getUrl(final Repository repository, final String jenkinsBase,
+      final String cloneType, final String customCloneUrl, final String strRef, final String strSha1, boolean omitHashCode) {
+      String cloneUrl = customCloneUrl;
     // Older installs won't have a cloneType value - treat as custom
     if (cloneType != null && !cloneType.equals("custom")) {
         if (cloneType.equals("http")) {
             cloneUrl = navBuilder.repo(repository).clone("git")
                 .buildAbsoluteWithoutUsername();
         } else if (cloneType.equals("ssh")) {
-            cloneUrl = sshCloneUrlResolver.getCloneUrl(repository);
+            // The user just pushed to the repo, so must have had access
+            cloneUrl = securityService.doWithPermission("Retrieving SSH clone url", Permission.REPO_READ, new UncheckedOperation<String>() {
+                @Override
+                public String perform() {
+                    return sshCloneUrlResolver.getCloneUrl(repository);
+                }
+            });
         } else {
             LOGGER.error("Unknown cloneType: {}", cloneType);
             throw new RuntimeException("Unknown cloneType: " + cloneType);
