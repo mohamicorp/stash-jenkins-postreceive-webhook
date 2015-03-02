@@ -28,6 +28,7 @@
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>
     <component-import key="sshCloneUrlResolver" interface="com.atlassian.stash.ssh.api.SshCloneUrlResolver"/>
+    <component-import key="sshConfigurationService" interface="com.atlassian.stash.ssh.api.SshConfigurationService"/>
     
     <rest key="jenkins-rest" path="/jenkins" version="1.0">
         <dispatcher>REQUEST</dispatcher>

@@ -26,6 +26,8 @@ import com.atlassian.stash.rest.util.ResourcePatterns;
 import com.atlassian.stash.rest.util.RestResource;
 import com.atlassian.stash.rest.util.RestUtils;
 import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
+import com.atlassian.stash.ssh.api.SshConfiguration;
+import com.atlassian.stash.ssh.api.SshConfigurationService;
 import com.atlassian.stash.user.Permission;
 import com.atlassian.stash.user.PermissionValidationService;
 import com.nerdwin15.stash.webhook.NotificationResult;
@@ -51,6 +53,7 @@ public class JenkinsResource extends RestResource {
   private final Notifier notifier;
   private final PermissionValidationService permissionService;
   private final NavBuilder navBuilder;
+  private final SshConfigurationService sshConfigurationService;
   private final SshCloneUrlResolver sshCloneUrlResolver;
 
   /**
@@ -59,17 +62,20 @@ public class JenkinsResource extends RestResource {
    * @param permissionValidationService A permission validation service 
    * @param i18nService i18n Service
    * @param navBuilder Builder to generate the default HTTP clone url
+   * @param sshConfigurationService Service to check whether SSH is enabled
    * @param sshCloneUrlResolver Resolver for generating default SSH clone url
    */
   public JenkinsResource(Notifier notifier, 
       PermissionValidationService permissionValidationService, 
       I18nService i18nService, 
       NavBuilder navBuilder, 
+      SshConfigurationService sshConfigurationService,
       SshCloneUrlResolver sshCloneUrlResolver) {
     super(i18nService);
     this.notifier = notifier;
     this.permissionService = permissionValidationService;
     this.navBuilder = navBuilder;
+    this.sshConfigurationService = sshConfigurationService;
     this.sshCloneUrlResolver = sshCloneUrlResolver;
   }
 
@@ -80,6 +86,7 @@ public class JenkinsResource extends RestResource {
    * @param cloneType The clone type for repository cloning
    * @param cloneUrl The url used for repository cloning
    * @param ignoreCerts True if all certs should be accepted.
+   * @param omitHashCode True if SHA1 hash should be omitted.
    * @return The response to send back to the user.
    */
   @POST
@@ -149,7 +156,12 @@ public class JenkinsResource extends RestResource {
   @Path(value = "config")
   public Response config(@Context Repository repository) {
     Map<String, String> data = new HashMap<String, String>();
-    data.put("ssh", sshCloneUrlResolver.getCloneUrl(repository));
+    SshConfiguration sshConfiguration = sshConfigurationService.getConfiguration();
+    if (sshConfiguration.isEnabled()) {
+        data.put("ssh", sshCloneUrlResolver.getCloneUrl(repository));
+    } else {
+        data.put("ssh", "");
+    }
     data.put("http", navBuilder.repo(repository).clone("git")
         .buildAbsoluteWithoutUsername());
     return Response.ok(data).build();
