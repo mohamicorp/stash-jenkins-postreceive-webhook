@@ -45,16 +45,20 @@ public class RepositoryChangeListener {
       return;
     }
 
-    RefChange refCh = event.getRefChanges().iterator().next();
-    // Get branch name from ref 'refs/heads/master'
-    String strRef = refCh.getRefId().replaceFirst("refs/heads/", "");
-    String strSha1 = refCh.getToHash();
+    for (RefChange refCh : event.getRefChanges()) {
+      // Get branch name from ref 'refs/heads/master'
+      // NOTE - this method gets called for tag changes too
+      // In that case, the 'branch' passed to Jenkins will
+      // be "refs/tags/TAGNAME"
+      // Leaving this as-is in case someone relies on that...
+      String strRef = refCh.getRefId().replaceFirst("refs/heads/", "");
+      String strSha1 = refCh.getToHash();
 
-    String user = (event.getUser() != null) ? event.getUser().getName() : null;
-    EventContext context = new EventContext(event, event.getRepository(), user);
-    
-    if (filterChain.shouldDeliverNotification(context))
-      notifier.notifyBackground(context.getRepository(), strRef, strSha1);
+      String user = (event.getUser() != null) ? event.getUser().getName() : null;
+      EventContext context = new EventContext(event, event.getRepository(), user);
+
+      if (filterChain.shouldDeliverNotification(context))
+        notifier.notifyBackground(context.getRepository(), strRef, strSha1);
+    }
   }
-
 }
