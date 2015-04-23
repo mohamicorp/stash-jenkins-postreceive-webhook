@@ -84,16 +84,23 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
         </dependency>
+
         <!-- WIRED TEST RUNNER DEPENDENCIES -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
@@ -129,10 +136,6 @@
 				  <version>${powermock.version}</version>
 				  <scope>test</scope>
 				</dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -151,6 +154,9 @@
                             <dataVersion>${stash.data.version}</dataVersion>
                         </product>
                     </products>
+                    <instructions>
+                        <CONF_COMM />
+                    </instructions>
                 </configuration>
             </plugin>
             <plugin>
@@ -168,7 +174,7 @@
         <stash.version>2.4.0</stash.version>
         <stash.data.version>2.4.0</stash.data.version>
         <stash.containerId>tomcat7x</stash.containerId>
-        <amps.version>5.0.3</amps.version>
+        <amps.version>5.0.6</amps.version>
         <plugin.testrunner.version>1.1.1</plugin.testrunner.version>
         <powermock.version>1.4.9</powermock.version>
     </properties>
@@ -178,4 +184,45 @@
         <developerConnection>scm:git:ssh://git@github.com/Nerdwin15/stash-jenkins-postreceive-webhook.git</developerConnection>
         <url>https://github.com/Nerdwin15/stash-jenkins-postreceive-webhook</url>
     </scm>
+
+    <repositories>
+        <repository>
+            <id>atlassian.mirror</id>
+            <url>https://maven.atlassian.com/repository/public</url>
+            <snapshots><enabled>false</enabled></snapshots>
+            <releases><enabled>true</enabled></releases>
+        </repository>
+        <repository>
+            <id>atlassian.contrib</id>
+            <url>https://maven.atlassian.com/contrib</url>
+            <snapshots><enabled>false</enabled></snapshots>
+            <releases><enabled>true</enabled></releases>
+        </repository>
+        <repository>
+            <id>sonatype.oss</id>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>atlassian.mirror</id>
+            <url>https://maven.atlassian.com/repository/public</url>
+            <snapshots><enabled>false</enabled></snapshots>
+            <releases><enabled>true</enabled></releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>atlassian.contrib</id>
+            <url>https://maven.atlassian.com/contrib</url>
+            <snapshots><enabled>false</enabled></snapshots>
+            <releases><enabled>true</enabled></releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>sonatype.oss</id>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
