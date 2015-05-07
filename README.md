@@ -1,5 +1,7 @@
 # Stash Webhook for Jenkins
 
+Added travis
+
 After making commits to Stash, notify Jenkins that a new build has been created.
 
 ## Requirements
