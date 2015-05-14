@@ -126,6 +126,8 @@ public class Notifier implements DisposableBean {
    * Send notification to Jenkins for the provided repository on a background thread.
    * This is better when running as a background task, to release the calling thread.
    * @param repo The repository to base the notification on.
+   * @param strRef The branch ref related to the commit
+   * @param strSha1 The commit's SHA1 hash code.
    * @return A future of the text result from Jenkins
    */
   @Nonnull
@@ -142,6 +144,8 @@ public class Notifier implements DisposableBean {
   /**
    * Send notification to Jenkins for the provided repository.
    * @param repo The repository to base the notification on.
+   * @param strRef The branch ref related to the commit
+   * @param strSha1 The commit's SHA1 hash code.
    * @return Text result from Jenkins
    */
   public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
@@ -168,6 +172,7 @@ public class Notifier implements DisposableBean {
    * @param ignoreCerts True if all certs should be allowed
    * @param cloneType The repository type
    * @param cloneUrl The repository url
+   * @param strRef The branch ref related to the commit
    * @param strSha1 The commit's SHA1 hash code.
    * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
    *        in notification to Jenkins.
@@ -224,6 +229,10 @@ public class Notifier implements DisposableBean {
    * @param jenkinsBase The base URL of the Jenkins instance
    * @param cloneType The type used to clone the repository
    * @param customCloneUrl The url used for cloning the repository
+   * @param strRef The branch ref related to the commit
+   * @param strSha1 The commit's SHA1 hash code.
+   * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
+   *        in notification to Jenkins.
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(final Repository repository, final String jenkinsBase,
