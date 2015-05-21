@@ -23,6 +23,8 @@ build
 Icon?
 ehthumbs.db
 Thumbs.db
+.idea
+*.iml
 
 .classpath
 .project
