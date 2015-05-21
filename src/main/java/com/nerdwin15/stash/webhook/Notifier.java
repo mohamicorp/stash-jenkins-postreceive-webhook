@@ -95,8 +95,8 @@ public class Notifier implements DisposableBean {
   private static final Logger LOGGER = 
       LoggerFactory.getLogger(Notifier.class);
   private static final String BASE_URL = "%s/git/notifyCommit?url=%s";
-  private static final String HASH_PARAMETER = "&sha1=%s";
-  private static final String BRANCH_PARAMETER = "&branches=%s";
+  private static final String HASH_URL_PARAMETER = "&sha1=%s";
+  private static final String BRANCH_URL_PARAMETER = "&branches=%s";
 
   private final HttpClientFactory httpClientFactory;
   private final SettingsService settingsService;
@@ -259,9 +259,9 @@ public class Notifier implements DisposableBean {
     url.append(String.format(BASE_URL, jenkinsBase, urlEncode(cloneUrl)));
 
     if(strRef != null && !omitBranchName)
-      url.append(String.format(BRANCH_PARAMETER, strRef));
+      url.append(String.format(BRANCH_URL_PARAMETER, strRef));
     if(!omitHashCode)
-      url.append(String.format(HASH_PARAMETER, strSha1));
+      url.append(String.format(HASH_URL_PARAMETER, strSha1));
 
     return url.toString();
   }
