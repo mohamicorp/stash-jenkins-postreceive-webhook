@@ -352,5 +352,28 @@ public class NotifierTest {
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
-    
+
+  /**
+   * Validates that the correct path is used, even when a trailing slash
+   * is provided on the Jenkins Base URL
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectURLWithOmitBranchNameOn()
+    throws Exception {
+    when(settings.getBoolean(Notifier.OMIT_BRANCH_NAME, false)).thenReturn(true);
+    notifier.notify(repo, "refs/heads/master", "sha1");
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClient, times(1)).execute(captor.capture());
+    verify(connectionManager, times(1)).shutdown();
+
+    assertEquals("http://localhost.jenkins/git/notifyCommit?"
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&sha1=sha1",
+        captor.getValue().getURI().toString());
+    }
+
 }

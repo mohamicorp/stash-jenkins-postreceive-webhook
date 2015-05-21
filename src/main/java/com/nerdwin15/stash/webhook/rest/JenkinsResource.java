@@ -114,7 +114,7 @@ public class JenkinsResource extends RestResource {
      *   handle this in notify
      */
     NotificationResult result = notifier.notify(repository, jenkinsBase, 
-        ignoreCerts, cloneType, cloneUrl, null, null, omitHashCode);
+        ignoreCerts, cloneType, cloneUrl, null, null, omitHashCode, true);
     log.debug("Got response from jenkins: {}", result);
 
     // Shouldn't have to do this but the result isn't being marshalled correctly
