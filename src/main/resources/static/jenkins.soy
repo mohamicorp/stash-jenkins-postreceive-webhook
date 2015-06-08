@@ -56,6 +56,18 @@
         {param description: stash_i18n('stash.webhook.omitHashCode.description', 'Do not send the commit\'s SHA1 hash code to Jenkins') /}
     {/call}
 
+    {call widget.aui.form.checkbox}
+        {param id: 'omitBranchName' /}
+        {param checked: $config['omitBranchName'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.omitBranchName.label', 'Omit Branch Name')}
+        {/param}
+        {param labelHtml}
+            {stash_i18n('stash.webhook.omitBranchName.label', 'Omit Branch Name')}
+        {/param}
+        {param description: stash_i18n('stash.webhook.omitBranchName.description', 'Do not send the commit\'s branch name to Jenkins') /}
+    {/call}
+
     {call widget.aui.form.field}
         {param id: 'test-form' /}
         {param labelContent: stash_i18n('stash.webhook.test', 'Configuration check') /}
