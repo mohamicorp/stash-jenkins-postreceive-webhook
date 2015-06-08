@@ -8,7 +8,7 @@ define('plugin/jenkins/pr-triggerbutton', [
     return AJS.contextPath() + '/rest/jenkins/latest/projects/' 
       + pageState.getProject().getKey() + '/repos/' 
       + pageState.getRepository().getSlug() + '/triggerJenkins'
-      + '?branch=' + pageState.getPullRequest().getFromRef().getDisplayId()
+      + '?branches=' + pageState.getPullRequest().getFromRef().getDisplayId()
       + '&sha1=' + pageState.getPullRequest().getFromRef().getLatestChangeset();
   };
 
