@@ -63,7 +63,7 @@ public class PullRequestEventListener {
       return;
     }
 
-    Get branch name from stash ref 'project/repo:refs/heads/master'
+    //Get branch name from stash ref 'project/repo:refs/heads/master'
     String strRef = event.getPullRequest().getFromRef().toString()
         .replaceFirst(".*refs/heads/", "");
     String strSha1 = event.getPullRequest().getFromRef().getLatestChangeset();
