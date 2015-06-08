@@ -22,7 +22,7 @@ Once installed, follow these steps:
 ## Troubleshooting
 
 - Check your log file for any exceptions
-- Be sure you have polling turned on for your project in Jenkins (can use **H 0 1 1 0** as an example)
+- Be sure you have polling turned on for your project in Jenkins (just enable it... the schedule can be empty)
 - Verify that the URLs for your repository match in Jenkins and the webhook settings.  They MUST be identical.
 - Still stuck? Check out the [this wiki page](https://github.com/Nerdwin15/stash-jenkins-postreceive-webhook/wiki/Debug) or open an issue
 
@@ -51,7 +51,7 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ### Version 2.5.0
 - **Git Plugin version 2.0.2 or greater in Jenkins is highly recommended**
-- No longer requires polling to be enabled for the git repository in Jenkins setup
+- No longer requires polling to be enabled for the git repository in Jenkins setup (REVERTED)
 - Added more metadata in webhook notification to Jenkins, including the sha1
 - Allows "Trigger Build" button to trigger a build multiple times
 
