@@ -92,7 +92,7 @@
         {param labelContent}
             {stash_i18n('stash.webhook.ignoreCommitters.label', 'Committers to Ignore')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.ignoreCommitters.description', 'Stash usernames of committer(s) whose pushes/merges should NOT trigger a Jenkins notification. Space delimited') /}
+        {param descriptionText: stash_i18n('stash.webhook.ignoreCommitters.description', 'Stash usernames of committer(s) whose pushes/merges should NOT trigger a Jenkins notification. Comma delimited.') /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['ignoreCommitters'] : null /}
     {/call}
