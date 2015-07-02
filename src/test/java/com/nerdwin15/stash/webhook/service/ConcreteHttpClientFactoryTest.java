@@ -4,11 +4,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,12 +37,10 @@ public class ConcreteHttpClientFactoryTest {
   @Test
   public void validateNonSslGeneration() throws Exception {
     factory.getHttpClient(false, false);
-    assertFalse(factory.wasSslContextCreated());
-    assertFalse(factory.wasSchemeRegistryCreated());
+    assertFalse(factory.ignoreUnverifiedSSL);
 
     factory.getHttpClient(false, true);
-    assertFalse(factory.wasSslContextCreated());
-    assertFalse(factory.wasSchemeRegistryCreated());
+    assertFalse(factory.ignoreUnverifiedSSL);
   }
 
   /**
@@ -49,8 +49,7 @@ public class ConcreteHttpClientFactoryTest {
   @Test
   public void validateUsingDefaultCertificates() throws Exception {
     factory.getHttpClient(true, false);
-    assertFalse(factory.wasSslContextCreated());
-    assertFalse(factory.wasSchemeRegistryCreated());
+    assertFalse(factory.ignoreUnverifiedSSL);
   }
 
   /**
@@ -59,8 +58,7 @@ public class ConcreteHttpClientFactoryTest {
   @Test
   public void validateIgnoringSslCertValidation() throws Exception {
     factory.getHttpClient(true, true);
-    assertTrue(factory.wasSslContextCreated());
-    assertTrue(factory.wasSchemeRegistryCreated());
+    assertTrue(factory.ignoreUnverifiedSSL);
   }
 
   /**
@@ -72,28 +70,13 @@ public class ConcreteHttpClientFactoryTest {
    */
   private class InstrumentedConcreteHttpClientFactory 
       extends ConcreteHttpClientFactory {
-    private boolean sslContextCreated = false;
-    private boolean schemeRegistryCreated = false;
-
-    public boolean wasSchemeRegistryCreated() {
-      return schemeRegistryCreated;
-    }
-
-    public boolean wasSslContextCreated() {
-      return sslContextCreated;
-    }
+    public boolean ignoreUnverifiedSSL = false;
 
     @Override
-    protected SSLContext createContext() throws NoSuchAlgorithmException,
-        KeyManagementException {
-      sslContextCreated = true;
-      return super.createContext();
-    }
-
-    @Override
-    protected SchemeRegistry createScheme(SSLContext sslContext) throws Exception  {
-      schemeRegistryCreated = true;
-      return super.createScheme(sslContext);
+    public SSLContextBuilder ignoreUnverifiedSSL(SSLContextBuilder customContext) throws KeyStoreException, NoSuchAlgorithmException {
+      ignoreUnverifiedSSL = true;
+      return super.ignoreUnverifiedSSL(customContext);
     }
   }
+
 }
