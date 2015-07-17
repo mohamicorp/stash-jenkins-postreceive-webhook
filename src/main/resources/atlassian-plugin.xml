@@ -65,12 +65,13 @@
             </condition>
             <condition class="com.atlassian.stash.web.conditions.CanMergePullRequestCondition"/>
             <condition class="com.nerdwin15.stash.webhook.conditions.WebhookIsEnabledCondition" />
+            <condition class="com.nerdwin15.stash.webhook.conditions.TriggerBuildButtonEnabledCondition" />
         </conditions>
         <label key="stash.web.pull-request.toolbar.triggerJenkins">Trigger Build</label>
         <styleClass>triggerJenkinsBuild</styleClass>
         <dependency>${project.groupId}-${project.artifactId}:jenkins-pr-triggerbutton</dependency>
     </web-item>
-    
+
     <web-resource key="jenkins-pr-triggerbutton">
         <resource type="download" name="jenkins-pr-triggerbutton.js" location="/static/jenkins-pr-triggerbutton.js" />
         <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
