@@ -43,42 +43,45 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
     @Override
     public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts)
             throws Exception {
-        return createHttpClient(usingSsl && trustAllCerts);
+        return createHttpClient(usingSsl, trustAllCerts);
     }
 
     /**
      * Create a new HttpClient.
      *
+     *
+     * @param usingSsl using SSL
      * @param useConfigured True if the client should be configured to accept any
      *                      certificate.
      * @return The requested HttpClient
      * @throws Exception
      */
-    protected HttpClient createHttpClient(boolean useConfigured) throws Exception {
+    protected HttpClient createHttpClient(Boolean usingSsl, boolean useConfigured) throws Exception {
 
         HttpClientBuilder builder = HttpClientBuilder.create();
 
-        try {
-            SSLConnectionSocketFactory sslConnSocketFactory
-                    = new SSLConnectionSocketFactory(buildSslContext(useConfigured));
-            builder.setSSLSocketFactory(sslConnSocketFactory);
+        if (usingSsl) {
+            try {
+                SSLConnectionSocketFactory sslConnSocketFactory
+                        = new SSLConnectionSocketFactory(buildSslContext(useConfigured));
+                builder.setSSLSocketFactory(sslConnSocketFactory);
 
-            Registry<ConnectionSocketFactory> registry
-                    = RegistryBuilder.<ConnectionSocketFactory>create()
-                    .register("https", sslConnSocketFactory)
-                    .build();
+                Registry<ConnectionSocketFactory> registry
+                        = RegistryBuilder.<ConnectionSocketFactory>create()
+                        .register("https", sslConnSocketFactory)
+                        .build();
 
-            HttpClientConnectionManager ccm
-                    = new BasicHttpClientConnectionManager(registry);
+                HttpClientConnectionManager ccm
+                        = new BasicHttpClientConnectionManager(registry);
 
-            builder.setConnectionManager(ccm);
-        } catch (NoSuchAlgorithmException nsae) {
-            throw new RuntimeException("Unable to connect to Jenkins due to algorithm exception", nsae);
-        } catch (KeyManagementException kme) {
-            throw new RuntimeException("Unable to connect to Jenkins due to key management exception", kme);
-        } catch (KeyStoreException kse) {
-            throw new RuntimeException("Unable to connect to Jenkins due to key store exception", kse);
-
+                builder.setConnectionManager(ccm);
+            } catch (NoSuchAlgorithmException nsae) {
+                throw new RuntimeException("Unable to connect to Jenkins due to algorithm exception", nsae);
+            } catch (KeyManagementException kme) {
+                throw new RuntimeException("Unable to connect to Jenkins due to key management exception", kme);
+            } catch (KeyStoreException kse) {
+                throw new RuntimeException("Unable to connect to Jenkins due to key store exception", kse);
+            }
         }
 
         return builder.build();
