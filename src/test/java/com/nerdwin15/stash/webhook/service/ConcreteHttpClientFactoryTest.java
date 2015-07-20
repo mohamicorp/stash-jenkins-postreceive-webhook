@@ -2,14 +2,15 @@ package com.nerdwin15.stash.webhook.service;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
-import javax.net.ssl.SSLContext;
-
-import org.apache.http.conn.scheme.SchemeRegistry;
+import com.atlassian.stash.server.ApplicationPropertiesService;
+import com.nerdwin15.stash.webhook.ClientKeyStore;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,24 +23,29 @@ import org.junit.Test;
 public class ConcreteHttpClientFactoryTest {
 
   private InstrumentedConcreteHttpClientFactory factory;
-  
+  private ApplicationPropertiesService applicationPropertiesService;
+  private ClientKeyStore clientStore;
+
   /**
    * Setup tasks
    */
   @Before
   public void setup() {
     factory = new InstrumentedConcreteHttpClientFactory();
+    applicationPropertiesService = mock(ApplicationPropertiesService.class);
+    when(applicationPropertiesService.getPluginProperty(eq("keyStore"))).thenReturn(null);
+    clientStore = new ClientKeyStore(applicationPropertiesService);
   }
-  
+
   /**
    * Validate the non-SSL path for configuration
    */
   @Test
   public void validateNonSslGeneration() throws Exception {
-    factory.getHttpClient(false, false);
+    factory.getHttpClient(false, false, clientStore);
     assertFalse(factory.ignoreUnverifiedSSL);
 
-    factory.getHttpClient(false, true);
+    factory.getHttpClient(false, true, clientStore);
     assertFalse(factory.ignoreUnverifiedSSL);
   }
 
@@ -48,7 +54,7 @@ public class ConcreteHttpClientFactoryTest {
    */
   @Test
   public void validateUsingDefaultCertificates() throws Exception {
-    factory.getHttpClient(true, false);
+    factory.getHttpClient(true, false, clientStore);
     assertFalse(factory.ignoreUnverifiedSSL);
   }
 
@@ -57,7 +63,7 @@ public class ConcreteHttpClientFactoryTest {
    */
   @Test
   public void validateIgnoringSslCertValidation() throws Exception {
-    factory.getHttpClient(true, true);
+    factory.getHttpClient(true, true, clientStore);
     assertTrue(factory.ignoreUnverifiedSSL);
   }
 

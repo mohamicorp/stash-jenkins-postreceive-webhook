@@ -1,5 +1,6 @@
 package com.nerdwin15.stash.webhook.service;
 
+import com.nerdwin15.stash.webhook.ClientKeyStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -13,7 +14,6 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 
 import javax.net.ssl.SSLContext;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -41,9 +41,9 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
      * {@inheritDoc}
      */
     @Override
-    public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts)
+    public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts, ClientKeyStore clientKeyStore)
             throws Exception {
-        return createHttpClient(usingSsl, trustAllCerts);
+        return createHttpClient(usingSsl, trustAllCerts, clientKeyStore);
     }
 
     /**
@@ -53,17 +53,18 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
      * @param usingSsl using SSL
      * @param useConfigured True if the client should be configured to accept any
      *                      certificate.
+     * @param clientKeyStore
      * @return The requested HttpClient
      * @throws Exception
      */
-    protected HttpClient createHttpClient(Boolean usingSsl, boolean useConfigured) throws Exception {
+    protected HttpClient createHttpClient(Boolean usingSsl, boolean useConfigured, ClientKeyStore clientKeyStore) throws Exception {
 
         HttpClientBuilder builder = HttpClientBuilder.create();
 
         if (usingSsl) {
             try {
                 SSLConnectionSocketFactory sslConnSocketFactory
-                        = new SSLConnectionSocketFactory(buildSslContext(useConfigured));
+                        = new SSLConnectionSocketFactory(buildSslContext(useConfigured, clientKeyStore));
                 builder.setSSLSocketFactory(sslConnSocketFactory);
 
                 Registry<ConnectionSocketFactory> registry
@@ -94,6 +95,7 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
      * a keystore
      *
      * @param ignoreUnverifiedSSL
+     * @param clientKeyStore
      * @return the updated SSL context
      * @throws UnrecoverableKeyException
      * @throws NoSuchAlgorithmException
@@ -101,33 +103,15 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
      * @throws KeyManagementException
      * @throws KeyStoreException
      */
-    private SSLContext buildSslContext(boolean ignoreUnverifiedSSL) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, KeyStoreException, IOException, CertificateException {
+    private SSLContext buildSslContext(boolean ignoreUnverifiedSSL, ClientKeyStore clientKeyStore) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, KeyStoreException, IOException, CertificateException {
 
         SSLContextBuilder customContext = SSLContexts.custom();
         if (ignoreUnverifiedSSL) {
             customContext = ignoreUnverifiedSSL(customContext);
+            if (clientKeyStore.isAvailable()) {
+                customContext.loadKeyMaterial(clientKeyStore.getKeyStore(),clientKeyStore.getPassword());
+            }
         }
-
-        System.out.println("Checking for keystore = "+System.getenv("STASH_KEYSTORE_PATH"));
-
-
-        // We need to allow client certs to be presented to the server, we
-        // will allow the system administrator to register a key store
-        // and password that we can load
-        if (System.getenv("STASH_KEYSTORE_PATH") != null) {
-            KeyStore ks = getKeyStore();
-
-            System.out.println("Loading keystore "+System.getenv("STASH_KEYSTORE_PATH"));
-
-            char[] password = null;
-            if (System.getenv("STASH_KEYSTORE_PASSWORD") != null)
-                password = System.getenv("STASH_KEYSTORE_PASSWORD").toCharArray();
-
-            ks.load(new FileInputStream(System.getenv("STASH_KEYSTORE_PATH")), password);
-
-            customContext.loadKeyMaterial(ks,password);
-        }
-
 
         return customContext.build();
     }
@@ -152,16 +136,4 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
         return customContext;
     }
 
-    /**
-     * Get a local keystore,  based on the default type or the type specified
-     *
-     * @return
-     * @throws KeyStoreException
-     */
-    public KeyStore getKeyStore() throws KeyStoreException {
-        if (System.getenv("STASH_KEYSTORE_TYPE") != null)
-            return KeyStore.getInstance(System.getenv("STASH_KEYSTORE_TYPE"));
-        else
-            return KeyStore.getInstance(KeyStore.getDefaultType());
-    }
 }

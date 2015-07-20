@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.atlassian.stash.server.ApplicationPropertiesService;
 import com.atlassian.util.concurrent.ThreadFactories;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -104,20 +105,23 @@ public class Notifier implements DisposableBean {
   private final NavBuilder navBuilder;
   private final SecurityService securityService;
   private final SshCloneUrlResolver sshCloneUrlResolver;
+  private final ApplicationPropertiesService applicationPropertiesService;
 
-  /**
+    /**
    * Create a new instance
    * @param settingsService Service used to get webhook settings
    * @param httpClientFactory Factory to generate HttpClients
    * @param navBuilder navBuilder to generate http urls
    * @param securityService securityService
    * @param sshCloneUrlResolver ssh clone URL resolver
+   * @param applicationPropertiesService the application properties service
    */
   public Notifier(SettingsService settingsService,
       HttpClientFactory httpClientFactory,
       NavBuilder navBuilder,
       SecurityService securityService,
-      SshCloneUrlResolver sshCloneUrlResolver) {
+      SshCloneUrlResolver sshCloneUrlResolver,
+      ApplicationPropertiesService applicationPropertiesService) {
     
     this.httpClientFactory = httpClientFactory;
     this.settingsService = settingsService;
@@ -125,6 +129,7 @@ public class Notifier implements DisposableBean {
     this.navBuilder = navBuilder;
     this.securityService = securityService;
     this.sshCloneUrlResolver = sshCloneUrlResolver;
+    this.applicationPropertiesService = applicationPropertiesService;
   }
 
   /**
@@ -202,7 +207,7 @@ public class Notifier implements DisposableBean {
 
     try {
       client = httpClientFactory.getHttpClient(url.startsWith("https"), 
-          ignoreCerts);
+          ignoreCerts, new ClientKeyStore(applicationPropertiesService));
 
       HttpResponse response = client.execute(new HttpGet(url));
       LOGGER.debug("Successfully triggered jenkins with url '{}': ", url);
