@@ -26,8 +26,6 @@ public class ClientKeyStore {
             // We need to allow client certs to be presented to the server, we
             // will allow the system administrator to register a key store
             // and password that we can load
-            System.out.println("Key store = "+applicationPropertiesService.getPluginProperty(KEYSTORE_KEY));
-
             if (applicationPropertiesService.getPluginProperty(KEYSTORE_KEY) != null) {
                 keyStore = getKeyStore(applicationPropertiesService.getPluginProperty(KEYSTORE_TYPE_KEY));
 
