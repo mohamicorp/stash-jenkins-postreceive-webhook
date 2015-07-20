@@ -88,7 +88,7 @@ public class NotifierTest {
 
     sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
     applicationPropertiesService = mock(ApplicationPropertiesService.class);
-    when(applicationPropertiesService.getPluginProperty(eq("keyStore"))).thenReturn(null);
+    when(applicationPropertiesService.getPluginProperty(eq(ClientKeyStore.KEYSTORE_KEY))).thenReturn(null);
 
     notifier = new Notifier(settingsService, httpClientFactory, navBuilder, securityService, sshCloneUrlResolver, applicationPropertiesService);
 

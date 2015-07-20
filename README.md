@@ -19,6 +19,17 @@ Once installed, follow these steps:
 -  Submit the form.
 -  Commit some code and watch it trigger a build!
 
+## Keystores when you have client certificates
+
+If you have a client certificate based security model in front of your Jenkins instance you can now
+add key material into the HTTP call.
+
+In order to do this you need to add the following to your stash-config.properties
+
+    plugin.stash-webhook-jenkins.keyStore=/path/to/keystore
+    plugin.stash-webhook-jenkins.keyStoreType=<type i.e.PKCS12>
+    plugin.stash-webhook-jenkins.keyStorePassword=<password for keystore>
+
 ## Troubleshooting
 
 - Check your log file for any exceptions
