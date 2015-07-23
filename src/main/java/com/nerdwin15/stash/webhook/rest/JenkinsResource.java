@@ -133,10 +133,10 @@ public class JenkinsResource extends RestResource {
   @POST
   @Path(value = "triggerJenkins")
   public Response trigger(@Context Repository repository,
-      @QueryParam("branch") String branch, @QueryParam("sha1") String sha1) {
+      @QueryParam("branches") String branches, @QueryParam("sha1") String sha1) {
 
     try {
-      NotificationResult result = notifier.notify(repository, branch, sha1);
+      NotificationResult result = notifier.notify(repository, branches, sha1);
       if (result.isSuccessful())
         return Response.ok().build();
       return Response.noContent().build();
