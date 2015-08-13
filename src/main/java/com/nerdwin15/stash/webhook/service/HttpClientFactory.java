@@ -1,5 +1,6 @@
 package com.nerdwin15.stash.webhook.service;
 
+import com.nerdwin15.stash.webhook.ClientKeyStore;
 import org.apache.http.client.HttpClient;
 
 /**
@@ -14,9 +15,10 @@ public interface HttpClientFactory {
    * Generate a HttpClient to communicate with Jenkins.
    * @param usingSsl True if using ssl.
    * @param trustAllCerts True if all certs should be trusted.
+   * @param clientKeyStore
    * @return An HttpClient configured to communicate with Jenkins.
    * @throws Exception Any exception, but shouldn't happen.
    */
-  HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts)
+  HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts, ClientKeyStore clientKeyStore)
       throws Exception;
 }

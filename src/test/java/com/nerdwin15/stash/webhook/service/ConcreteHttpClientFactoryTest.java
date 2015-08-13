@@ -2,13 +2,16 @@ package com.nerdwin15.stash.webhook.service;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
-import javax.net.ssl.SSLContext;
-
-import org.apache.http.conn.scheme.SchemeRegistry;
+import com.atlassian.stash.server.ApplicationPropertiesService;
+import com.nerdwin15.stash.webhook.ClientKeyStore;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,27 +23,30 @@ import org.junit.Test;
 public class ConcreteHttpClientFactoryTest {
 
   private InstrumentedConcreteHttpClientFactory factory;
-  
+  private ApplicationPropertiesService applicationPropertiesService;
+  private ClientKeyStore clientStore;
+
   /**
    * Setup tasks
    */
   @Before
   public void setup() {
     factory = new InstrumentedConcreteHttpClientFactory();
+    applicationPropertiesService = mock(ApplicationPropertiesService.class);
+    when(applicationPropertiesService.getPluginProperty(eq("keyStore"))).thenReturn(null);
+    clientStore = new ClientKeyStore(applicationPropertiesService);
   }
-  
+
   /**
    * Validate the non-SSL path for configuration
    */
   @Test
   public void validateNonSslGeneration() throws Exception {
-    factory.getHttpClient(false, false);
-    assertFalse(factory.wasSslContextCreated());
-    assertFalse(factory.wasSchemeRegistryCreated());
+    factory.getHttpClient(false, false, clientStore);
+    assertFalse(factory.ignoreUnverifiedSSL);
 
-    factory.getHttpClient(false, true);
-    assertFalse(factory.wasSslContextCreated());
-    assertFalse(factory.wasSchemeRegistryCreated());
+    factory.getHttpClient(false, true, clientStore);
+    assertFalse(factory.ignoreUnverifiedSSL);
   }
 
   /**
@@ -48,9 +54,8 @@ public class ConcreteHttpClientFactoryTest {
    */
   @Test
   public void validateUsingDefaultCertificates() throws Exception {
-    factory.getHttpClient(true, false);
-    assertFalse(factory.wasSslContextCreated());
-    assertFalse(factory.wasSchemeRegistryCreated());
+    factory.getHttpClient(true, false, clientStore);
+    assertFalse(factory.ignoreUnverifiedSSL);
   }
 
   /**
@@ -58,9 +63,8 @@ public class ConcreteHttpClientFactoryTest {
    */
   @Test
   public void validateIgnoringSslCertValidation() throws Exception {
-    factory.getHttpClient(true, true);
-    assertTrue(factory.wasSslContextCreated());
-    assertTrue(factory.wasSchemeRegistryCreated());
+    factory.getHttpClient(true, true, clientStore);
+    assertTrue(factory.ignoreUnverifiedSSL);
   }
 
   /**
@@ -72,28 +76,13 @@ public class ConcreteHttpClientFactoryTest {
    */
   private class InstrumentedConcreteHttpClientFactory 
       extends ConcreteHttpClientFactory {
-    private boolean sslContextCreated = false;
-    private boolean schemeRegistryCreated = false;
-
-    public boolean wasSchemeRegistryCreated() {
-      return schemeRegistryCreated;
-    }
-
-    public boolean wasSslContextCreated() {
-      return sslContextCreated;
-    }
+    public boolean ignoreUnverifiedSSL = false;
 
     @Override
-    protected SSLContext createContext() throws NoSuchAlgorithmException,
-        KeyManagementException {
-      sslContextCreated = true;
-      return super.createContext();
-    }
-
-    @Override
-    protected SchemeRegistry createScheme(SSLContext sslContext) throws Exception  {
-      schemeRegistryCreated = true;
-      return super.createScheme(sslContext);
+    public SSLContextBuilder ignoreUnverifiedSSL(SSLContextBuilder customContext) throws KeyStoreException, NoSuchAlgorithmException {
+      ignoreUnverifiedSSL = true;
+      return super.ignoreUnverifiedSSL(customContext);
     }
   }
+
 }

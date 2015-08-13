@@ -1,14 +1,14 @@
 package com.nerdwin15.stash.webhook;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.atlassian.stash.server.ApplicationPropertiesService;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ClientConnectionManager;
@@ -57,8 +57,9 @@ public class NotifierTest {
   private NavBuilder navBuilder;
   private SecurityService securityService;
   private SshCloneUrlResolver sshCloneUrlResolver;
+  private ApplicationPropertiesService applicationPropertiesService;
 
-  /**
+    /**
    * Setup tasks
    */
   @Before
@@ -86,7 +87,10 @@ public class NotifierTest {
     }
 
     sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
-    notifier = new Notifier(settingsService, httpClientFactory, navBuilder, securityService, sshCloneUrlResolver);
+    applicationPropertiesService = mock(ApplicationPropertiesService.class);
+    when(applicationPropertiesService.getPluginProperty(eq(ClientKeyStore.KEYSTORE_KEY))).thenReturn(null);
+
+    notifier = new Notifier(settingsService, httpClientFactory, navBuilder, securityService, sshCloneUrlResolver, applicationPropertiesService);
 
     repo = mock(Repository.class);
     repoHook = mock(RepositoryHook.class);
@@ -98,20 +102,22 @@ public class NotifierTest {
     when(settingsService.getRepositoryHook(repo)).thenReturn(repoHook);
     when(settingsService.getSettings(repo)).thenReturn(settings);
     when(httpClientFactory
-        .getHttpClient(any(Boolean.class), any(Boolean.class)))
+        .getHttpClient(any(Boolean.class), any(Boolean.class), any(ClientKeyStore.class)))
         .thenReturn(httpClient);
+
     when(httpClient.getConnectionManager()).thenReturn(connectionManager);
 
     NavBuilder.Repo navBuilderRepo = mock(NavBuilder.Repo.class);
     NavBuilder.RepoClone navBuilderRepoClone = mock(NavBuilder.RepoClone.class);
     when(navBuilder.repo(repo)).thenReturn(navBuilderRepo);
-    when(navBuilderRepo.clone("git")).thenReturn(navBuilderRepoClone);
+    when(navBuilderRepo.clone(eq("git"))).thenReturn(navBuilderRepoClone);
     when(navBuilderRepoClone.buildAbsoluteWithoutUsername()).thenReturn(HTTP_CLONE_URL);
 
     when(sshCloneUrlResolver.getCloneUrl(repo)).thenReturn(SSH_CLONE_URL);
 
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL);
+
     when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("http");
     when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(false);
   }
@@ -125,7 +131,7 @@ public class NotifierTest {
     when(settingsService.getRepositoryHook(repo)).thenReturn(null);
     notifier.notify(repo, "refs/heads/master", "sha1");
     verify(httpClientFactory, never())
-      .getHttpClient(anyBoolean(), anyBoolean());
+      .getHttpClient(anyBoolean(), anyBoolean(), any(ClientKeyStore.class));
   }
 
   /**
@@ -137,7 +143,7 @@ public class NotifierTest {
     when(repoHook.isEnabled()).thenReturn(false);
     notifier.notify(repo, "refs/heads/master", "sha1");
     verify(httpClientFactory, never())
-        .getHttpClient(anyBoolean(), anyBoolean());
+        .getHttpClient(anyBoolean(), anyBoolean(), any(ClientKeyStore.class));
   }
 
   /**
@@ -149,7 +155,7 @@ public class NotifierTest {
     when(settingsService.getSettings(repo)).thenReturn(null);
     notifier.notify(repo, "refs/heads/master", "sha1");
     verify(httpClientFactory, never())
-      .getHttpClient(anyBoolean(), anyBoolean());
+      .getHttpClient(anyBoolean(), anyBoolean(), any(ClientKeyStore.class));
   }
 
   /**
@@ -163,7 +169,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -185,7 +191,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -209,7 +215,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -233,7 +239,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -266,7 +272,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -290,7 +296,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(true, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(true), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -316,7 +322,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(true, true);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(true), eq(true), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -342,7 +348,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -366,7 +372,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
     verify(httpClient, times(1)).execute(captor.capture());
     verify(connectionManager, times(1)).shutdown();
 
@@ -389,7 +395,7 @@ public class NotifierTest {
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
-   verify(httpClientFactory, times(1)).getHttpClient(false, false);
+   verify(httpClientFactory, times(1)).getHttpClient(eq(false), eq(false), any(ClientKeyStore.class));
    verify(httpClient, times(1)).execute(captor.capture());
    verify(connectionManager, times(1)).shutdown();
 
