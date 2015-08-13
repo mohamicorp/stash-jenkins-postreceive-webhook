@@ -41,6 +41,14 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
+### Version 2.7.1
+- Fixed regression with branch parameter when using "Trigger Build" button on PR page
+- Add option to disable trigger button on PR page
+
+### Version 2.7.0
+- Restored pull-request notification
+- Make option to include/exclude branch information in Jenkins notification
+
 ### Version 2.6.0
 - Added ability to not send commit hash in Jenkins notification
 - Reverted pull-request notifications back to where it was before
