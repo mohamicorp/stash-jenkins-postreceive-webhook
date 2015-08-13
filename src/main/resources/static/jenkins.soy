@@ -68,6 +68,18 @@
         {param description: stash_i18n('stash.webhook.omitBranchName.description', 'Do not send the commit\'s branch name to Jenkins') /}
     {/call}
 
+    {call widget.aui.form.checkbox}
+            {param id: 'omitTriggerBuildButton' /}
+            {param checked: $config['omitTriggerBuildButton'] /}
+            {param labelContent}
+                {stash_i18n('stash.webhook.omitTriggerBuildButton.label', 'Omit the Trigger Build Button')}
+            {/param}
+            {param labelHtml}
+                {stash_i18n('stash.webhook.omitTriggerBuildButton.label', 'Omit the Trigger Build Button')}
+            {/param}
+            {param description: stash_i18n('stash.webhook.omitTriggerBuildButton.description', 'Do not display the Trigger Build Button on the pull request overview page') /}
+    {/call}
+
     {call widget.aui.form.field}
         {param id: 'test-form' /}
         {param labelContent: stash_i18n('stash.webhook.test', 'Configuration check') /}
