@@ -169,7 +169,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -191,7 +191,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=ssh%3A%2F%2Fgit%40some.stash.com%3A12345%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -215,7 +215,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -239,7 +239,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -272,7 +272,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?" 
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -296,7 +296,7 @@ public class NotifierTest {
 
     assertEquals("https://localhost.jenkins/git/notifyCommit?" 
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -322,7 +322,7 @@ public class NotifierTest {
 
     assertEquals("https://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -348,7 +348,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -395,7 +395,7 @@ public class NotifierTest {
 
    assertEquals("http://localhost.jenkins/git/notifyCommit?"
        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-       + "&branches=refs/heads/master"
+       + "&branches=refs%2Fheads%2Fmaster"
        + "&sha1=sha1",
        captor.getValue().getURI().toString());
   }
