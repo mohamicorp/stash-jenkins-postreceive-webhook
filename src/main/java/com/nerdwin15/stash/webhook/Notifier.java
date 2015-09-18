@@ -102,13 +102,13 @@ public class Notifier implements DisposableBean {
   private final SshScmProtocol scmProtocol;
   private final HttpScmProtocol httpScmProtocol;
 
-    /**
+  /**
    * Create a new instance
    * @param settingsService Service used to get webhook settings
    * @param httpClientFactory Factory to generate HttpClients
    * @param securityService securityService
-   * @param sshScmProtocol ssh clone URL resolver
-   * @param httpScmProtocol http clone URL resolver
+   * @param sshScmProtocol generates ssh clone URLs
+   * @param httpScmProtocol generates http clone URLs
    */
   public Notifier(SettingsService settingsService,
                   HttpClientFactory httpClientFactory,
