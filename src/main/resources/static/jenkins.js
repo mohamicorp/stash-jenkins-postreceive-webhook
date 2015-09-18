@@ -1,15 +1,15 @@
 define('plugin/jenkins/test', [
     'jquery',
     'aui',
-    'util/ajax',
-    'util/navbuilder',
-    'model/page-state',
-    'util/error',
+    'bitbucket/internal/util/ajax',
+    'bitbucket/util/navbuilder',
+    'bitbucket/internal/model/page-state',
+    'bitbucket/internal/util/error',
     'exports'
 ], function ($, AJS, ajax, navBuilder, pageState, errorUtil, exports) {
     function resourceUrl(resourceName) {
-        return AJS.contextPath() + '/rest/jenkins/latest/projects/' + pageState.getProject().get("key") +
-            '/repos/' + pageState.getRepository().get("slug") + '/' + resourceName;
+        return AJS.contextPath() + '/rest/jenkins/latest/projects/' + pageState.getProject().getKey() +
+            '/repos/' + pageState.getRepository().getSlug() + '/' + resourceName;
     }
 
     function init() {

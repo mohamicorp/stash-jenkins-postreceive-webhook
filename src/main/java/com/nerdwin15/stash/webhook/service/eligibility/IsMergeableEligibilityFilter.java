@@ -3,9 +3,9 @@ package com.nerdwin15.stash.webhook.service.eligibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.stash.event.pull.PullRequestEvent;
-import com.atlassian.stash.pull.PullRequestService;
-import com.atlassian.stash.pull.PullRequestState;
+import com.atlassian.bitbucket.event.pull.PullRequestEvent;
+import com.atlassian.bitbucket.pull.PullRequestService;
+import com.atlassian.bitbucket.pull.PullRequestState;
 
 /**
  * An EligibilityFilter that checks if the commit that was

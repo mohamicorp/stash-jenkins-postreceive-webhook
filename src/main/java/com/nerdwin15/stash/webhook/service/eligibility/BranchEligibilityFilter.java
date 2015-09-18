@@ -1,9 +1,9 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.repository.RefChange;
-import com.atlassian.stash.repository.RefChangeType;
-import com.atlassian.stash.setting.Settings;
+import com.atlassian.bitbucket.event.repository.RepositoryRefsChangedEvent;
+import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.RefChangeType;
+import com.atlassian.bitbucket.setting.Settings;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.BranchEvaluator;
 import com.nerdwin15.stash.webhook.service.SettingsService;

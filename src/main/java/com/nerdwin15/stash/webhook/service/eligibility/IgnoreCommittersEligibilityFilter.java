@@ -3,7 +3,7 @@ package com.nerdwin15.stash.webhook.service.eligibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.stash.setting.Settings;
+import com.atlassian.bitbucket.setting.Settings;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 

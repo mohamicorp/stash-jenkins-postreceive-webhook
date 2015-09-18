@@ -1,8 +1,8 @@
 package com.nerdwin15.stash.webhook.service;
 
-import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
 
 /**
  * Utility class used to retrieve the Settings for a given repository

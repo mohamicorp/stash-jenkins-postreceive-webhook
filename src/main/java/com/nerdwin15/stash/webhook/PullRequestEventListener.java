@@ -1,10 +1,9 @@
 package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
-import com.atlassian.stash.event.pull.PullRequestEvent;
-import com.atlassian.stash.event.pull.PullRequestOpenedEvent;
-import com.atlassian.stash.event.pull.PullRequestReopenedEvent;
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
@@ -65,7 +64,7 @@ public class PullRequestEventListener {
 
     String strRef = event.getPullRequest().getFromRef().toString()
         .replaceFirst(".*refs/heads/", "");
-    String strSha1 = event.getPullRequest().getFromRef().getLatestChangeset();
+    String strSha1 = event.getPullRequest().getFromRef().getLatestCommit();
 
     EventContext context = new EventContext(event,
         event.getPullRequest().getToRef().getRepository(),

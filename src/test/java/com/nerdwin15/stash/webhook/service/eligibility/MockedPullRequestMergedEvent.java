@@ -1,10 +1,9 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import com.atlassian.stash.event.StashEvent;
-import com.atlassian.stash.event.pull.PullRequestMergedEvent;
-import com.atlassian.stash.pull.PullRequest;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.user.StashUser;
+import com.atlassian.bitbucket.event.pull.PullRequestMergedEvent;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.user.ApplicationUser;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -28,7 +27,7 @@ public class MockedPullRequestMergedEvent extends PullRequestMergedEvent {
    * Creates a new instance
    */
   public MockedPullRequestMergedEvent() {
-    super("TEST", mock(PullRequest.class), null);
+    super("TEST", mock(PullRequest.class));
   }
 
   /**
@@ -49,8 +48,8 @@ public class MockedPullRequestMergedEvent extends PullRequestMergedEvent {
    * Set the StashUser for the event, using reflection.
    * @param user The user for the event
    */
-  public void setUser(StashUser user) throws Exception {
-    Field field = StashEvent.class.getDeclaredField("user");
+  public void setUser(ApplicationUser user) throws Exception {
+    Field field = ApplicationUser.class.getDeclaredField("user");
     field.setAccessible(true);
     field.set(this, user);
   }

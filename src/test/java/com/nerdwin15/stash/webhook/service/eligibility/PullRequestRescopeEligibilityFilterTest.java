@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.pull.PullRequestOpenedEvent;
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
-import com.atlassian.stash.pull.PullRequest;
-import com.atlassian.stash.pull.PullRequestRef;
-import com.atlassian.stash.repository.Repository;
+import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestRef;
+import com.atlassian.bitbucket.repository.Repository;
 
 /**
  * Test case for the {@link PullRequestRescopeEligibilityFilter} class
@@ -71,7 +71,7 @@ public class PullRequestRescopeEligibilityFilterTest {
     when(request.getFromRef()).thenReturn(ref);
     
     when(event.getPreviousFromHash()).thenReturn(hash);
-    when(ref.getLatestChangeset()).thenReturn(hash);
+    when(ref.getLatestCommit()).thenReturn(hash);
     
     assertFalse(filter.shouldDeliverNotification(eventContext));
   }
@@ -90,7 +90,7 @@ public class PullRequestRescopeEligibilityFilterTest {
     when(request.getFromRef()).thenReturn(ref);
     
     when(event.getPreviousFromHash()).thenReturn(hash);
-    when(ref.getLatestChangeset()).thenReturn(hash + hash);
+    when(ref.getLatestCommit()).thenReturn(hash + hash);
     
     assertTrue(filter.shouldDeliverNotification(eventContext));
   }
