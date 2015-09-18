@@ -1,7 +1,7 @@
 define('plugin/jenkins/pr-triggerbutton', [
   'jquery',
   'aui',
-  'model/page-state'
+  'bitbucket/internal/model/page-state'
 ], function($, AJS, pageState) {
   
   var getResourceUrl = function() {
@@ -9,7 +9,7 @@ define('plugin/jenkins/pr-triggerbutton', [
       + pageState.getProject().getKey() + '/repos/' 
       + pageState.getRepository().getSlug() + '/triggerJenkins'
       + '?branches=' + pageState.getPullRequest().getFromRef().getDisplayId()
-      + '&sha1=' + pageState.getPullRequest().getFromRef().getLatestChangeset();
+      + '&sha1=' + pageState.getPullRequest().getFromRef().getLatestCommit();
   };
 
   var waiting = '<span class="aui-icon aui-icon-wait">Wait</span>';

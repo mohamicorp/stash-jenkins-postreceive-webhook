@@ -12,14 +12,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 
-import com.atlassian.stash.repository.RefChangeType;
+import com.atlassian.bitbucket.repository.RefChangeType;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.RepositoryPushEvent;
-import com.atlassian.stash.repository.RefChange;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
+import com.atlassian.bitbucket.event.repository.RepositoryPushEvent;
+import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.BranchEvaluator;
 import com.nerdwin15.stash.webhook.service.SettingsService;

@@ -3,7 +3,7 @@ package com.nerdwin15.stash.webhook.service.eligibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 
 /**
  * An EligibilityFilter that ensures PullRequestRescopedEvents come from
@@ -29,7 +29,7 @@ public class PullRequestRescopeEligibilityFilter implements EligibilityFilter {
     PullRequestRescopedEvent event = 
         (PullRequestRescopedEvent) context.getEventSource();
     if (event.getPreviousFromHash().equals(event.getPullRequest().getFromRef()
-          .getLatestChangeset())) {
+            .getLatestCommit())) {
       logger.debug("Ignoring push event due to push not coming from the "
               + "from-side");
       return false;

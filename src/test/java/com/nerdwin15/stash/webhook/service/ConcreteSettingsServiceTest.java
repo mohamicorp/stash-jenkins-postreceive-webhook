@@ -7,17 +7,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.atlassian.bitbucket.user.EscalatedSecurityContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.hook.repository.RepositoryHookService;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.user.Permission;
-import com.atlassian.stash.user.SecurityService;
-import com.atlassian.stash.util.Operation;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.permission.Permission;
+import com.atlassian.bitbucket.user.SecurityService;
+import com.atlassian.bitbucket.util.Operation;
 import com.nerdwin15.stash.webhook.Notifier;
 
 /**
@@ -52,12 +53,14 @@ public class ConcreteSettingsServiceTest {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testGetRepositoryHook() throws Throwable {
     final RepositoryHook hook = mock(RepositoryHook.class);
+    EscalatedSecurityContext escalatedSecurityContext = mock(EscalatedSecurityContext.class);
     ArgumentCaptor<Operation> captor = ArgumentCaptor.forClass(Operation.class);
-    
+    when(securityService.withPermission(
+            eq(Permission.REPO_ADMIN), eq("Retrieving repository hook")) ).thenReturn(escalatedSecurityContext);
+
     settingsService.getRepositoryHook(repository);
-    verify(securityService, times(1)).doWithPermission(
-        eq("Retrieving repository hook"), eq(Permission.REPO_ADMIN), 
-        captor.capture());
+    verify(escalatedSecurityContext, times(1)).call(
+            captor.capture());
     
     when(hookService.getByKey(repository, Notifier.KEY)).thenReturn(hook);
     Object returnValue = captor.getValue().perform();
@@ -73,11 +76,15 @@ public class ConcreteSettingsServiceTest {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void testGetSettings() throws Throwable {
     final Settings settings = mock(Settings.class);
+    EscalatedSecurityContext escalatedSecurityContext = mock(EscalatedSecurityContext.class);
     ArgumentCaptor<Operation> captor = ArgumentCaptor.forClass(Operation.class);
+    when(securityService.withPermission(
+            eq(Permission.REPO_ADMIN), eq("Retrieving settings")) ).thenReturn(escalatedSecurityContext);
     
     settingsService.getSettings(repository);
-    verify(securityService, times(1)).doWithPermission(
-        eq("Retrieving settings"), eq(Permission.REPO_ADMIN), captor.capture());
+
+    verify(escalatedSecurityContext, times(1)).call(
+            captor.capture());
     
     when(hookService.getSettings(repository, Notifier.KEY))
         .thenReturn(settings);

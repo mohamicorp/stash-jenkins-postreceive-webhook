@@ -1,8 +1,10 @@
 package com.nerdwin15.stash.webhook;
 
+import com.atlassian.bitbucket.event.pull.PullRequestMergedEvent;
+import com.atlassian.bitbucket.event.repository.RepositoryPushEvent;
 import com.atlassian.event.api.EventListener;
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.repository.RefChange;
+import com.atlassian.bitbucket.event.repository.RepositoryRefsChangedEvent;
+import com.atlassian.bitbucket.repository.RefChange;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
@@ -51,7 +53,7 @@ public class RepositoryChangeListener {
       // In that case, the 'branch' passed to Jenkins will
       // be "refs/tags/TAGNAME"
       // Leaving this as-is in case someone relies on that...
-      String strRef = refCh.getRefId().replaceFirst("refs/heads/", "");
+      String strRef = refCh.getRef().getId().replaceFirst("refs/heads/", "");
       String strSha1 = refCh.getToHash();
 
       String user = (event.getUser() != null) ? event.getUser().getName() : null;

@@ -2,7 +2,7 @@ package com.nerdwin15.stash.webhook.service;
 
 import java.util.Collection;
 
-import com.atlassian.stash.repository.RefChange;
+import com.atlassian.bitbucket.repository.RefChange;
 
 /**
  * An evaluator that provides the branches that were affected by various
