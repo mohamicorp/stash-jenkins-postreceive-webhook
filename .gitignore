@@ -31,3 +31,5 @@ Thumbs.db
 .settings
 target
 *.class
+
+Session.vim
