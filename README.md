@@ -41,7 +41,7 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
-### Version 2.7.2
+### Version 3.0.0 
 - Updated support for Bitbucket Server (previously known as Stash)
 
 ### Version 2.7.1
