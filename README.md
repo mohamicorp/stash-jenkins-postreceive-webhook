@@ -1,6 +1,6 @@
-# Stash Webhook for Jenkins
+# Bitbucket Server Webhook for Jenkins
 
-After making commits to Stash, notify Jenkins that a new build has been created.
+After making commits to Bitbucket Server (previously known as Stash), notify Jenkins that a new build has been created.
 
 ## Requirements
 
@@ -9,7 +9,7 @@ After making commits to Stash, notify Jenkins that a new build has been created.
 ## Setup
 
 Once installed, follow these steps:
--  Navigate to a repository in Stash.
+-  Navigate to a repository in Bitbucket Server.
 -  Hit the *Settings* link
 -  In the left-navigation, hit the *Hooks* link
 -  For the **Stash Webhook to Jenkins**, click the *Enable* button.
@@ -40,6 +40,9 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 - PayPal: [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9BZWAS9K95SGQ)
 
 ## Release Notes
+
+### Version 2.7.2
+- Updated support for Bitbucket Server (previously known as Stash)
 
 ### Version 2.7.1
 - Fixed regression with branch parameter when using "Trigger Build" button on PR page
