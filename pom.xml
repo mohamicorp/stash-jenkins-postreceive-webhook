@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nerdwin15.stash</groupId>
     <artifactId>stash-webhook-jenkins</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
 
     <organization>
         <name>Nerdwin15</name>
