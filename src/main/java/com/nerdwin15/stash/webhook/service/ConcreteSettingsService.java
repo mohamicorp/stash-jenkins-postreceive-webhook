@@ -3,13 +3,12 @@ package com.nerdwin15.stash.webhook.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.hook.repository.RepositoryHookService;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.user.Permission;
-import com.atlassian.stash.user.SecurityService;
-import com.atlassian.stash.util.Operation;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.permission.Permission;
+import com.atlassian.bitbucket.user.SecurityService;
 import com.nerdwin15.stash.webhook.Notifier;
 
 /**
@@ -44,13 +43,8 @@ public class ConcreteSettingsService implements SettingsService {
   @Override
   public RepositoryHook getRepositoryHook(final Repository repository) {
     try {
-      return securityService.doWithPermission("Retrieving repository hook", 
-          Permission.REPO_ADMIN, new Operation<RepositoryHook, Exception>() {
-        @Override
-        public RepositoryHook perform() throws Exception {
-          return hookService.getByKey(repository, Notifier.KEY);
-        } 
-      });
+      return securityService.withPermission(Permission.REPO_ADMIN, "Retrieving repository hook")
+              .call(() -> hookService.getByKey(repository, Notifier.KEY));
     } catch (Exception e) {
       LOGGER.error("Unexpected exception trying to get repository hook", e);
       return null;
@@ -63,13 +57,8 @@ public class ConcreteSettingsService implements SettingsService {
   @Override
   public Settings getSettings(final Repository repository) {
     try {
-      return securityService.doWithPermission("Retrieving settings", 
-          Permission.REPO_ADMIN, new Operation<Settings, Exception>() {
-        @Override
-        public Settings perform() throws Exception {
-          return hookService.getSettings(repository, Notifier.KEY);
-        } 
-      });
+      return securityService.withPermission(Permission.REPO_ADMIN, "Retrieving settings")
+              .call(() -> hookService.getSettings(repository, Notifier.KEY));
     } catch (Exception e) {
       LOGGER.error("Unexpected exception trying to get webhook settings", e);
       return null;

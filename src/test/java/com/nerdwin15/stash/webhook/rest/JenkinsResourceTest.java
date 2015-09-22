@@ -11,19 +11,17 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import com.atlassian.bitbucket.scm.http.HttpScmProtocol;
+import com.atlassian.bitbucket.scm.ssh.SshScmProtocol;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.i18n.I18nService;
-import com.atlassian.stash.nav.NavBuilder;
-import com.atlassian.stash.nav.NavBuilder.Repo;
-import com.atlassian.stash.nav.NavBuilder.RepoClone;
-import com.atlassian.stash.project.Project;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
-import com.atlassian.stash.ssh.api.SshConfiguration;
-import com.atlassian.stash.ssh.api.SshConfigurationService;
-import com.atlassian.stash.user.PermissionValidationService;
+import com.atlassian.bitbucket.i18n.I18nService;
+import com.atlassian.bitbucket.project.Project;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.ssh.SshConfiguration;
+import com.atlassian.bitbucket.ssh.SshConfigurationService;
+import com.atlassian.bitbucket.permission.PermissionValidationService;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -48,10 +46,11 @@ public class JenkinsResourceTest {
   private Notifier notifier; 
   private PermissionValidationService permissionValidationService; 
   private I18nService i18nService;
-  private NavBuilder navBuilder;
   private SshConfigurationService sshConfigurationService;
-  private SshCloneUrlResolver sshCloneUrlResolver;
-  
+  private SshScmProtocol sshScmProtocol;
+  private HttpScmProtocol httpScmProtocol;
+
+
   private Repository repository;
   
   /**
@@ -62,13 +61,13 @@ public class JenkinsResourceTest {
     notifier = mock(Notifier.class);
     permissionValidationService = mock(PermissionValidationService.class);
     i18nService = mock(I18nService.class);
-    navBuilder = mock(NavBuilder.class);
     sshConfigurationService = mock(SshConfigurationService.class);
-    
-    sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
+
+    sshScmProtocol = mock(SshScmProtocol.class);
+    httpScmProtocol = mock(HttpScmProtocol.class);
     
     resource = new JenkinsResource(notifier, permissionValidationService, 
-        i18nService, navBuilder, sshConfigurationService, sshCloneUrlResolver);
+        i18nService, sshConfigurationService, sshScmProtocol, httpScmProtocol);
     
     repository = mock(Repository.class);
     Project project = mock(Project.class);
@@ -114,18 +113,13 @@ public class JenkinsResourceTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testConfigResource() {
-    Repo repo = mock(Repo.class);
-    RepoClone repoClone = mock(RepoClone.class);
-    
-    when(navBuilder.repo(repository)).thenReturn(repo);
-    when(repo.clone("git")).thenReturn(repoClone);
-    when(repoClone.buildAbsoluteWithoutUsername()).thenReturn(HTTP_URL);
+    when(httpScmProtocol.getCloneUrl(repository, null)).thenReturn(HTTP_URL);
     
     SshConfiguration sshConfiguration = mock(SshConfiguration.class);
     
     when(sshConfigurationService.getConfiguration()).thenReturn(sshConfiguration);
     when(sshConfiguration.isEnabled()).thenReturn(true);
-    when(sshCloneUrlResolver.getCloneUrl(repository)).thenReturn(SSH_URL);
+    when(sshScmProtocol.getCloneUrl(repository, null)).thenReturn(SSH_URL);
     
     Response response = resource.config(repository);
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
@@ -133,8 +127,8 @@ public class JenkinsResourceTest {
     assertEquals(data.get("ssh"), SSH_URL);
     assertEquals(data.get("http"), HTTP_URL);
     
-    verify(sshCloneUrlResolver).getCloneUrl(repository);
-    verify(repoClone).buildAbsoluteWithoutUsername();
+    verify(sshScmProtocol).getCloneUrl(repository, null);
+    verify(httpScmProtocol).getCloneUrl(repository, null);
   }
   
   /**
@@ -143,18 +137,13 @@ public class JenkinsResourceTest {
    */
   @Test
   public void shouldNotProduceExceptionWhenSshDisabled() {
-    Repo repo = mock(Repo.class);
-    RepoClone repoClone = mock(RepoClone.class);
-    
-    when(navBuilder.repo(repository)).thenReturn(repo);
-    when(repo.clone("git")).thenReturn(repoClone);
-    when(repoClone.buildAbsoluteWithoutUsername()).thenReturn(HTTP_URL);
+    when(httpScmProtocol.getCloneUrl(repository, null)).thenReturn(HTTP_URL);
 
     SshConfiguration sshConfiguration = mock(SshConfiguration.class);
 
     when(sshConfigurationService.getConfiguration()).thenReturn(sshConfiguration);
     when(sshConfiguration.isEnabled()).thenReturn(false);
-    when(sshCloneUrlResolver.getCloneUrl(repository)).thenThrow(
+    when(sshScmProtocol.getCloneUrl(repository, null)).thenThrow(
             new IllegalStateException("Internal SSH server is disabled"));
     
     Response response = resource.config(repository);
@@ -163,8 +152,8 @@ public class JenkinsResourceTest {
     assertEquals(data.get("ssh"), EMPTY_SSH_URL);
     assertEquals(data.get("http"), HTTP_URL);
     
-    verify(sshCloneUrlResolver, never()).getCloneUrl(repository);
-    verify(repoClone).buildAbsoluteWithoutUsername();
+    verify(sshScmProtocol, never()).getCloneUrl(repository, null);
+    verify(httpScmProtocol).getCloneUrl(repository, null);
   }
   
 }

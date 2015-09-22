@@ -1,5 +1,26 @@
 package com.nerdwin15.stash.webhook;
 
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.permission.Permission;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.scm.http.HttpScmProtocol;
+import com.atlassian.bitbucket.scm.ssh.SshScmProtocol;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.user.SecurityService;
+import com.atlassian.util.concurrent.ThreadFactories;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
+import com.nerdwin15.stash.webhook.service.HttpClientFactory;
+import com.nerdwin15.stash.webhook.service.SettingsService;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -8,30 +29,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.atlassian.util.concurrent.ThreadFactories;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.nav.NavBuilder;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
-import com.atlassian.stash.user.Permission;
-import com.atlassian.stash.user.SecurityService;
-import com.atlassian.stash.util.UncheckedOperation;
-import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
-import com.nerdwin15.stash.webhook.service.HttpClientFactory;
-import com.nerdwin15.stash.webhook.service.SettingsService;
-import org.springframework.beans.factory.DisposableBean;
 
 /**
  * Service object that does the actual notification.
@@ -101,30 +98,30 @@ public class Notifier implements DisposableBean {
   private final HttpClientFactory httpClientFactory;
   private final SettingsService settingsService;
   private final ExecutorService executorService;
-  private final NavBuilder navBuilder;
   private final SecurityService securityService;
-  private final SshCloneUrlResolver sshCloneUrlResolver;
+  private final SshScmProtocol scmProtocol;
+  private final HttpScmProtocol httpScmProtocol;
 
   /**
    * Create a new instance
    * @param settingsService Service used to get webhook settings
    * @param httpClientFactory Factory to generate HttpClients
-   * @param navBuilder navBuilder to generate http urls
    * @param securityService securityService
-   * @param sshCloneUrlResolver ssh clone URL resolver
+   * @param sshScmProtocol generates ssh clone URLs
+   * @param httpScmProtocol generates http clone URLs
    */
   public Notifier(SettingsService settingsService,
-      HttpClientFactory httpClientFactory,
-      NavBuilder navBuilder,
-      SecurityService securityService,
-      SshCloneUrlResolver sshCloneUrlResolver) {
+                  HttpClientFactory httpClientFactory,
+                  SecurityService securityService,
+                  SshScmProtocol sshScmProtocol,
+                  HttpScmProtocol httpScmProtocol) {
     
     this.httpClientFactory = httpClientFactory;
     this.settingsService = settingsService;
     this.executorService = Executors.newCachedThreadPool(ThreadFactories.namedThreadFactory("JenkinsWebhook", ThreadFactories.Type.DAEMON));
-    this.navBuilder = navBuilder;
     this.securityService = securityService;
-    this.sshCloneUrlResolver = sshCloneUrlResolver;
+    this.scmProtocol = sshScmProtocol;
+    this.httpScmProtocol = httpScmProtocol;
   }
 
   /**
@@ -248,16 +245,11 @@ public class Notifier implements DisposableBean {
     // Older installs won't have a cloneType value - treat as custom
     if (cloneType != null && !cloneType.equals("custom")) {
         if (cloneType.equals("http")) {
-            cloneUrl = navBuilder.repo(repository).clone("git")
-                .buildAbsoluteWithoutUsername();
+            cloneUrl = httpScmProtocol.getCloneUrl(repository, null);
         } else if (cloneType.equals("ssh")) {
             // The user just pushed to the repo, so must have had access
-            cloneUrl = securityService.doWithPermission("Retrieving SSH clone url", Permission.REPO_READ, new UncheckedOperation<String>() {
-                @Override
-                public String perform() {
-                    return sshCloneUrlResolver.getCloneUrl(repository);
-                }
-            });
+            cloneUrl = securityService.withPermission(Permission.REPO_READ, "Retrieving SSH clone url")
+                    .call(() -> scmProtocol.getCloneUrl(repository, null));
         } else {
             LOGGER.error("Unknown cloneType: {}", cloneType);
             throw new RuntimeException("Unknown cloneType: " + cloneType);

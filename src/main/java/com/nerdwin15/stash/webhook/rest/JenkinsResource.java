@@ -1,38 +1,30 @@
 package com.nerdwin15.stash.webhook.rest;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.atlassian.bitbucket.i18n.I18nService;
+import com.atlassian.bitbucket.permission.Permission;
+import com.atlassian.bitbucket.permission.PermissionValidationService;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.rest.RestResource;
+import com.atlassian.bitbucket.rest.util.ResourcePatterns;
+import com.atlassian.bitbucket.rest.util.RestUtils;
+import com.atlassian.bitbucket.scm.http.HttpScmProtocol;
+import com.atlassian.bitbucket.scm.ssh.SshScmProtocol;
+import com.atlassian.bitbucket.ssh.SshConfiguration;
+import com.atlassian.bitbucket.ssh.SshConfigurationService;
+import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+import com.nerdwin15.stash.webhook.NotificationResult;
+import com.nerdwin15.stash.webhook.Notifier;
+import com.sun.jersey.spi.resource.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-import com.atlassian.stash.i18n.I18nService;
-import com.atlassian.stash.nav.NavBuilder;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.rest.util.ResourcePatterns;
-import com.atlassian.stash.rest.util.RestResource;
-import com.atlassian.stash.rest.util.RestUtils;
-import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
-import com.atlassian.stash.ssh.api.SshConfiguration;
-import com.atlassian.stash.ssh.api.SshConfigurationService;
-import com.atlassian.stash.user.Permission;
-import com.atlassian.stash.user.PermissionValidationService;
-import com.nerdwin15.stash.webhook.NotificationResult;
-import com.nerdwin15.stash.webhook.Notifier;
-import com.sun.jersey.spi.resource.Singleton;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * REST resource used to test the Jenkins configuration
@@ -52,31 +44,31 @@ public class JenkinsResource extends RestResource {
 
   private final Notifier notifier;
   private final PermissionValidationService permissionService;
-  private final NavBuilder navBuilder;
   private final SshConfigurationService sshConfigurationService;
-  private final SshCloneUrlResolver sshCloneUrlResolver;
+  private final SshScmProtocol sshScmProtocol;
+  private final HttpScmProtocol httpScmProtocol;
 
-  /**
+    /**
    * Creates Rest resource for testing the Jenkins configuration
    * @param notifier The service to send Jenkins notifications
    * @param permissionValidationService A permission validation service 
    * @param i18nService i18n Service
-   * @param navBuilder Builder to generate the default HTTP clone url
    * @param sshConfigurationService Service to check whether SSH is enabled
-   * @param sshCloneUrlResolver Resolver for generating default SSH clone url
+   * @param sshScmProtocol Resolver for generating default SSH clone url
+   * @param httpScmProtocol Resolver for generating default http clone url
    */
-  public JenkinsResource(Notifier notifier, 
-      PermissionValidationService permissionValidationService, 
-      I18nService i18nService, 
-      NavBuilder navBuilder, 
-      SshConfigurationService sshConfigurationService,
-      SshCloneUrlResolver sshCloneUrlResolver) {
+  public JenkinsResource(Notifier notifier,
+                         PermissionValidationService permissionValidationService,
+                         I18nService i18nService,
+                         SshConfigurationService sshConfigurationService,
+                         SshScmProtocol sshScmProtocol,
+                         HttpScmProtocol httpScmProtocol) {
     super(i18nService);
     this.notifier = notifier;
     this.permissionService = permissionValidationService;
-    this.navBuilder = navBuilder;
     this.sshConfigurationService = sshConfigurationService;
-    this.sshCloneUrlResolver = sshCloneUrlResolver;
+    this.sshScmProtocol = sshScmProtocol;
+    this.httpScmProtocol = httpScmProtocol;
   }
 
   /**
@@ -158,12 +150,11 @@ public class JenkinsResource extends RestResource {
     Map<String, String> data = new HashMap<String, String>();
     SshConfiguration sshConfiguration = sshConfigurationService.getConfiguration();
     if (sshConfiguration.isEnabled()) {
-        data.put("ssh", sshCloneUrlResolver.getCloneUrl(repository));
+        data.put("ssh", sshScmProtocol.getCloneUrl(repository, null));
     } else {
         data.put("ssh", "");
     }
-    data.put("http", navBuilder.repo(repository).clone("git")
-        .buildAbsoluteWithoutUsername());
+    data.put("http", httpScmProtocol.getCloneUrl(repository, null));
     return Response.ok(data).build();
   }
 

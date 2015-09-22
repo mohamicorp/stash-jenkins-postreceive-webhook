@@ -7,8 +7,7 @@
         <param name="plugin-icon">icons/logo.png</param>
         <param name="plugin-logo">icons/logo.png</param>
     </plugin-info>
-    
-    <component-import key="navBuilder" interface="com.atlassian.stash.nav.NavBuilder"/>
+
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
 
     <component key="branchEvaluator" class="com.nerdwin15.stash.webhook.service.ConcreteBranchEvaluator" />
@@ -27,9 +26,12 @@
     <component key="settingsRetriever" class="com.nerdwin15.stash.webhook.service.ConcreteSettingsService" />
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>
-    <component-import key="sshCloneUrlResolver" interface="com.atlassian.stash.ssh.api.SshCloneUrlResolver"/>
-    <component-import key="sshConfigurationService" interface="com.atlassian.stash.ssh.api.SshConfigurationService"/>
-    
+    <component-import key="sshScmProtocol" interface="com.atlassian.bitbucket.scm.ssh.SshScmProtocol"/>
+    <component-import key="httpScmProtocol" interface="com.atlassian.bitbucket.scm.http.HttpScmProtocol"/>
+    <component-import key="sshConfigurationService" interface="com.atlassian.bitbucket.ssh.SshConfigurationService"/>
+
+    <resource type="i18n" name="i18n" location="i18n/stash-webhook-jenkins"/>
+
     <rest key="jenkins-rest" path="/jenkins" version="1.0">
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
@@ -49,21 +51,20 @@
         </config-form>
     </repository-hook>
 
-    <stash-resource key="jenkins-test-resources">
+    <client-resource key="jenkins-test-resources">
         <directory location="/static/">
             <exclude>/**/*.soy</exclude>
         </directory>
         <context>com.nerdwin15.stash.webhook</context>
-        <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-spinner</dependency>
-    </stash-resource>
+    </client-resource>
     
-    <web-item key="stash.jenkinshook.trigger" name="Trigger Build" weight="50" section="stash.pull-request.toolbar.actions">
+    <web-item key="stash.jenkinshook.trigger" name="Trigger Build" weight="50" section="bitbucket.pull-request.toolbar.actions">
         <conditions type="AND">
-            <condition class="com.atlassian.stash.web.conditions.PullRequestInState">
+            <condition class="com.atlassian.bitbucket.web.conditions.PullRequestInState">
                 <param name="state">OPEN</param>
             </condition>
-            <condition class="com.atlassian.stash.web.conditions.CanMergePullRequestCondition"/>
+            <condition class="com.atlassian.bitbucket.web.conditions.CanMergePullRequestCondition"/>
             <condition class="com.nerdwin15.stash.webhook.conditions.WebhookIsEnabledCondition" />
             <condition class="com.nerdwin15.stash.webhook.conditions.TriggerBuildButtonEnabledCondition" />
         </conditions>
@@ -74,8 +75,7 @@
 
     <web-resource key="jenkins-pr-triggerbutton">
         <resource type="download" name="jenkins-pr-triggerbutton.js" location="/static/jenkins-pr-triggerbutton.js" />
-        <dependency>com.atlassian.stash.stash-web-plugin:global</dependency>
-        <context>stash.page.pullRequest.view</context>
+        <context>bitbucket.page.pullRequest.view</context>
     </web-resource>
 
 </atlassian-plugin>
