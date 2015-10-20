@@ -19,6 +19,7 @@ define('plugin/jenkins/test', [
             $cloneType = $("#cloneType"),
             $ignoreCerts = $("#ignoreCerts"),
             $omitHashCode = $("#omitHashCode"),
+            $omitBranchName = $("#omitBranchName"),
             $status,
             defaultUrls;
 
@@ -85,7 +86,8 @@ define('plugin/jenkins/test', [
                     'cloneType': [$cloneType.val()],
                     'gitRepoUrl': [$cloneUrl.val()],
                     'ignoreCerts': [$ignoreCerts.attr('checked') ? "TRUE" : "FALSE"],
-                    'omitHashCode': [$omitHashCode.attr('checked') ? "TRUE" : "FALSE"]
+                    'omitHashCode': [$omitHashCode.attr('checked') ? "TRUE" : "FALSE"],
+                    'omitBranchName': [$omitBranchName.attr('checked') ? "TRUE" : "FALSE"]
                 }
             }).always(function () {
                 setDeleteButtonEnabled(true)

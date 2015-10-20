@@ -85,6 +85,7 @@ public class JenkinsResource extends RestResource {
    * @param cloneUrl The url used for repository cloning
    * @param ignoreCerts True if all certs should be accepted.
    * @param omitHashCode True if SHA1 hash should be omitted.
+   * @param omitBranchName True if branch name should be omitted.
    * @return The response to send back to the user.
    */
   @POST
@@ -95,7 +96,8 @@ public class JenkinsResource extends RestResource {
         @FormParam(Notifier.CLONE_TYPE) String cloneType,
         @FormParam(Notifier.CLONE_URL) String cloneUrl,
         @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts,
-        @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode) {
+        @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode,
+        @FormParam(Notifier.OMIT_BRANCH_NAME) boolean omitBranchName) {
 
     if (jenkinsBase == null || cloneType == null || (cloneType.equals("custom") && cloneUrl == null)) {
       Map<String, Object> map = new HashMap<String, Object>();
@@ -112,7 +114,7 @@ public class JenkinsResource extends RestResource {
     Branch defaultBranch = refService.getDefaultBranch(repository);
     NotificationResult result = notifier.notify(repository, jenkinsBase,
         ignoreCerts, cloneType, cloneUrl, defaultBranch.getDisplayId(),
-        defaultBranch.getLatestCommit(), omitHashCode, true);
+        defaultBranch.getLatestCommit(), omitHashCode, omitBranchName);
     log.debug("Got response from jenkins: {}", result);
 
     // Shouldn't have to do this but the result isn't being marshalled correctly

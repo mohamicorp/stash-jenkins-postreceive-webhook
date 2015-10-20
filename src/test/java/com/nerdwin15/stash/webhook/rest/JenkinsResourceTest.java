@@ -40,6 +40,7 @@ public class JenkinsResourceTest {
   private static final String CLONE_TYPE = "http";
   private static final boolean IGNORE_CERTS = false;
   private static final boolean OMIT_HASH_CODE = false;
+  private static final boolean OMIT_BRANCH_NAME = false;
 
   private static final String HTTP_URL =
       "https://stash.localhost/stash/scm/test/test.git";
@@ -96,13 +97,13 @@ public class JenkinsResourceTest {
 
     NotificationResult notificationResult = mock(NotificationResult.class);
     when(notifier.notify(repository, JENKINS_BASE, IGNORE_CERTS,
-      CLONE_TYPE, HTTP_URL, "master", "anySha1OfLatestCommit", OMIT_HASH_CODE, true))
-      .thenReturn(notificationResult);
+      CLONE_TYPE, HTTP_URL, "master", "anySha1OfLatestCommit",
+      OMIT_HASH_CODE, OMIT_BRANCH_NAME)).thenReturn(notificationResult);
     when(notificationResult.isSuccessful()).thenReturn(true);
 
     Map<String, Object> result =
       resource.test(repository, JENKINS_BASE, CLONE_TYPE, HTTP_URL,
-        IGNORE_CERTS, OMIT_HASH_CODE);
+        IGNORE_CERTS, OMIT_HASH_CODE, OMIT_BRANCH_NAME);
     assertTrue((Boolean) result.get("successful"));
   }
 
@@ -112,7 +113,8 @@ public class JenkinsResourceTest {
   @Test
   public void shouldFailWhenJenkinsBaseNullProvidedToTest() {
     Map<String, Object> result =
-        resource.test(repository, null, CLONE_TYPE, null, IGNORE_CERTS, OMIT_HASH_CODE);
+        resource.test(repository, null, CLONE_TYPE, null, IGNORE_CERTS,
+          OMIT_HASH_CODE, OMIT_BRANCH_NAME);
     assertFalse((Boolean) result.get("successful"));
   }
 
@@ -122,7 +124,8 @@ public class JenkinsResourceTest {
   @Test
   public void shouldFailWhenCloneTypeNullProvidedToTest() {
     Map<String, Object> result =
-        resource.test(repository, JENKINS_BASE, null, HTTP_URL, IGNORE_CERTS, OMIT_HASH_CODE);
+        resource.test(repository, JENKINS_BASE, null, HTTP_URL, IGNORE_CERTS,
+          OMIT_HASH_CODE,OMIT_BRANCH_NAME);
     assertFalse((Boolean) result.get("successful"));
   }
 
@@ -133,7 +136,8 @@ public class JenkinsResourceTest {
   @Test
   public void shouldFailWhenCloneUrlNullProvidedToTest() {
     Map<String, Object> result =
-        resource.test(repository, JENKINS_BASE, "custom", null, IGNORE_CERTS, OMIT_HASH_CODE);
+        resource.test(repository, JENKINS_BASE, "custom", null, IGNORE_CERTS,
+          OMIT_HASH_CODE, OMIT_BRANCH_NAME);
     assertFalse((Boolean) result.get("successful"));
   }
 
