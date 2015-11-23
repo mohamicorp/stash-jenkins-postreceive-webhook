@@ -20,12 +20,17 @@ define('plugin/jenkins/pr-triggerbutton', [
 
     $this.attr("disabled", "disabled").html(waiting + " " + text);
   
-    $.post(getResourceUrl(), function() {
-      // Place in timer for UI-happiness - might go "too quick" and not notice
-      // it actually triggered
-      setTimeout(function() {  
+    $.ajax({
+      url: getResourceUrl(),
+      type: "POST",
+      contentType:"application/json; charset=utf-8",
+      success: function() {
+        // Place in timer for UI-happiness - might go "too quick" and not notice
+        // it actually triggered
+        setTimeout(function() {  
           $this.removeAttr("disabled").text(text);
-      }, 500);
+        }, 500);
+      }
     });
     return false;
   });
