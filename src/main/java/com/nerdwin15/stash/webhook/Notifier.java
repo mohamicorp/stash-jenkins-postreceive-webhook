@@ -261,7 +261,7 @@ public class Notifier implements DisposableBean {
 
     if(strRef != null && !omitBranchName)
       url.append(String.format(BRANCH_URL_PARAMETER, urlEncode(strRef)));
-    if(!omitHashCode)
+    if(strSha1 != null && !omitHashCode)
       url.append(String.format(HASH_URL_PARAMETER, strSha1));
 
     return url.toString();
