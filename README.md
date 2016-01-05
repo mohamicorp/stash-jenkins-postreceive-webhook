@@ -41,6 +41,10 @@ Forget buying me a beer (don't drink anyways)... they're going to pay off studen
 
 ## Release Notes
 
+### Version 3.0.1
+- Fix to XSRF bug in Trigger Button (thanks [JonMR](https://github.com/JonMR) for the PR)
+- Fix sha1 for test triggers and prevent sha1=null in URLs (thanks [SuperTux88](https://github.com/SuperTux88) for the PR)
+
 ### Version 3.0.0 
 - Updated support for Bitbucket Server (previously known as Stash)
 
