@@ -1,6 +1,6 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-import com.atlassian.stash.repository.Repository;
+import com.atlassian.bitbucket.repository.Repository;
 
 /**
  * A context object that will be used throughout the eligibility filter chain.

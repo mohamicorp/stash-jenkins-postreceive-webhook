@@ -6,10 +6,10 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.repository.RefChange;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.user.StashUser;
+import com.atlassian.bitbucket.event.repository.RepositoryRefsChangedEvent;
+import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.user.ApplicationUser;
 
 /**
  * A RepositoryEvent used for testing.
@@ -22,7 +22,7 @@ import com.atlassian.stash.user.StashUser;
 public class MockedRepositoryEvent implements RepositoryRefsChangedEvent {
 
   private Repository repository;
-  private StashUser user;
+  private ApplicationUser user;
   
   /**
    * Creates a new instance
@@ -36,7 +36,7 @@ public class MockedRepositoryEvent implements RepositoryRefsChangedEvent {
    * Set the StashUser for the event, using reflection.
    * @param user The user for the event
    */
-  public void setUser(StashUser user) throws Exception {
+  public void setUser(ApplicationUser user) throws Exception {
     this.user = user;
   }
 
@@ -54,7 +54,7 @@ public class MockedRepositoryEvent implements RepositoryRefsChangedEvent {
 
   @Override
   @Nullable
-  public StashUser getUser() {
+  public ApplicationUser getUser() {
     return user;
   }
 

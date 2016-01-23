@@ -7,15 +7,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.atlassian.stash.repository.RefChange;
+import com.atlassian.bitbucket.repository.Ref;
+import com.atlassian.bitbucket.repository.RefChange;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.user.StashUser;
+import com.atlassian.bitbucket.event.repository.RepositoryRefsChangedEvent;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.user.ApplicationUser;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
@@ -62,10 +63,12 @@ public class RepositoryChangeListenerTest {
 
     RefChange r = mock(RefChange.class);
     when(r.getToHash()).thenReturn("sha1");
-    when(r.getRefId()).thenReturn("refs/heads/master");
+    Ref ref = mock(Ref.class);
+    when(r.getRef()).thenReturn(ref);
+    when(ref.getId()).thenReturn("refs/heads/master");
     lst.add(r);
 
-    StashUser user = mock(StashUser.class);
+    ApplicationUser user = mock(ApplicationUser.class);
     String username = "pinky";
     ArgumentCaptor<EventContext> contextCaptor = 
         ArgumentCaptor.forClass(EventContext.class);
@@ -98,7 +101,9 @@ public class RepositoryChangeListenerTest {
 
     RefChange r = mock(RefChange.class);
     when(r.getToHash()).thenReturn("sha1");
-    when(r.getRefId()).thenReturn("refs/heads/master");
+    Ref ref = mock(Ref.class);
+    when(r.getRef()).thenReturn(ref);
+    when(ref.getId()).thenReturn("refs/heads/master");
     lst.add(r);
 
     Repository repo = mock(Repository.class);
@@ -135,10 +140,12 @@ public class RepositoryChangeListenerTest {
 
     RefChange r = mock(RefChange.class);
     when(r.getToHash()).thenReturn("sha1");
-    when(r.getRefId()).thenReturn("refs/heads/master");
+    Ref ref = mock(Ref.class);
+    when(r.getRef()).thenReturn(ref);
+    when(ref.getId()).thenReturn("refs/heads/master");
     lst.add(r);
 
-    StashUser user = mock(StashUser.class);
+    ApplicationUser user = mock(ApplicationUser.class);
     String username = "pinky";
     ArgumentCaptor<EventContext> contextCaptor = 
         ArgumentCaptor.forClass(EventContext.class);
@@ -218,15 +225,19 @@ public class RepositoryChangeListenerTest {
 
     RefChange r1 = mock(RefChange.class);
     when(r1.getToHash()).thenReturn("sha1");
-    when(r1.getRefId()).thenReturn("refs/heads/master");
+    Ref ref1 = mock(Ref.class);
+    when(r1.getRef()).thenReturn(ref1);
+    when(ref1.getId()).thenReturn("refs/heads/master");
     lst.add(r1);
 
     RefChange r2 = mock(RefChange.class);
     when(r2.getToHash()).thenReturn("sha2");
-    when(r2.getRefId()).thenReturn("refs/heads/feature/branch");
+    Ref ref2 = mock(Ref.class);
+    when(r2.getRef()).thenReturn(ref2);
+    when(ref2.getId()).thenReturn("refs/heads/feature/branch");
     lst.add(r2);
 
-    StashUser user = mock(StashUser.class);
+    ApplicationUser user = mock(ApplicationUser.class);
     String username = "pinky";
     ArgumentCaptor<EventContext> contextCaptor =
         ArgumentCaptor.forClass(EventContext.class);

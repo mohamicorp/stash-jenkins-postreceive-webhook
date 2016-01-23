@@ -11,15 +11,15 @@
         {param isRequired: true /}
         {param value: $config['jenkinsBase'] /}
         {param labelContent}
-            {stash_i18n('stash.webhook.jenkins.url.label', 'Jenkins URL')}
+            {getText('stash.webhook.jenkins.url.label')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.jenkins.url.description', 'URL to the Jenkins instance. Example: https://jenkins.example.com') /}
+        {param descriptionText: getText('stash.webhook.jenkins.url.description') /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['jenkinsBase'] : null /}
     {/call}
 
     <div class="field-group">
-        <label for="gitRepoUrl">{stash_i18n('stash.webhook.repo.cloneUrl.label', 'Repo Clone URL')}</label>
+        <label for="gitRepoUrl">{getText('stash.webhook.repo.cloneUrl.label')}</label>
         <select class="select" id="cloneType" name="cloneType" style="max-width: 90px">
             <option value="http" {($config['cloneType'] == 'http') ? 'selected="selected"' : ''}>HTTP</option>
             <option value="ssh" {($config['cloneType'] == 'ssh') ? 'selected="selected"' : ''}>SSH</option>
@@ -28,7 +28,7 @@
         &nbsp;
         <input id="gitRepoUrl" style="max-width: 400px" class="text" type="text" name="gitRepoUrl" value="{($config['gitRepoUrl'] != null) ? $config['gitRepoUrl'] : ''}">
         <div class="description">
-            {stash_i18n('stash.webhook.repo.cloneUrl.description', 'The URL Jenkins is using to clone this repository. Feel free to adjust as needed.')}
+            {getText('stash.webhook.repo.cloneUrl.description')}
         </div>
     </div>
 
@@ -36,69 +36,81 @@
         {param id: 'ignoreCerts' /}
         {param checked: $config['ignoreCerts'] /}
         {param labelContent}
-            {stash_i18n('stash.webhook.ignoreCerts.label', 'Skip SSL Certificate Validation')}
+            {getText('stash.webhook.ignoreCerts.label')}
         {/param}
         {param labelHtml}
-            {stash_i18n('stash.webhook.ignoreCerts.label', 'Skip SSL Certificate Validation')}
+            {getText('stash.webhook.ignoreCerts.label')}
         {/param}
-        {param description: stash_i18n('stash.webhook.ignoreCerts.description', 'When connecting to Jenkins, allow all certificates to be accepted, including self-signed certs') /}
+        {param description: getText('stash.webhook.ignoreCerts.description') /}
     {/call}
 
     {call widget.aui.form.checkbox}
         {param id: 'omitHashCode' /}
         {param checked: $config['omitHashCode'] /}
         {param labelContent}
-            {stash_i18n('stash.webhook.omitHashCode.label', 'Omit SHA1 Hash Code')}
+            {getText('stash.webhook.omitHashCode.label')}
         {/param}
         {param labelHtml}
-            {stash_i18n('stash.webhook.omitHashCode.label', 'Omit SHA1 Hash Code')}
+            {getText('stash.webhook.omitHashCode.label')}
         {/param}
-        {param description: stash_i18n('stash.webhook.omitHashCode.description', 'Do not send the commit\'s SHA1 hash code to Jenkins') /}
+        {param description: getText('stash.webhook.omitHashCode.description') /}
     {/call}
 
     {call widget.aui.form.checkbox}
         {param id: 'omitBranchName' /}
         {param checked: $config['omitBranchName'] /}
         {param labelContent}
-            {stash_i18n('stash.webhook.omitBranchName.label', 'Omit Branch Name')}
+            {getText('stash.webhook.omitBranchName.label')}
         {/param}
         {param labelHtml}
-            {stash_i18n('stash.webhook.omitBranchName.label', 'Omit Branch Name')}
+            {getText('stash.webhook.omitBranchName.label')}
         {/param}
-        {param description: stash_i18n('stash.webhook.omitBranchName.description', 'Do not send the commit\'s branch name to Jenkins') /}
+        {param description: getText('stash.webhook.omitBranchName.description') /}
+    {/call}
+
+    {call widget.aui.form.checkbox}
+            {param id: 'omitTriggerBuildButton' /}
+            {param checked: $config['omitTriggerBuildButton'] /}
+            {param labelContent}
+                {getText('stash.webhook.omitTriggerBuildButton.label')}
+            {/param}
+            {param labelHtml}
+                {getText('stash.webhook.omitTriggerBuildButton.label')}
+            {/param}
+            {param description: getText('stash.webhook.omitTriggerBuildButton.description') /}
     {/call}
 
     {call widget.aui.form.field}
         {param id: 'test-form' /}
-        {param labelContent: stash_i18n('stash.webhook.test', 'Configuration check') /}
-        {param labelHtml: stash_i18n('stash.webhook.test', 'Configuration check') /}
-        {{param description: stash_i18n('stash.webhook.test.description', 'Test the configured connection with Jenkins.') /}}
+        {param labelContent: getText('stash.webhook.test') /}
+        {param labelHtml: getText('stash.webhook.test') /}
+        {{param description: getText('stash.webhook.test.description') /}}
         {param input}
             {call widget.aui.form.button}
                 {param id: 'testButton' /}
-                {param label: stash_i18n('stash.webhook.test.button.label', 'Trigger Jenkins') /}
-                {param tooltip: stash_i18n('stash.webhook.test.button.tooltip', 'Manually trigger Jenkins builds.') /}
+                {param label: getText('stash.webhook.test.button.label') /}
+                {param tooltip: getText('stash.webhook.test.button.tooltip') /}
             {/call}
         {/param}
     {/call}
 
     <hr />
 
-    <h3>{stash_i18n('stash.webhook.advancedConfiguration.label', 'Advanced Configuration')}</h3>
+    <h3>{getText('stash.webhook.advancedConfiguration.label')}</h3>
 
     {call aui.form.textField}
         {param id: 'ignoreCommitters' /}
         {param value: $config['ignoreCommitters'] /}
         {param labelContent}
-            {stash_i18n('stash.webhook.ignoreCommitters.label', 'Committers to Ignore')}
+            {getText('stash.webhook.ignoreCommitters.label')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.ignoreCommitters.description', 'Stash usernames of committer(s) whose pushes/merges should NOT trigger a Jenkins notification. Space delimited') /}
+        {param descriptionText: getText('stash.webhook.ignoreCommitters.description') /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['ignoreCommitters'] : null /}
     {/call}
 
     <div class="field-group">
-        <label for="branchOptions">{stash_i18n('stash.webhook.repo.branchOptions.label', 'Branch Options')}</label>
+        <label for="branchOptions">{getText('stash.webhook.repo.branchOptions.label')}</label>
         <select class="select" id="branchOptions" name="branchOptions" style="max-width: 110px">
             <option value="" {($config['branchOptions'] == null) ? 'selected="selected"' : ''}>Build all</option>
             <option value="whitelist" {($config['branchOptions'] == 'whitelist') ? 'selected="selected"' : ''}>Build from:</option>
@@ -107,7 +119,7 @@
         &nbsp;
         <input id="branchOptionsBranches" style="max-width: 400px" class="text" type="text" name="branchOptionsBranches" value="{($config['branchOptionsBranches'] != null) ? $config['branchOptionsBranches'] : ''}">
         <div class="description">
-            {stash_i18n('stash.webhook.repo.branchOptions.description', 'Build from only certain branches or ignore certain branches. Space-delimited. Case-insensitive. Wildcard usage of * accepted only at end of name.')}
+            {getText('stash.webhook.repo.branchOptions.description')}
         </div>
         {(($errors) ? '<div class="error">' + $errors['branchOptionsBranches'] + '</div>' : '')|noAutoescape}
     </div>

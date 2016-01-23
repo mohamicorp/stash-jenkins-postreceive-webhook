@@ -1,42 +1,36 @@
 package com.nerdwin15.stash.webhook.rest;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.atlassian.bitbucket.i18n.I18nService;
+import com.atlassian.bitbucket.permission.Permission;
+import com.atlassian.bitbucket.permission.PermissionValidationService;
+import com.atlassian.bitbucket.repository.Branch;
+import com.atlassian.bitbucket.repository.RefService;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.rest.RestResource;
+import com.atlassian.bitbucket.rest.util.ResourcePatterns;
+import com.atlassian.bitbucket.rest.util.RestUtils;
+import com.atlassian.bitbucket.scm.http.HttpScmProtocol;
+import com.atlassian.bitbucket.scm.ssh.SshScmProtocol;
+import com.atlassian.bitbucket.ssh.SshConfiguration;
+import com.atlassian.bitbucket.ssh.SshConfigurationService;
+import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
+import com.nerdwin15.stash.webhook.NotificationResult;
+import com.nerdwin15.stash.webhook.Notifier;
+import com.sun.jersey.spi.resource.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
-import com.atlassian.stash.i18n.I18nService;
-import com.atlassian.stash.nav.NavBuilder;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.rest.util.ResourcePatterns;
-import com.atlassian.stash.rest.util.RestResource;
-import com.atlassian.stash.rest.util.RestUtils;
-import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
-import com.atlassian.stash.ssh.api.SshConfiguration;
-import com.atlassian.stash.ssh.api.SshConfigurationService;
-import com.atlassian.stash.user.Permission;
-import com.atlassian.stash.user.PermissionValidationService;
-import com.nerdwin15.stash.webhook.NotificationResult;
-import com.nerdwin15.stash.webhook.Notifier;
-import com.sun.jersey.spi.resource.Singleton;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * REST resource used to test the Jenkins configuration
- * 
+ *
  * @author Peter Leibiger (kuhnroyal)
  * @author Michael Irwin (mikesir87)
  */
@@ -52,31 +46,35 @@ public class JenkinsResource extends RestResource {
 
   private final Notifier notifier;
   private final PermissionValidationService permissionService;
-  private final NavBuilder navBuilder;
   private final SshConfigurationService sshConfigurationService;
-  private final SshCloneUrlResolver sshCloneUrlResolver;
+  private final SshScmProtocol sshScmProtocol;
+  private final HttpScmProtocol httpScmProtocol;
+  private final RefService refService;
 
   /**
    * Creates Rest resource for testing the Jenkins configuration
    * @param notifier The service to send Jenkins notifications
-   * @param permissionValidationService A permission validation service 
+   * @param permissionValidationService A permission validation service
    * @param i18nService i18n Service
-   * @param navBuilder Builder to generate the default HTTP clone url
    * @param sshConfigurationService Service to check whether SSH is enabled
-   * @param sshCloneUrlResolver Resolver for generating default SSH clone url
+   * @param sshScmProtocol Resolver for generating default SSH clone url
+   * @param httpScmProtocol Resolver for generating default http clone url
+   * @param refService Service to get default Branch
    */
-  public JenkinsResource(Notifier notifier, 
-      PermissionValidationService permissionValidationService, 
-      I18nService i18nService, 
-      NavBuilder navBuilder, 
-      SshConfigurationService sshConfigurationService,
-      SshCloneUrlResolver sshCloneUrlResolver) {
+  public JenkinsResource(Notifier notifier,
+                         PermissionValidationService permissionValidationService,
+                         I18nService i18nService,
+                         SshConfigurationService sshConfigurationService,
+                         SshScmProtocol sshScmProtocol,
+                         HttpScmProtocol httpScmProtocol,
+                         RefService refService) {
     super(i18nService);
     this.notifier = notifier;
     this.permissionService = permissionValidationService;
-    this.navBuilder = navBuilder;
     this.sshConfigurationService = sshConfigurationService;
-    this.sshCloneUrlResolver = sshCloneUrlResolver;
+    this.sshScmProtocol = sshScmProtocol;
+    this.httpScmProtocol = httpScmProtocol;
+    this.refService = refService;
   }
 
   /**
@@ -87,6 +85,7 @@ public class JenkinsResource extends RestResource {
    * @param cloneUrl The url used for repository cloning
    * @param ignoreCerts True if all certs should be accepted.
    * @param omitHashCode True if SHA1 hash should be omitted.
+   * @param omitBranchName True if branch name should be omitted.
    * @return The response to send back to the user.
    */
   @POST
@@ -97,8 +96,9 @@ public class JenkinsResource extends RestResource {
         @FormParam(Notifier.CLONE_TYPE) String cloneType,
         @FormParam(Notifier.CLONE_URL) String cloneUrl,
         @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts,
-        @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode) {
-    
+        @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode,
+        @FormParam(Notifier.OMIT_BRANCH_NAME) boolean omitBranchName) {
+
     if (jenkinsBase == null || cloneType == null || (cloneType.equals("custom") && cloneUrl == null)) {
       Map<String, Object> map = new HashMap<String, Object>();
       map.put("successful", false);
@@ -107,14 +107,14 @@ public class JenkinsResource extends RestResource {
     }
 
     permissionService.validateForRepository(repository, Permission.REPO_ADMIN);
-    log.debug("Triggering jenkins notification for repository {}/{}", 
+    log.debug("Triggering jenkins notification for repository {}/{}",
         repository.getProject().getKey(), repository.getSlug());
 
-    /* @todo carl.loa.odin@klarna.com: Send null instead of master and sha1 and
-     *   handle this in notify
-     */
-    NotificationResult result = notifier.notify(repository, jenkinsBase, 
-        ignoreCerts, cloneType, cloneUrl, null, null, omitHashCode, true);
+    // use default branch for test
+    Branch defaultBranch = refService.getDefaultBranch(repository);
+    NotificationResult result = notifier.notify(repository, jenkinsBase,
+        ignoreCerts, cloneType, cloneUrl, defaultBranch.getDisplayId(),
+        defaultBranch.getLatestCommit(), omitHashCode, omitBranchName);
     log.debug("Got response from jenkins: {}", result);
 
     // Shouldn't have to do this but the result isn't being marshalled correctly
@@ -124,7 +124,7 @@ public class JenkinsResource extends RestResource {
     map.put("message", result.getMessage());
     return map;
   }
-  
+
   /**
    * Trigger a build on the Jenkins instance
    * @param repository The repository to trigger
@@ -133,10 +133,10 @@ public class JenkinsResource extends RestResource {
   @POST
   @Path(value = "triggerJenkins")
   public Response trigger(@Context Repository repository,
-      @QueryParam("branch") String branch, @QueryParam("sha1") String sha1) {
+      @QueryParam("branches") String branches, @QueryParam("sha1") String sha1) {
 
     try {
-      NotificationResult result = notifier.notify(repository, branch, sha1);
+      NotificationResult result = notifier.notify(repository, branches, sha1);
       if (result.isSuccessful())
         return Response.ok().build();
       return Response.noContent().build();
@@ -146,7 +146,7 @@ public class JenkinsResource extends RestResource {
           .entity(e.getMessage()).build();
     }
   }
-  
+
   /**
    * Get the default clone urls for a repository.
    * @param repository The repository to get clone urls for
@@ -158,12 +158,11 @@ public class JenkinsResource extends RestResource {
     Map<String, String> data = new HashMap<String, String>();
     SshConfiguration sshConfiguration = sshConfigurationService.getConfiguration();
     if (sshConfiguration.isEnabled()) {
-        data.put("ssh", sshCloneUrlResolver.getCloneUrl(repository));
+        data.put("ssh", sshScmProtocol.getCloneUrl(repository, null));
     } else {
         data.put("ssh", "");
     }
-    data.put("http", navBuilder.repo(repository).clone("git")
-        .buildAbsoluteWithoutUsername());
+    data.put("http", httpScmProtocol.getCloneUrl(repository, null));
     return Response.ok(data).build();
   }
 

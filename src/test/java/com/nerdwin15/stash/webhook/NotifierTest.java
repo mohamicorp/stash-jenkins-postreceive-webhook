@@ -3,12 +3,10 @@ package com.nerdwin15.stash.webhook;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import com.atlassian.bitbucket.scm.http.HttpScmProtocol;
+import com.atlassian.bitbucket.scm.ssh.SshScmProtocol;
+import com.atlassian.bitbucket.user.EscalatedSecurityContext;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ClientConnectionManager;
@@ -16,17 +14,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import com.atlassian.stash.hook.repository.RepositoryHook;
-import com.atlassian.stash.nav.NavBuilder;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.ssh.api.SshCloneUrlResolver;
-import com.atlassian.stash.user.Permission;
-import com.atlassian.stash.user.SecurityService;
-import com.atlassian.stash.util.Operation;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.permission.Permission;
+import com.atlassian.bitbucket.user.SecurityService;
+import com.atlassian.bitbucket.util.Operation;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.*;
+
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -54,9 +52,9 @@ public class NotifierTest {
   private Settings settings;
   private SettingsService settingsService;
   private Notifier notifier;
-  private NavBuilder navBuilder;
   private SecurityService securityService;
-  private SshCloneUrlResolver sshCloneUrlResolver;
+  private SshScmProtocol sshScmProtocol;
+  private HttpScmProtocol httpScmProtocol;
 
   /**
    * Setup tasks
@@ -65,19 +63,20 @@ public class NotifierTest {
   public void setup() throws Exception {
     httpClientFactory = mock(HttpClientFactory.class);
     settingsService = mock(SettingsService.class);
-    navBuilder = mock(NavBuilder.class);
     securityService = mock(SecurityService.class);
+      EscalatedSecurityContext escalatedSecurityContext = mock(EscalatedSecurityContext.class);
 
-    // When the security service is called, run the underlying operation
+      // When the security service is called, run the underlying operation
     try {
-        when(securityService.doWithPermission(any(String.class), any(Permission.class), any(Operation.class)))
+        when(securityService.withPermission(any(Permission.class), any(String.class))).thenReturn(escalatedSecurityContext);
+        when(escalatedSecurityContext.call(any(Operation.class)))
                 .thenAnswer(new Answer<Object>() {
                     @Override
                     public Object answer(InvocationOnMock invocation) throws Throwable {
                         Object[] args = invocation.getArguments();
                         Operation<Object, Throwable> op
-                        = (Operation<Object, Throwable>) args[2];
-                        
+                                = (Operation<Object, Throwable>) args[0];
+
                         return op.perform();
                     }
                 });
@@ -85,8 +84,9 @@ public class NotifierTest {
         // Mock setup - can never happen
     }
 
-    sshCloneUrlResolver = mock(SshCloneUrlResolver.class);
-    notifier = new Notifier(settingsService, httpClientFactory, navBuilder, securityService, sshCloneUrlResolver);
+    sshScmProtocol = mock(SshScmProtocol.class);
+    httpScmProtocol = mock(HttpScmProtocol.class);
+    notifier = new Notifier(settingsService, httpClientFactory, securityService, sshScmProtocol, httpScmProtocol);
 
     repo = mock(Repository.class);
     repoHook = mock(RepositoryHook.class);
@@ -102,13 +102,9 @@ public class NotifierTest {
         .thenReturn(httpClient);
     when(httpClient.getConnectionManager()).thenReturn(connectionManager);
 
-    NavBuilder.Repo navBuilderRepo = mock(NavBuilder.Repo.class);
-    NavBuilder.RepoClone navBuilderRepoClone = mock(NavBuilder.RepoClone.class);
-    when(navBuilder.repo(repo)).thenReturn(navBuilderRepo);
-    when(navBuilderRepo.clone("git")).thenReturn(navBuilderRepoClone);
-    when(navBuilderRepoClone.buildAbsoluteWithoutUsername()).thenReturn(HTTP_CLONE_URL);
+    when(httpScmProtocol.getCloneUrl(repo, null)).thenReturn(HTTP_CLONE_URL);
 
-    when(sshCloneUrlResolver.getCloneUrl(repo)).thenReturn(SSH_CLONE_URL);
+    when(sshScmProtocol.getCloneUrl(repo, null)).thenReturn(SSH_CLONE_URL);
 
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL);
@@ -169,7 +165,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -191,7 +187,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=ssh%3A%2F%2Fgit%40some.stash.com%3A12345%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -215,7 +211,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -239,7 +235,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -272,7 +268,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?" 
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -296,7 +292,7 @@ public class NotifierTest {
 
     assertEquals("https://localhost.jenkins/git/notifyCommit?" 
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -322,7 +318,7 @@ public class NotifierTest {
 
     assertEquals("https://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -348,7 +344,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs/heads/master"
+        + "&branches=refs%2Fheads%2Fmaster"
         + "&sha1=sha1",
         captor.getValue().getURI().toString());
   }
@@ -395,9 +391,30 @@ public class NotifierTest {
 
    assertEquals("http://localhost.jenkins/git/notifyCommit?"
        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-       + "&branches=refs/heads/master"
+       + "&branches=refs%2Fheads%2Fmaster"
        + "&sha1=sha1",
        captor.getValue().getURI().toString());
   }
 
+  /**
+   * Validates that the correct path is used when the sha1 is null
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectURLWhenSha1IsNull()
+    throws Exception {
+    when(settings.getBoolean(Notifier.OMIT_BRANCH_NAME, false)).thenReturn(false);
+    notifier.notify(repo, "refs/heads/master", null);
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClient, times(1)).execute(captor.capture());
+    verify(connectionManager, times(1)).shutdown();
+
+    assertEquals("http://localhost.jenkins/git/notifyCommit?"
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&branches=refs%2Fheads%2Fmaster",
+        captor.getValue().getURI().toString());
+  }
 }

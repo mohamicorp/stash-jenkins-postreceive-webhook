@@ -8,13 +8,13 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
-import com.atlassian.stash.pull.PullRequest;
-import com.atlassian.stash.pull.PullRequestMergeability;
-import com.atlassian.stash.pull.PullRequestRef;
-import com.atlassian.stash.pull.PullRequestService;
-import com.atlassian.stash.pull.PullRequestState;
-import com.atlassian.stash.repository.Repository;
+import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestMergeability;
+import com.atlassian.bitbucket.pull.PullRequestRef;
+import com.atlassian.bitbucket.pull.PullRequestService;
+import com.atlassian.bitbucket.pull.PullRequestState;
+import com.atlassian.bitbucket.repository.Repository;
 
 /**
  * Test case for the {@link IsMergeableEligibilityFilter} class
@@ -79,7 +79,7 @@ public class IsMergeableEligibilityFilterTest {
     when(pullRequest.getId()).thenReturn(prId);
     
     when(event.getPreviousFromHash()).thenReturn("event-hash");
-    when(ref.getLatestChangeset()).thenReturn("ref-hash");
+    when(ref.getLatestCommit()).thenReturn("ref-hash");
     when(pullRequestService.canMerge(repoId, prId)).thenReturn(mergability);
     when(mergability.isConflicted()).thenReturn(true);
     
@@ -100,7 +100,7 @@ public class IsMergeableEligibilityFilterTest {
     when(pullRequest.getId()).thenReturn(prId);
     
     when(event.getPreviousFromHash()).thenReturn("event-hash");
-    when(ref.getLatestChangeset()).thenReturn("ref-hash");
+    when(ref.getLatestCommit()).thenReturn("ref-hash");
     when(pullRequestService.canMerge(repoId, prId)).thenReturn(mergability);
     when(mergability.isConflicted()).thenReturn(false);
     
