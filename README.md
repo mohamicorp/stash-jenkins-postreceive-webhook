@@ -4,7 +4,7 @@ After making commits to Bitbucket Server (previously known as Stash), notify Jen
 
 ## Requirements
 
-+  **Git Plugin** - Jenkins needs to have the [Git Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin) installed in Jenkins and the Poll SCM option must be enabled
++  **Git Plugin** - Jenkins needs to have the [Git Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin) installed in Jenkins and the Poll SCM option must be enabled. It specifically leverages the [notification capability](https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin#GitPlugin-Pushnotificationfromrepository) of that plugin which can be triggered without providing any authentication information. 
 
 ## Setup
 
