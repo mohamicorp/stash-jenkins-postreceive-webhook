@@ -62,8 +62,7 @@ public class PullRequestEventListener {
       return;
     }
 
-    String strRef = event.getPullRequest().getFromRef().toString()
-        .replaceFirst(".*refs/heads/", "");
+    String strRef  = "pr/" + Long.toString(event.getPullRequest().getId()) + "/from";
     String strSha1 = event.getPullRequest().getFromRef().getLatestCommit();
 
     EventContext context = new EventContext(event,
