@@ -69,6 +69,18 @@
     {/call}
 
     {call widget.aui.form.checkbox}
+        {param id: 'omitTargetBranch' /}
+        {param checked: $config['omitTargetBranch'] /}
+        {param labelContent}
+            {getText('stash.webhook.omitTargetBranch.label')}
+        {/param}
+        {param labelHtml}
+            {getText('stash.webhook.omitTargetBranch.label')}
+        {/param}
+        {param description: getText('stash.webhook.omitTargetBranch.description') /}
+    {/call}
+    
+    {call widget.aui.form.checkbox}
             {param id: 'omitTriggerBuildButton' /}
             {param checked: $config['omitTriggerBuildButton'] /}
             {param labelContent}

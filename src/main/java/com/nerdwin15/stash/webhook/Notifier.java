@@ -75,6 +75,11 @@ public class Notifier implements DisposableBean {
   public static final String OMIT_BRANCH_NAME = "omitBranchName";
 
   /**
+   * Field name for the omit target branch property
+   */
+  public static final String OMIT_TARGET_BRANCH = "omitTargetBranch";
+
+  /**
    * Field name for the ignore committers property
    */
   public static final String IGNORE_COMMITTERS = "ignoreCommitters";
@@ -94,6 +99,7 @@ public class Notifier implements DisposableBean {
   private static final String BASE_URL = "%s/git/notifyCommit?url=%s";
   private static final String HASH_URL_PARAMETER = "&sha1=%s";
   private static final String BRANCH_URL_PARAMETER = "&branches=%s";
+  private static final String TARGET_BRANCH_PARAMETER = "&TARGET_BRANCH=%s";
 
   private final HttpClientFactory httpClientFactory;
   private final SettingsService settingsService;
@@ -130,15 +136,16 @@ public class Notifier implements DisposableBean {
    * @param repo The repository to base the notification on.
    * @param strRef The branch ref related to the commit
    * @param strSha1 The commit's SHA1 hash code.
+   * @param targetBranch Target branch can be used in merge
    * @return A future of the text result from Jenkins
    */
   @Nonnull
   public Future<NotificationResult> notifyBackground(@Nonnull final Repository repo, //CHECKSTYLE:annot
-      final String strRef, final String strSha1) {
+      final String strRef, final String strSha1, final String targetBranch) {
     return executorService.submit(new Callable<NotificationResult>() {
       @Override
       public NotificationResult call() throws Exception {
-        return Notifier.this.notify(repo, strRef, strSha1);
+        return Notifier.this.notify(repo, strRef, strSha1, targetBranch);
       }
     });
   }
@@ -148,10 +155,11 @@ public class Notifier implements DisposableBean {
    * @param repo The repository to base the notification on.
    * @param strRef The branch ref related to the commit
    * @param strSha1 The commit's SHA1 hash code.
+   * @param targetBranch Target branch can be used in merge
    * @return Text result from Jenkins
    */
   public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
-      String strRef, String strSha1) {
+      String strRef, String strSha1, String targetBranch) {
     final RepositoryHook hook = settingsService.getRepositoryHook(repo);
     final Settings settings = settingsService.getSettings(repo);
     if (hook == null || !hook.isEnabled() || settings == null) {
@@ -163,9 +171,10 @@ public class Notifier implements DisposableBean {
         settings.getBoolean(IGNORE_CERTS, false),
         settings.getString(CLONE_TYPE),
         settings.getString(CLONE_URL),
-        strRef, strSha1,
+        strRef, strSha1, targetBranch,
         settings.getBoolean(OMIT_HASH_CODE, false),
-        settings.getBoolean(OMIT_BRANCH_NAME, false));
+        settings.getBoolean(OMIT_BRANCH_NAME, false),
+        settings.getBoolean(OMIT_TARGET_BRANCH, false));
   }
 
   /**
@@ -177,21 +186,25 @@ public class Notifier implements DisposableBean {
    * @param cloneUrl The repository url
    * @param strRef The branch ref related to the commit
    * @param strSha1 The commit's SHA1 hash code.
+   * @param targetBranch Target branch can be used in merge
    * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
    *        in notification to Jenkins.
    * @param omitBranchName Defines whether the commit's branch name is omitted
+   * @param omitTargetBranch Omit the target branch
    * @return The notification result.
    */
   public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
       String jenkinsBase, boolean ignoreCerts, String cloneType, String cloneUrl,
-      String strRef, String strSha1, boolean omitHashCode, boolean omitBranchName) {
+      String strRef, String strSha1, String targetBranch, boolean omitHashCode, 
+      boolean omitBranchName, boolean omitTargetBranch) {
     
     HttpClient client = null;
     String url;
 
     try {
         url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
-            cloneType, cloneUrl, strRef, strSha1, omitHashCode, omitBranchName);
+            cloneType, cloneUrl, strRef, strSha1, targetBranch, omitHashCode, omitBranchName, 
+            omitTargetBranch);
     } catch (Exception e) {
         LOGGER.error("Error getting Jenkins URL", e);
         return new NotificationResult(false, null, e.getMessage());
@@ -235,12 +248,16 @@ public class Notifier implements DisposableBean {
    * @param customCloneUrl The url used for cloning the repository
    * @param strRef The branch ref related to the commit
    * @param strSha1 The commit's SHA1 hash code.
+   * @param targetBranch Target branch can be used in merge
    * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
    *        in notification to Jenkins.
+   * @param omitTargetBranch Omit the target branch
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(final Repository repository, final String jenkinsBase,
-      final String cloneType, final String customCloneUrl, final String strRef, final String strSha1, boolean omitHashCode, boolean omitBranchName) {
+      final String cloneType, final String customCloneUrl, final String strRef, 
+      final String strSha1, final String targetBranch, boolean omitHashCode, 
+      boolean omitBranchName, boolean omitTargetBranch) {
       String cloneUrl = customCloneUrl;
     // Older installs won't have a cloneType value - treat as custom
     if (cloneType != null && !cloneType.equals("custom")) {
@@ -263,7 +280,9 @@ public class Notifier implements DisposableBean {
       url.append(String.format(BRANCH_URL_PARAMETER, urlEncode(strRef)));
     if(strSha1 != null && !omitHashCode)
       url.append(String.format(HASH_URL_PARAMETER, strSha1));
-
+    if(targetBranch != null && !omitTargetBranch)
+        url.append(String.format(TARGET_BRANCH_PARAMETER, targetBranch));
+    
     return url.toString();
   }
 

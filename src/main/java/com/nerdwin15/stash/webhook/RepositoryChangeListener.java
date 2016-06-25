@@ -55,12 +55,13 @@ public class RepositoryChangeListener {
       // Leaving this as-is in case someone relies on that...
       String strRef = refCh.getRef().getId().replaceFirst("refs/heads/", "");
       String strSha1 = refCh.getToHash();
+      String targetBranch = refCh.getRef().getDisplayId();
 
       String user = (event.getUser() != null) ? event.getUser().getName() : null;
       EventContext context = new EventContext(event, event.getRepository(), user);
 
       if (filterChain.shouldDeliverNotification(context))
-        notifier.notifyBackground(context.getRepository(), strRef, strSha1);
+        notifier.notifyBackground(context.getRepository(), strRef, strSha1, targetBranch);
     }
   }
 }
