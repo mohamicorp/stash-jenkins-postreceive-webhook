@@ -1,3 +1,10 @@
+
+
+> **Looking for maintainer!** As it's probably pretty obvious now, I haven't been able to maintain this plugin. It started as a one-man job and I eventually migrated away from Stash/Bitbucket to something a little more maintainable for a one-man shop.  If you're interested in supporting this plugin, please contact me via any of my various social channels.
+
+----
+
+
 # Bitbucket Server Webhook for Jenkins
 
 After making commits to Bitbucket Server (previously known as Stash), notify Jenkins that a new build has been created.
