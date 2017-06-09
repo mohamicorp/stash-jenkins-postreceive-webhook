@@ -11,7 +11,7 @@ import com.google.common.collect.Iterables;
 /**
  * A concrete implementation of the {@link BranchEvaluator} that uses sample
  * code from the Atlassian stash-webhook-plugin:
- * 
+ *
  * https://bitbucket.org/atlassian/stash-webhook-plugin/src/a18713fad2959e670e355df64c840b79a806d8ab/src/main/java/com/atlassian/stash/plugin/webook/WebHook.java?at=master
  *
  * @author Michael Irwin (mikesir87)
@@ -31,13 +31,13 @@ public class ConcreteBranchEvaluator implements BranchEvaluator {
           public boolean apply(RefChange input) {
             // We only care about non-deleted branches
             return input.getType() != RefChangeType.DELETE
-                && input.getRefId().startsWith(REFS_HEADS);
+                && input.getRef().getId().startsWith(REFS_HEADS);
           }
         }), new Function<RefChange, String>() {
           @Override
           public String apply(RefChange input) {
             // Not 100% sure whether this is _just_ branch or is full ref?
-            return input.getRefId().replace(REFS_HEADS, "");
+            return input.getRef().getId().replace(REFS_HEADS, "");
           }
         });
   }
