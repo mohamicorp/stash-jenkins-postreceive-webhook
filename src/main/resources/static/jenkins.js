@@ -33,9 +33,9 @@ define('plugin/jenkins/test', [
 
         function setDeleteButtonEnabled(enabled) {
             if (enabled) {
-                $button.removeProp("disabled").removeClass("disabled");
+                $button.removeAttr("disabled").removeClass("disabled");
             } else {
-                $button.prop("disabled", "disabled").addClass("disabled");
+                $button.attr("disabled", "disabled").addClass("disabled");
             }
         }
 
