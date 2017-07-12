@@ -1,6 +1,5 @@
 package com.nerdwin15.stash.webhook.service;
 
-import java.net.ProxySelector;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -9,13 +8,15 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.BasicClientConnectionManager;
-import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 
 /**
  * An implementation of the {@link HttpClientFactory} that returns a
@@ -51,21 +52,19 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
    * @throws Exception
    */
   protected HttpClient createHttpClient(boolean useConfigured) throws Exception {
-    SchemeRegistry schemeRegistry;
-    DefaultHttpClient client;
+    HttpClientBuilder builder = HttpClientBuilder.create();
     if (useConfigured) {
-        SSLContext sslContext = createContext();
-        schemeRegistry = createScheme(sslContext);
-        client = new DefaultHttpClient(
-            new BasicClientConnectionManager(schemeRegistry));
-    } else {
-        client = new DefaultHttpClient();
-        schemeRegistry = client.getConnectionManager().getSchemeRegistry();
+      SSLContext sslContext = createContext();
+
+      HttpClientConnectionManager ccm = new BasicHttpClientConnectionManager(createRegistry(sslContext));
+      builder.setConnectionManager(ccm);
+
+      builder.setSSLContext(sslContext);
     }
 
-    client.setRoutePlanner(new ProxySelectorRoutePlanner(schemeRegistry,
-        ProxySelector.getDefault()));
-    return client;
+    builder.useSystemProperties();
+
+    return builder.build();
   }
 
   /**
@@ -90,14 +89,14 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
    * @return The SSL SchemeRegistry
    * @throws Exception
    */
-  protected SchemeRegistry createScheme(SSLContext sslContext) 
+  protected Registry<ConnectionSocketFactory> createRegistry(SSLContext sslContext)
       throws Exception {
-    SchemeRegistry schemeRegistry = new SchemeRegistry();
-    schemeRegistry.register(
-        new Scheme("https", HTTPS_PORT, new SSLSocketFactory(sslContext)));
-    schemeRegistry.register(
-        new Scheme("http", HTTP_PORT, PlainSocketFactory.getSocketFactory()));
-    return schemeRegistry;
+    SSLConnectionSocketFactory sslConnectionFactory = new SSLConnectionSocketFactory(sslContext,
+      NoopHostnameVerifier.INSTANCE);
+    return RegistryBuilder.<ConnectionSocketFactory>create()
+      .register("https", sslConnectionFactory)
+      .register("http", PlainConnectionSocketFactory.getSocketFactory())
+      .build();
   }
 
 }
