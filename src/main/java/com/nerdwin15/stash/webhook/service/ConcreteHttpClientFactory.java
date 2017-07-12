@@ -22,10 +22,10 @@ import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
  * DefaultHttpClient that is either not configured at all (non-ssl and default
  * trusts) or configured to accept all certificates.  If told to accept all
  * certificates, an unsafe X509 trust manager is used.
- * 
+ *
  * If setup of the "trust-all" HttpClient fails, a non-configured HttpClient
  * is returned.
- * 
+ *
  * @author Michael Irwin (mikesir87)
  *
  */
@@ -33,12 +33,12 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
 
   private static final Integer HTTP_PORT = 80;
   private static final Integer HTTPS_PORT = 443;
-  
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts) 
+  public HttpClient getHttpClient(Boolean usingSsl, Boolean trustAllCerts)
       throws Exception {
     return createHttpClient(usingSsl && trustAllCerts);
   }
@@ -74,12 +74,12 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
    * @throws NoSuchAlgorithmException
    * @throws KeyManagementException
    */
-  protected SSLContext createContext() throws NoSuchAlgorithmException, 
+  protected SSLContext createContext() throws NoSuchAlgorithmException,
       KeyManagementException {
     SSLContext sslContext = SSLContext.getInstance("TLS");
     sslContext.init(
-        null, 
-        new TrustManager[] { new UnsafeX509TrustManager() }, 
+        null,
+        new TrustManager[] { new UnsafeX509TrustManager() },
         new SecureRandom());
     return sslContext;
   }
