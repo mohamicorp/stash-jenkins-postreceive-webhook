@@ -42,12 +42,12 @@ define('plugin/jenkins/test', [
         function setCloneUrl(val) {
             if (val == "ssh") {
         		$cloneUrl.val( defaultUrls.ssh );
-                $cloneUrl.prop("disabled", "disabled").addClass("disabled");
+                $cloneUrl.attr("disabled", "disabled").addClass("disabled");
         	} else if (val == "http") {
         		$cloneUrl.val( defaultUrls.http );
-                $cloneUrl.prop("disabled", "disabled").addClass("disabled");
+                $cloneUrl.attr("disabled", "disabled").addClass("disabled");
         	} else {
-                $cloneUrl.removeProp("disabled").removeClass("disabled");
+                $cloneUrl.removeAttr("disabled").removeClass("disabled");
             }
         }
 
