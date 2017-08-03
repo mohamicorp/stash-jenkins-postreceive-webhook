@@ -93,8 +93,9 @@ public class ConcreteHttpClientFactory implements HttpClientFactory {
   protected SchemeRegistry createScheme(SSLContext sslContext) 
       throws Exception {
     SchemeRegistry schemeRegistry = new SchemeRegistry();
-    schemeRegistry.register(
-        new Scheme("https", HTTPS_PORT, new SSLSocketFactory(sslContext)));
+    SSLSocketFactory socketFactory = new SSLSocketFactory(sslContext);
+    socketFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+    schemeRegistry.register(new Scheme("https", HTTPS_PORT, socketFactory));
     schemeRegistry.register(
         new Scheme("http", HTTP_PORT, PlainSocketFactory.getSocketFactory()));
     return schemeRegistry;
