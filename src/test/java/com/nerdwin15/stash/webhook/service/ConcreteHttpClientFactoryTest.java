@@ -8,7 +8,8 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.config.Registry;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -91,9 +92,9 @@ public class ConcreteHttpClientFactoryTest {
     }
 
     @Override
-    protected SchemeRegistry createScheme(SSLContext sslContext) throws Exception  {
+    protected Registry<ConnectionSocketFactory> createRegistry(SSLContext sslContext) throws Exception  {
       schemeRegistryCreated = true;
-      return super.createScheme(sslContext);
+      return super.createRegistry(sslContext);
     }
   }
 }
