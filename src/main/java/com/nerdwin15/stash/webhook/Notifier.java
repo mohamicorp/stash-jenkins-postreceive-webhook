@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
 
 /**
  * Service object that does the actual notification.
- * 
+ *
  * @author Michael Irwin (mikesir87)
  * @author Peter Leibiger (kuhnroyal)
  */
@@ -41,9 +41,9 @@ public class Notifier implements DisposableBean {
   /**
    * Key for the repository hook
    */
-  public static final String KEY = 
-      "com.nerdwin15.stash-stash-webhook-jenkins:jenkinsPostReceiveHook";
-  
+  public static final String KEY =
+    "com.nerdwin15.stash-stash-webhook-jenkins:jenkinsPostReceiveHook";
+
   /**
    * Field name for the Jenkins base URL property
    */
@@ -58,7 +58,7 @@ public class Notifier implements DisposableBean {
    * Field name for the Repo Clone Url property
    */
   public static final String CLONE_URL = "gitRepoUrl";
-  
+
   /**
    * Field name for the ignore certs property
    */
@@ -75,6 +75,11 @@ public class Notifier implements DisposableBean {
   public static final String OMIT_BRANCH_NAME = "omitBranchName";
 
   /**
+   * Field name for the omit new branch without changes property
+   */
+  public static final String OMIT_NEW_BRANCH_WITHOUT_CHANGES = "omitBranchCreationWithoutChanges";
+
+  /**
    * Field name for the ignore committers property
    */
   public static final String IGNORE_COMMITTERS = "ignoreCommitters";
@@ -89,8 +94,8 @@ public class Notifier implements DisposableBean {
    */
   public static final String BRANCH_OPTIONS_BRANCHES = "branchOptionsBranches";
 
-  private static final Logger LOGGER = 
-      LoggerFactory.getLogger(Notifier.class);
+  private static final Logger LOGGER =
+    LoggerFactory.getLogger(Notifier.class);
   private static final String BASE_URL = "%s/git/notifyCommit?url=%s";
   private static final String HASH_URL_PARAMETER = "&sha1=%s";
   private static final String BRANCH_URL_PARAMETER = "&branches=%s";
@@ -104,18 +109,19 @@ public class Notifier implements DisposableBean {
 
   /**
    * Create a new instance
-   * @param settingsService Service used to get webhook settings
+   *
+   * @param settingsService   Service used to get webhook settings
    * @param httpClientFactory Factory to generate HttpClients
-   * @param securityService securityService
-   * @param sshScmProtocol generates ssh clone URLs
-   * @param httpScmProtocol generates http clone URLs
+   * @param securityService   securityService
+   * @param sshScmProtocol    generates ssh clone URLs
+   * @param httpScmProtocol   generates http clone URLs
    */
   public Notifier(SettingsService settingsService,
                   HttpClientFactory httpClientFactory,
                   SecurityService securityService,
                   SshScmProtocol sshScmProtocol,
                   HttpScmProtocol httpScmProtocol) {
-    
+
     this.httpClientFactory = httpClientFactory;
     this.settingsService = settingsService;
     this.executorService = Executors.newCachedThreadPool(ThreadFactories.namedThreadFactory("JenkinsWebhook", ThreadFactories.Type.DAEMON));
@@ -127,14 +133,15 @@ public class Notifier implements DisposableBean {
   /**
    * Send notification to Jenkins for the provided repository on a background thread.
    * This is better when running as a background task, to release the calling thread.
-   * @param repo The repository to base the notification on.
-   * @param strRef The branch ref related to the commit
+   *
+   * @param repo    The repository to base the notification on.
+   * @param strRef  The branch ref related to the commit
    * @param strSha1 The commit's SHA1 hash code.
    * @return A future of the text result from Jenkins
    */
   @Nonnull
   public Future<NotificationResult> notifyBackground(@Nonnull final Repository repo, //CHECKSTYLE:annot
-      final String strRef, final String strSha1) {
+                                                     final String strRef, final String strSha1) {
     return executorService.submit(new Callable<NotificationResult>() {
       @Override
       public NotificationResult call() throws Exception {
@@ -145,13 +152,15 @@ public class Notifier implements DisposableBean {
 
   /**
    * Send notification to Jenkins for the provided repository.
-   * @param repo The repository to base the notification on.
-   * @param strRef The branch ref related to the commit
+   *
+   * @param repo    The repository to base the notification on.
+   * @param strRef  The branch ref related to the commit
    * @param strSha1 The commit's SHA1 hash code.
    * @return Text result from Jenkins
    */
-  public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
-      String strRef, String strSha1) {
+  public @Nullable
+  NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
+                            String strRef, String strSha1) {
     final RepositoryHook hook = settingsService.getRepositoryHook(repo);
     final Settings settings = settingsService.getSettings(repo);
     if (hook == null || !hook.isEnabled() || settings == null) {
@@ -159,57 +168,59 @@ public class Notifier implements DisposableBean {
       return null;
     }
 
-    return notify(repo, settings.getString(JENKINS_BASE), 
-        settings.getBoolean(IGNORE_CERTS, false),
-        settings.getString(CLONE_TYPE),
-        settings.getString(CLONE_URL),
-        strRef, strSha1,
-        settings.getBoolean(OMIT_HASH_CODE, false),
-        settings.getBoolean(OMIT_BRANCH_NAME, false));
+    return notify(repo, settings.getString(JENKINS_BASE),
+      settings.getBoolean(IGNORE_CERTS, false),
+      settings.getString(CLONE_TYPE),
+      settings.getString(CLONE_URL),
+      strRef, strSha1,
+      settings.getBoolean(OMIT_HASH_CODE, false),
+      settings.getBoolean(OMIT_BRANCH_NAME, false));
   }
 
   /**
    * Send notification to Jenkins using the provided settings
-   * @param repo The repository to base the notification on.
-   * @param jenkinsBase Base URL for Jenkins instance
-   * @param ignoreCerts True if all certs should be allowed
-   * @param cloneType The repository type
-   * @param cloneUrl The repository url
-   * @param strRef The branch ref related to the commit
-   * @param strSha1 The commit's SHA1 hash code.
-   * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
-   *        in notification to Jenkins.
-   * @param omitBranchName Defines whether the commit's branch name is omitted
+   *
+   * @param repo                        The repository to base the notification on.
+   * @param jenkinsBase                 Base URL for Jenkins instance
+   * @param ignoreCerts                 True if all certs should be allowed
+   * @param cloneType                   The repository type
+   * @param cloneUrl                    The repository url
+   * @param strRef                      The branch ref related to the commit
+   * @param strSha1                     The commit's SHA1 hash code.
+   * @param omitHashCode                Defines whether the commit's SHA1 hash code is omitted
+   *                                    in notification to Jenkins.
+   * @param omitBranchName              Defines whether the commit's branch name is omitted
    * @return The notification result.
    */
-  public @Nullable NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
-      String jenkinsBase, boolean ignoreCerts, String cloneType, String cloneUrl,
-      String strRef, String strSha1, boolean omitHashCode, boolean omitBranchName) {
-    
+  public @Nullable
+  NotificationResult notify(@Nonnull Repository repo, //CHECKSTYLE:annot
+                            String jenkinsBase, boolean ignoreCerts, String cloneType, String cloneUrl,
+                            String strRef, String strSha1, boolean omitHashCode, boolean omitBranchName) {
+
     HttpClient client = null;
     String url;
 
     try {
-        url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
-            cloneType, cloneUrl, strRef, strSha1, omitHashCode, omitBranchName);
+      url = getUrl(repo, maybeReplaceSlash(jenkinsBase),
+        cloneType, cloneUrl, strRef, strSha1, omitHashCode, omitBranchName);
     } catch (Exception e) {
-        LOGGER.error("Error getting Jenkins URL", e);
-        return new NotificationResult(false, null, e.getMessage());
+      LOGGER.error("Error getting Jenkins URL", e);
+      return new NotificationResult(false, null, e.getMessage());
     }
 
     try {
-      client = httpClientFactory.getHttpClient(url.startsWith("https"), 
-          ignoreCerts);
+      client = httpClientFactory.getHttpClient(url.startsWith("https"),
+        ignoreCerts);
 
       HttpResponse response = client.execute(new HttpGet(url));
       LOGGER.debug("Successfully triggered jenkins with url '{}': ", url);
       InputStream content = response.getEntity().getContent();
-      String responseBody =  CharStreams.toString(
-          new InputStreamReader(content, Charsets.UTF_8));
+      String responseBody = CharStreams.toString(
+        new InputStreamReader(content, Charsets.UTF_8));
       boolean successful = responseBody.startsWith("Scheduled");
-      
-      NotificationResult result = new NotificationResult(successful, url, 
-              "Jenkins response: " + responseBody);
+
+      NotificationResult result = new NotificationResult(successful, url,
+        "Jenkins response: " + responseBody);
       return result;
     } catch (Exception e) {
       LOGGER.error("Error triggering jenkins with url '" + url + "'", e);
@@ -229,39 +240,41 @@ public class Notifier implements DisposableBean {
 
   /**
    * Get the url for notifying of Jenkins. Protected for testing purposes
-   * @param repository The repository to base the request to.
-   * @param jenkinsBase The base URL of the Jenkins instance
-   * @param cloneType The type used to clone the repository
+   *
+   * @param repository     The repository to base the request to.
+   * @param jenkinsBase    The base URL of the Jenkins instance
+   * @param cloneType      The type used to clone the repository
    * @param customCloneUrl The url used for cloning the repository
-   * @param strRef The branch ref related to the commit
-   * @param strSha1 The commit's SHA1 hash code.
-   * @param omitHashCode Defines whether the commit's SHA1 hash code is omitted
-   *        in notification to Jenkins.
+   * @param strRef         The branch ref related to the commit
+   * @param strSha1        The commit's SHA1 hash code.
+   * @param omitHashCode   Defines whether the commit's SHA1 hash code is omitted
+   *                       in notification to Jenkins.
    * @return The url to use for notifying Jenkins
    */
   protected String getUrl(final Repository repository, final String jenkinsBase,
-      final String cloneType, final String customCloneUrl, final String strRef, final String strSha1, boolean omitHashCode, boolean omitBranchName) {
-      String cloneUrl = customCloneUrl;
+                          final String cloneType, final String customCloneUrl, final String strRef, final String strSha1, boolean omitHashCode, boolean omitBranchName) {
+
+    String cloneUrl = customCloneUrl;
     // Older installs won't have a cloneType value - treat as custom
     if (cloneType != null && !cloneType.equals("custom")) {
-        if (cloneType.equals("http")) {
-            cloneUrl = httpScmProtocol.getCloneUrl(repository, null);
-        } else if (cloneType.equals("ssh")) {
-            // The user just pushed to the repo, so must have had access
-            cloneUrl = securityService.withPermission(Permission.REPO_READ, "Retrieving SSH clone url")
-                    .call(() -> scmProtocol.getCloneUrl(repository, null));
-        } else {
-            LOGGER.error("Unknown cloneType: {}", cloneType);
-            throw new RuntimeException("Unknown cloneType: " + cloneType);
-        }
+      if (cloneType.equals("http")) {
+        cloneUrl = httpScmProtocol.getCloneUrl(repository, null);
+      } else if (cloneType.equals("ssh")) {
+        // The user just pushed to the repo, so must have had access
+        cloneUrl = securityService.withPermission(Permission.REPO_READ, "Retrieving SSH clone url")
+          .call(() -> scmProtocol.getCloneUrl(repository, null));
+      } else {
+        LOGGER.error("Unknown cloneType: {}", cloneType);
+        throw new RuntimeException("Unknown cloneType: " + cloneType);
+      }
     }
 
     StringBuilder url = new StringBuilder();
     url.append(String.format(BASE_URL, jenkinsBase, urlEncode(cloneUrl)));
 
-    if(strRef != null && !omitBranchName)
+    if (strRef != null && !omitBranchName)
       url.append(String.format(BRANCH_URL_PARAMETER, urlEncode(strRef)));
-    if(strSha1 != null && !omitHashCode)
+    if (strSha1 != null && !omitHashCode)
       url.append(String.format(HASH_URL_PARAMETER, strSha1));
 
     return url.toString();
