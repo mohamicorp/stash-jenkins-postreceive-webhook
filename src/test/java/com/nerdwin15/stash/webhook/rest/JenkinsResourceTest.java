@@ -41,6 +41,7 @@ public class JenkinsResourceTest {
   private static final boolean IGNORE_CERTS = false;
   private static final boolean OMIT_HASH_CODE = false;
   private static final boolean OMIT_BRANCH_NAME = false;
+  private static final boolean OMIT_NEW_BRANCH_WITHOUT_CHANGES = false;
 
   private static final String HTTP_URL =
       "https://stash.localhost/stash/scm/test/test.git";
@@ -103,7 +104,7 @@ public class JenkinsResourceTest {
 
     Map<String, Object> result =
       resource.test(repository, JENKINS_BASE, CLONE_TYPE, HTTP_URL,
-        IGNORE_CERTS, OMIT_HASH_CODE, OMIT_BRANCH_NAME);
+        IGNORE_CERTS, OMIT_HASH_CODE, OMIT_BRANCH_NAME, OMIT_NEW_BRANCH_WITHOUT_CHANGES);
     assertTrue((Boolean) result.get("successful"));
   }
 
@@ -114,7 +115,7 @@ public class JenkinsResourceTest {
   public void shouldFailWhenJenkinsBaseNullProvidedToTest() {
     Map<String, Object> result =
         resource.test(repository, null, CLONE_TYPE, null, IGNORE_CERTS,
-          OMIT_HASH_CODE, OMIT_BRANCH_NAME);
+          OMIT_HASH_CODE, OMIT_BRANCH_NAME, OMIT_NEW_BRANCH_WITHOUT_CHANGES);
     assertFalse((Boolean) result.get("successful"));
   }
 
@@ -125,7 +126,7 @@ public class JenkinsResourceTest {
   public void shouldFailWhenCloneTypeNullProvidedToTest() {
     Map<String, Object> result =
         resource.test(repository, JENKINS_BASE, null, HTTP_URL, IGNORE_CERTS,
-          OMIT_HASH_CODE,OMIT_BRANCH_NAME);
+          OMIT_HASH_CODE,OMIT_BRANCH_NAME, OMIT_NEW_BRANCH_WITHOUT_CHANGES);
     assertFalse((Boolean) result.get("successful"));
   }
 
@@ -137,7 +138,7 @@ public class JenkinsResourceTest {
   public void shouldFailWhenCloneUrlNullProvidedToTest() {
     Map<String, Object> result =
         resource.test(repository, JENKINS_BASE, "custom", null, IGNORE_CERTS,
-          OMIT_HASH_CODE, OMIT_BRANCH_NAME);
+          OMIT_HASH_CODE, OMIT_BRANCH_NAME, OMIT_NEW_BRANCH_WITHOUT_CHANGES);
     assertFalse((Boolean) result.get("successful"));
   }
 

@@ -75,6 +75,11 @@ public class Notifier implements DisposableBean {
   public static final String OMIT_BRANCH_NAME = "omitBranchName";
 
   /**
+    * Field name for the omit new branch without changes property
+    */
+   public static final String OMIT_NEW_BRANCH_WITHOUT_CHANGES = "omitBranchCreationWithoutChanges";
+
+  /**
    * Field name for the ignore committers property
    */
   public static final String IGNORE_COMMITTERS = "ignoreCommitters";
