@@ -17,6 +17,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.DisposableBean;
 
 import javax.annotation.Nonnull;
@@ -25,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -135,9 +137,11 @@ public class Notifier implements DisposableBean {
   @Nonnull
   public Future<NotificationResult> notifyBackground(@Nonnull final Repository repo, //CHECKSTYLE:annot
       final String strRef, final String strSha1) {
+    final Map<String, String> contextMap = MDC.getCopyOfContextMap();
     return executorService.submit(new Callable<NotificationResult>() {
       @Override
       public NotificationResult call() throws Exception {
+        MDC.setContextMap(contextMap);
         return Notifier.this.notify(repo, strRef, strSha1);
       }
     });
