@@ -97,7 +97,8 @@ public class JenkinsResource extends RestResource {
         @FormParam(Notifier.CLONE_URL) String cloneUrl,
         @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts,
         @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode,
-        @FormParam(Notifier.OMIT_BRANCH_NAME) boolean omitBranchName) {
+        @FormParam(Notifier.OMIT_BRANCH_NAME) boolean omitBranchName,
+        @FormParam(Notifier.OMIT_NEW_BRANCH_WITHOUT_CHANGES) boolean omitNewBranchWithoutChanges) {
 
     if (jenkinsBase == null || cloneType == null || (cloneType.equals("custom") && cloneUrl == null)) {
       Map<String, Object> map = new HashMap<String, Object>();
