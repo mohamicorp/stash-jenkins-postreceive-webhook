@@ -86,6 +86,7 @@ public class JenkinsResource extends RestResource {
    * @param ignoreCerts True if all certs should be accepted.
    * @param omitHashCode True if SHA1 hash should be omitted.
    * @param omitBranchName True if branch name should be omitted.
+   * @param omitTargetBranch True if the PR destination branch should be omitted
    * @return The response to send back to the user.
    */
   @POST
@@ -97,7 +98,8 @@ public class JenkinsResource extends RestResource {
         @FormParam(Notifier.CLONE_URL) String cloneUrl,
         @FormParam(Notifier.IGNORE_CERTS) boolean ignoreCerts,
         @FormParam(Notifier.OMIT_HASH_CODE) boolean omitHashCode,
-        @FormParam(Notifier.OMIT_BRANCH_NAME) boolean omitBranchName) {
+        @FormParam(Notifier.OMIT_BRANCH_NAME) boolean omitBranchName,
+        @FormParam(Notifier.OMIT_TARGET_BRANCH) boolean omitTargetBranch) {
 
     if (jenkinsBase == null || cloneType == null || (cloneType.equals("custom") && cloneUrl == null)) {
       Map<String, Object> map = new HashMap<String, Object>();
@@ -114,7 +116,8 @@ public class JenkinsResource extends RestResource {
     Branch defaultBranch = refService.getDefaultBranch(repository);
     NotificationResult result = notifier.notify(repository, jenkinsBase,
         ignoreCerts, cloneType, cloneUrl, defaultBranch.getDisplayId(),
-        defaultBranch.getLatestCommit(), omitHashCode, omitBranchName);
+        defaultBranch.getLatestCommit(), defaultBranch.getDisplayId(), 
+        omitHashCode, omitBranchName, omitTargetBranch);
     log.debug("Got response from jenkins: {}", result);
 
     // Shouldn't have to do this but the result isn't being marshalled correctly
@@ -133,10 +136,11 @@ public class JenkinsResource extends RestResource {
   @POST
   @Path(value = "triggerJenkins")
   public Response trigger(@Context Repository repository,
-      @QueryParam("branches") String branches, @QueryParam("sha1") String sha1) {
+      @QueryParam("branches") String branches, @QueryParam("sha1") String sha1,
+      @QueryParam("targetBranch") String targetBranch) {
 
     try {
-      NotificationResult result = notifier.notify(repository, branches, sha1);
+      NotificationResult result = notifier.notify(repository, branches, sha1, targetBranch);
       if (result.isSuccessful())
         return Response.ok().build();
       return Response.noContent().build();

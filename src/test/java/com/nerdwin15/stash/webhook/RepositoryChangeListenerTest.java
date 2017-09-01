@@ -66,6 +66,7 @@ public class RepositoryChangeListenerTest {
     Ref ref = mock(Ref.class);
     when(r.getRef()).thenReturn(ref);
     when(ref.getId()).thenReturn("refs/heads/master");
+    when(ref.getDisplayId()).thenReturn("master");
     lst.add(r);
 
     ApplicationUser user = mock(ApplicationUser.class);
@@ -82,7 +83,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier).notifyBackground(repo, "master", "sha1");
+    verify(notifier).notifyBackground(repo, "master", "sha1", "master");
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -104,6 +105,7 @@ public class RepositoryChangeListenerTest {
     Ref ref = mock(Ref.class);
     when(r.getRef()).thenReturn(ref);
     when(ref.getId()).thenReturn("refs/heads/master");
+    when(ref.getDisplayId()).thenReturn("master");
     lst.add(r);
 
     Repository repo = mock(Repository.class);
@@ -120,7 +122,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier).notifyBackground(repo, "master", "sha1");
+    verify(notifier).notifyBackground(repo, "master", "sha1", "master");
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(null, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -159,7 +161,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier, never()).notifyBackground(repo, "master", "sha1");
+    verify(notifier, never()).notifyBackground(repo, "master", "sha1", "master");
     assertEquals(e, contextCaptor.getValue().getEventSource());
     assertEquals(username, contextCaptor.getValue().getUsername());
     assertEquals(repo, contextCaptor.getValue().getRepository());
@@ -179,7 +181,7 @@ public class RepositoryChangeListenerTest {
 
     listener.onRefsChangedEvent(e);
 
-    verify(notifier, never()).notifyBackground(repo, "master", "sha1");
+    verify(notifier, never()).notifyBackground(repo, "master", "sha1", "master");
   }
   
   /**
@@ -228,6 +230,7 @@ public class RepositoryChangeListenerTest {
     Ref ref1 = mock(Ref.class);
     when(r1.getRef()).thenReturn(ref1);
     when(ref1.getId()).thenReturn("refs/heads/master");
+    when(ref1.getDisplayId()).thenReturn("master");
     lst.add(r1);
 
     RefChange r2 = mock(RefChange.class);
@@ -235,6 +238,7 @@ public class RepositoryChangeListenerTest {
     Ref ref2 = mock(Ref.class);
     when(r2.getRef()).thenReturn(ref2);
     when(ref2.getId()).thenReturn("refs/heads/feature/branch");
+    when(ref2.getDisplayId()).thenReturn("release/2.1");
     lst.add(r2);
 
     ApplicationUser user = mock(ApplicationUser.class);
@@ -254,13 +258,13 @@ public class RepositoryChangeListenerTest {
     List<EventContext> captures = contextCaptor.getAllValues();
 
     EventContext ctx = captures.get(0);
-    verify(notifier).notifyBackground(repo, "master", "sha1");
+    verify(notifier).notifyBackground(repo, "master", "sha1", "master");
     assertEquals(e, ctx.getEventSource());
     assertEquals(username, ctx.getUsername());
     assertEquals(repo, ctx.getRepository());
 
     ctx = captures.get(1);
-    verify(notifier).notifyBackground(repo, "feature/branch", "sha2");
+    verify(notifier).notifyBackground(repo, "feature/branch", "sha2", "release/2.1");
     assertEquals(e, ctx.getEventSource());
     assertEquals(username, ctx.getUsername());
     assertEquals(repo, ctx.getRepository());

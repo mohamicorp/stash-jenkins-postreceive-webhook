@@ -8,8 +8,9 @@ define('plugin/jenkins/pr-triggerbutton', [
     return AJS.contextPath() + '/rest/jenkins/latest/projects/' 
       + pageState.getProject().getKey() + '/repos/' 
       + pageState.getRepository().getSlug() + '/triggerJenkins'
-      + '?branches=' + pageState.getPullRequest().getFromRef().getDisplayId()
-      + '&sha1=' + pageState.getPullRequest().getFromRef().getLatestCommit();
+      + '?branches=pr/' + pageState.getPullRequest().getId() + '/from'
+      + '&sha1=' + pageState.getPullRequest().getFromRef().getLatestCommit()
+      + '&targetBranch=' + pageState.getPullRequest().getToRef().getDisplayId();
   };
 
   var waiting = '<span class="aui-icon aui-icon-wait">Wait</span>';

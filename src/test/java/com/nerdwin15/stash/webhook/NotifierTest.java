@@ -119,7 +119,7 @@ public class NotifierTest {
   @Test
   public void shouldReturnEarlyWhenHookIsNull() throws Exception {
     when(settingsService.getRepositoryHook(repo)).thenReturn(null);
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "refs/heads/master");
     verify(httpClientFactory, never())
       .getHttpClient(anyBoolean(), anyBoolean());
   }
@@ -131,7 +131,7 @@ public class NotifierTest {
   @Test
   public void shouldReturnEarlyWhenHookIsNotEnabled() throws Exception {
     when(repoHook.isEnabled()).thenReturn(false);
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "refs/heads/master");
     verify(httpClientFactory, never())
         .getHttpClient(anyBoolean(), anyBoolean());
   }
@@ -143,7 +143,7 @@ public class NotifierTest {
   @Test
   public void shouldReturnEarlyWhenSettingsAreNull() throws Exception {
     when(settingsService.getSettings(repo)).thenReturn(null);
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "refs/heads/master");
     verify(httpClientFactory, never())
       .getHttpClient(anyBoolean(), anyBoolean());
   }
@@ -155,7 +155,7 @@ public class NotifierTest {
   @Test
   public void shouldCallTheCorrectUrlWithHttpCloneType() throws Exception {
     when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("http");
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "develop");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -166,7 +166,7 @@ public class NotifierTest {
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
         + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&sha1=sha1&TARGET_BRANCH=develop",
         captor.getValue().getURI().toString());
   }
 
@@ -177,7 +177,7 @@ public class NotifierTest {
   @Test
   public void shouldCallTheCorrectUrlWithSshCloneType() throws Exception {
     when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("ssh");
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "master");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -188,7 +188,7 @@ public class NotifierTest {
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=ssh%3A%2F%2Fgit%40some.stash.com%3A12345%2Ffoo%2Fbar.git"
         + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&sha1=sha1&TARGET_BRANCH=master",
         captor.getValue().getURI().toString());
   }
 
@@ -201,7 +201,7 @@ public class NotifierTest {
     when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("custom");
     when(settings.getString(Notifier.CLONE_URL)).thenReturn(CUSTOM_CLONE_URL);
 
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/hotfix/QWE", "sha1", "production");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -211,8 +211,8 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
-        + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&branches=refs%2Fheads%2Fhotfix%2FQWE"
+        + "&sha1=sha1&TARGET_BRANCH=production",
         captor.getValue().getURI().toString());
   }
 
@@ -225,7 +225,7 @@ public class NotifierTest {
     when(settings.getString(Notifier.CLONE_TYPE)).thenReturn(null);
     when(settings.getString(Notifier.CLONE_URL)).thenReturn(CUSTOM_CLONE_URL);
 
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/feature/X", "sha1", "master");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -235,8 +235,8 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fcustom.host%2Fcustom.git"
-        + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&branches=refs%2Fheads%2Ffeature%2FX"
+        + "&sha1=sha1&TARGET_BRANCH=master",
         captor.getValue().getURI().toString());
   }
 
@@ -248,7 +248,8 @@ public class NotifierTest {
   public void shouldFailWithInvalidCloneType() throws Exception {
     when(settings.getString(Notifier.CLONE_TYPE)).thenReturn("invalid");
 
-    NotificationResult res = notifier.notify(repo, "refs/heads/master", "sha1");
+    NotificationResult res = notifier.notify(repo, "refs/heads/master", "sha1", 
+    		"refs/heads/master");
     assertFalse(res.isSuccessful());
   }
 
@@ -258,7 +259,7 @@ public class NotifierTest {
    */
   @Test
   public void shouldCallTheCorrectUrlWithoutSsl() throws Exception {
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/feature/foo", "sha1", "master");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -268,8 +269,8 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?" 
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&branches=refs%2Fheads%2Ffeature%2Ffoo"
+        + "&sha1=sha1&TARGET_BRANCH=master",
         captor.getValue().getURI().toString());
   }
 
@@ -282,7 +283,7 @@ public class NotifierTest {
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL.replace("http", "https"));
 
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "master");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -293,7 +294,7 @@ public class NotifierTest {
     assertEquals("https://localhost.jenkins/git/notifyCommit?" 
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
         + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&sha1=sha1&TARGET_BRANCH=master",
         captor.getValue().getURI().toString());
   }
 
@@ -308,7 +309,7 @@ public class NotifierTest {
       .thenReturn(JENKINS_BASE_URL.replace("http", "https"));
     when(settings.getBoolean(Notifier.IGNORE_CERTS, false)).thenReturn(true);
 
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "master");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -319,7 +320,7 @@ public class NotifierTest {
     assertEquals("https://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
         + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&sha1=sha1&TARGET_BRANCH=master",
         captor.getValue().getURI().toString());
   }
 
@@ -334,7 +335,7 @@ public class NotifierTest {
     when(settings.getString(Notifier.JENKINS_BASE))
       .thenReturn(JENKINS_BASE_URL.concat("/"));
 
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "production");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -345,7 +346,7 @@ public class NotifierTest {
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
         + "&branches=refs%2Fheads%2Fmaster"
-        + "&sha1=sha1",
+        + "&sha1=sha1&TARGET_BRANCH=production",
         captor.getValue().getURI().toString());
   }
 
@@ -358,7 +359,7 @@ public class NotifierTest {
   public void shouldCallTheCorrectURLWithOmitBranchNameOn()
     throws Exception {
     when(settings.getBoolean(Notifier.OMIT_BRANCH_NAME, false)).thenReturn(true);
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/develop", "sha1", "release/1");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -368,7 +369,7 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&sha1=sha1",
+        + "&sha1=sha1&TARGET_BRANCH=release/1",
         captor.getValue().getURI().toString());
   }
 
@@ -381,7 +382,7 @@ public class NotifierTest {
   public void shouldCallTheCorrectURLWithOmitBranchNameOff()
     throws Exception {
     when(settings.getBoolean(Notifier.OMIT_BRANCH_NAME, false)).thenReturn(false);
-    notifier.notify(repo, "refs/heads/master", "sha1");
+    notifier.notify(repo, "refs/heads/master", "sha1", "develop");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -392,19 +393,20 @@ public class NotifierTest {
    assertEquals("http://localhost.jenkins/git/notifyCommit?"
        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
        + "&branches=refs%2Fheads%2Fmaster"
-       + "&sha1=sha1",
+       + "&sha1=sha1&TARGET_BRANCH=develop",
        captor.getValue().getURI().toString());
   }
 
   /**
-   * Validates that the correct path is used when the sha1 is null
+   * Validates that the correct path is used when the omitTargetBranch option
+   * is on
    * @throws Exception
    */
   @Test
-  public void shouldCallTheCorrectURLWhenSha1IsNull()
+  public void shouldCallTheCorrectURLWithOmitTargetBranchOn()
     throws Exception {
-    when(settings.getBoolean(Notifier.OMIT_BRANCH_NAME, false)).thenReturn(false);
-    notifier.notify(repo, "refs/heads/master", null);
+    when(settings.getBoolean(Notifier.OMIT_TARGET_BRANCH, false)).thenReturn(true);
+    notifier.notify(repo, "refs/heads/develop", "sha1", "release/1");
 
     ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -414,7 +416,53 @@ public class NotifierTest {
 
     assertEquals("http://localhost.jenkins/git/notifyCommit?"
         + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
-        + "&branches=refs%2Fheads%2Fmaster",
+        + "&branches=refs%2Fheads%2Fdevelop&sha1=sha1",
+        captor.getValue().getURI().toString());
+  }
+
+  /**
+   * Validates that the correct path is used when the omitTargetBranch option
+   * is off
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectURLWithOmitTargetBranchOff()
+    throws Exception {
+    when(settings.getBoolean(Notifier.OMIT_TARGET_BRANCH, false)).thenReturn(false);
+    notifier.notify(repo, "refs/heads/master", "sha1", "develop");
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+   verify(httpClientFactory, times(1)).getHttpClient(false, false);
+   verify(httpClient, times(1)).execute(captor.capture());
+   verify(connectionManager, times(1)).shutdown();
+
+   assertEquals("http://localhost.jenkins/git/notifyCommit?"
+       + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+       + "&branches=refs%2Fheads%2Fmaster"
+       + "&sha1=sha1&TARGET_BRANCH=develop",
+       captor.getValue().getURI().toString());
+  }
+  
+  /**
+   * Validates that the correct path is used when the sha1 is null
+   * @throws Exception
+   */
+  @Test
+  public void shouldCallTheCorrectURLWhenSha1IsNull()
+    throws Exception {
+    when(settings.getBoolean(Notifier.OMIT_BRANCH_NAME, false)).thenReturn(false);
+    notifier.notify(repo, "refs/heads/master", null, "master");
+
+    ArgumentCaptor<HttpGet> captor = ArgumentCaptor.forClass(HttpGet.class);
+
+    verify(httpClientFactory, times(1)).getHttpClient(false, false);
+    verify(httpClient, times(1)).execute(captor.capture());
+    verify(connectionManager, times(1)).shutdown();
+
+    assertEquals("http://localhost.jenkins/git/notifyCommit?"
+        + "url=http%3A%2F%2Fsome.stash.com%2Fscm%2Ffoo%2Fbar.git"
+        + "&branches=refs%2Fheads%2Fmaster&TARGET_BRANCH=master",
         captor.getValue().getURI().toString());
   }
 }

@@ -62,16 +62,16 @@ public class PullRequestEventListener {
       return;
     }
 
-    String strRef = event.getPullRequest().getFromRef().toString()
-        .replaceFirst(".*refs/heads/", "");
+    String strRef  = "pr/" + Long.toString(event.getPullRequest().getId()) + "/from";
     String strSha1 = event.getPullRequest().getFromRef().getLatestCommit();
+    String targetBranch = event.getPullRequest().getToRef().getDisplayId();
 
     EventContext context = new EventContext(event,
         event.getPullRequest().getToRef().getRepository(),
         event.getUser().getName());
 
     if (filterChain.shouldDeliverNotification(context))
-      notifier.notifyBackground(context.getRepository(), strRef, strSha1);
+      notifier.notifyBackground(context.getRepository(), strRef, strSha1, targetBranch);
   }
   
 }
