@@ -52,6 +52,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   @Test
   public void shouldAllowWhenIgnoredCommittersNull() throws Exception {
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(null);
+    when(settings.getString(Notifier.IGNORE_COMMITTERS_DELIMITER, " ")).thenReturn(" ");
     assertTrue(filter.shouldDeliverNotification(eventContext));
   }
   
@@ -64,6 +65,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   public void shouldAllowWhenIgnoredCommittersDoesntMatch() throws Exception {
     when(settings.getString(Notifier.IGNORE_COMMITTERS))
       .thenReturn(username + "-notmatching");
+    when(settings.getString(Notifier.IGNORE_COMMITTERS_DELIMITER, " ")).thenReturn(" ");
     assertTrue(filter.shouldDeliverNotification(eventContext));
   }
   
@@ -74,6 +76,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   @Test
   public void shouldCancelWhenIgnoredCommittersMatches() throws Exception {
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(username);
+    when(settings.getString(Notifier.IGNORE_COMMITTERS_DELIMITER, " ")).thenReturn(" ");
     assertFalse(filter.shouldDeliverNotification(eventContext));
   }
   
@@ -85,7 +88,20 @@ public class IgnoreCommittersEligibilityFilterTest {
   public void shouldCancelWhenMatchesWithMultipleCommitters() throws Exception {
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(username 
         + " anotherUser");
+    when(settings.getString(Notifier.IGNORE_COMMITTERS_DELIMITER, " ")).thenReturn(" ");
     assertFalse(filter.shouldDeliverNotification(eventContext));
   }
+
+    /**
+     * Validate that the filter should cancel if an ignored committer matches
+     * @throws Exception
+     */
+    @Test
+    public void shouldCancelWhenMatchesWithMultipleCommittersAndCustomDelimiter() throws Exception {
+        when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(username
+                + ",anotherUser");
+        when(settings.getString(Notifier.IGNORE_COMMITTERS_DELIMITER, " ")).thenReturn(",");
+        assertFalse(filter.shouldDeliverNotification(eventContext));
+    }
   
 }

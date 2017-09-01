@@ -109,6 +109,17 @@
         {param errorTexts: $errors ? $errors['ignoreCommitters'] : null /}
     {/call}
 
+    {call aui.form.textField}
+        {param id: 'ignoreCommittersDelimiter' /}
+        {param value: $config['ignoreCommittersDelimiter'] /}
+        {param labelContent}
+            {getText('stash.webhook.ignoreCommittersDelimiter.label')}
+        {/param}
+        {param descriptionText: getText('stash.webhook.ignoreCommitters.delimiter.description') /}
+        {param extraClasses: 'short' /}
+        {param errorTexts: $errors ? $errors['ignoreCommittersDelimiter'] : null /}
+    {/call}
+
     <div class="field-group">
         <label for="branchOptions">{getText('stash.webhook.repo.branchOptions.label')}</label>
         <select class="select" id="branchOptions" name="branchOptions" style="max-width: 110px">
