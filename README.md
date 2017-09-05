@@ -37,15 +37,6 @@ Once installed, follow these steps:
 
 If you found this plugin useful, please consider leaving us a rating on our [Atlassian Marketplace listing](https://marketplace.atlassian.com/plugins/com.nerdwin15.stash-stash-webhook-jenkins). Thanks!
 
-## Donate to Development
-
-If you've benefited from this open-source project, please take a moment and donate to its continued maintenance and development. 
-
-Forget buying me a beer (don't drink anyways)... they're going to pay off student loans, save up for a house, college funds, and who knows? maybe a toy or two.
-
-- Square Cash: [Send email to donate@nerdwin15.com](mailto:donate@nerdwin15.com?cc=cash@square.com&subject=$XXX&body=Thanks%20for%20the%20plugin!)
-- PayPal: [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9BZWAS9K95SGQ)
-
 ## Release Notes
 
 ### Version 3.0.1
