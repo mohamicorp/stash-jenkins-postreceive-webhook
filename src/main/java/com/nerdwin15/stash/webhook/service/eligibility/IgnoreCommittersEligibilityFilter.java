@@ -37,10 +37,11 @@ public class IgnoreCommittersEligibilityFilter implements EligibilityFilter {
     final Settings settings = settingsService.getSettings(
         event.getRepository());
     String ignoreCommitters = settings.getString(Notifier.IGNORE_COMMITTERS);
+    String ignoreCommittersDelimiter = settings.getString(Notifier.IGNORE_COMMITTERS_DELIMITER, " ");
     if (ignoreCommitters == null || eventUserName == null)
       return true;
 
-    for (String committer : ignoreCommitters.split(" ")) {
+    for (String committer : ignoreCommitters.split(ignoreCommittersDelimiter)) {
       if (committer.equalsIgnoreCase(eventUserName)) {
         logger.debug("Ignoring push event due to ignore committer {}",
             committer);

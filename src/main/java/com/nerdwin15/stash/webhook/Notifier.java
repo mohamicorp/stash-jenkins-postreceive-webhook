@@ -85,6 +85,11 @@ public class Notifier implements DisposableBean {
   public static final String IGNORE_COMMITTERS = "ignoreCommitters";
 
   /**
+   * Field name for the ignore committers delimiter
+   */
+  public static final String IGNORE_COMMITTERS_DELIMITER = "ignoreCommittersDelimiter";
+
+    /**
    * Field name for the branch options selection property
    */
   public static final String BRANCH_OPTIONS = "branchOptions";
