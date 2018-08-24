@@ -7,12 +7,14 @@ import static org.mockito.Matchers.anyBoolean;
 import com.atlassian.bitbucket.scm.http.HttpScmProtocol;
 import com.atlassian.bitbucket.scm.ssh.SshScmProtocol;
 import com.atlassian.bitbucket.user.EscalatedSecurityContext;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ClientConnectionManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.repository.Repository;
@@ -22,6 +24,7 @@ import com.atlassian.bitbucket.user.SecurityService;
 import com.atlassian.bitbucket.util.Operation;
 import com.nerdwin15.stash.webhook.service.HttpClientFactory;
 import com.nerdwin15.stash.webhook.service.SettingsService;
+
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
@@ -69,7 +72,7 @@ public class NotifierTest {
       // When the security service is called, run the underlying operation
     try {
         when(securityService.withPermission(any(Permission.class), any(String.class))).thenReturn(escalatedSecurityContext);
-        when(escalatedSecurityContext.call(any(Operation.class)))
+        when(escalatedSecurityContext.call(Matchers.<Operation<Object,Throwable>>any()))
                 .thenAnswer(new Answer<Object>() {
                     @Override
                     public Object answer(InvocationOnMock invocation) throws Throwable {
